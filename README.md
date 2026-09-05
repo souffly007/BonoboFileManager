@@ -13,7 +13,7 @@ Fini les applications encombrées de publicités ! Ici, l'accent est mis
 sur l'ergonomie (Material 3) et la performance brute.
 
 👤 CRÉATEUR
-by DonkeyKong 🦍 (humour et clin d'oeil u game)
+by DonkeyKong 🦍 (humour et clin d'oeil au game)
 
 ![Android](https://img.shields.io/badge/Android-8.0%2B-green?logo=android)
 ![Kotlin](https://img.shields.io/badge/Kotlin-1.9-blue?logo=kotlin)

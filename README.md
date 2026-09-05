@@ -1,6 +1,6 @@
-============================================================
+
            🐵 BONOBO EXPLORATEUR - PRÉSENTATION 🐵
-============================================================
+
 
 🚀 LA NAISSANCE D'UN PROJET
 Né de la volonté de créer un outil de gestion de fichiers à la fois simple,

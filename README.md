@@ -1,0 +1,53 @@
+============================================================
+           🐵 BONOBO EXPLORATEUR - PRÉSENTATION 🐵
+============================================================
+
+🚀 LA NAISSANCE D'UN PROJET
+Né de la volonté de créer un outil de gestion de fichiers à la fois simple,
+puissant et respectueux de la vie privée, "Bonobo Explorateur" a été conçu
+comme un véritable couteau suisse pour Android.
+
+Fini les applications encombrées de publicités ! Ici, l'accent est mis
+sur l'ergonomie (Material 3) et la performance brute.
+
+👤 CRÉATEUR
+by DonkeyKong 🦍
+
+------------------------------------------------------------
+💎 LES FONCTIONNALITÉS PRO
+------------------------------------------------------------
+
+📂 GESTION DE FICHIERS COMPLÈTE
+   - Naviguer, copier, déplacer, renommer.
+   - Création instantanée de dossiers et de fichiers textes.
+   - Sélection multiple (appui long) pour des actions groupées.
+
+🛡️ SÉCURITÉ & PROTECTION
+   - Cryptage AES-256 : Protégez vos fichiers sensibles par mot de passe (format .crypt).
+   - Corbeille Intégrée : Ne perdez plus rien par erreur, restaurez vos fichiers en un clic.
+
+🌐 CONNECTIVITÉ SANS LIMITES
+   - Serveur FTP : Accédez aux fichiers de votre téléphone depuis votre PC sans câble.
+   - Client FTP Distant : Connectez votre Seedbox, NAS ou serveur personnel.
+   - Import FileZilla : Importez vos configurations de serveurs via fichier XML.
+
+⚡ OPTIMISATION & NETTOYAGE
+   - Nettoyeur Intelligent : Détecte les fichiers .tmp, .log et les dossiers vides.
+   - Gestionnaire d'Applications : Listez vos apps, désinstallez-les ou sauvegardez leurs APK.
+   - Analyse du stockage : Visualisez l'espace utilisé en un coup d'œil.
+
+🎬 MULTIMÉDIA INTÉGRÉ
+   - Visionneuse d'images : Slide (balayage) fluide entre les photos d'un dossier.
+   - Lecteur Vidéo : Support des formats modernes (MP4, MKV...) en plein écran.
+   - Lecteur Audio : Interface dédiée avec contrôles de lecture pour votre musique.
+
+🎨 INTERFACE MODERNE
+   - Design Material 3 avec support des couleurs dynamiques (Android 12+).
+   - Dashboard (Accueil) organisé : Accès direct aux téléchargements, images, etc.
+   - Tri mémorisé : L'app se souvient de vos préférences (Nom, Taille, Date).
+
+------------------------------------------------------------
+猿 BONOBO EXPLORATEUR - Simple, Rapide, Puissant 猿
+------------------------------------------------------------
+🖐️ Merci de soutenir le projet !
+🖐️ DonkeyKong

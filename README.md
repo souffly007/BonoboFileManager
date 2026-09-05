@@ -12,6 +12,12 @@ sur l'ergonomie (Material 3) et la performance brute.
 👤 CRÉATEUR
 by DonkeyKong 🦍
 
+![Android](https://img.shields.io/badge/Android-8.0%2B-green?logo=android)
+![Kotlin](https://img.shields.io/badge/Kotlin-1.9-blue?logo=kotlin)
+![License](https://img.shields.io/badge/License-GPL%20v3-orange)
+![Version](https://img.shields.io/badge/Version-1.2-cyan)
+
+
 ------------------------------------------------------------
 💎 LES FONCTIONNALITÉS PRO
 ------------------------------------------------------------

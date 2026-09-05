@@ -5,7 +5,7 @@
 -------------------------------------------------------------
 
 🚀 LA NAISSANCE D'UN PROJET
-Né de la volonté de créer un outil de gestion de fichiers à la fois simple,
+- Né de la volonté de créer un outil de gestion de fichiers à la fois simple,
 puissant et respectueux de la vie privée, "Bonobo Explorateur" a été conçu
 comme un véritable couteau suisse pour Android.
 

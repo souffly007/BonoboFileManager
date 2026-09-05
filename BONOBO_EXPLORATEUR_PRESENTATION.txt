@@ -11,7 +11,7 @@ Fini les applications encombrées de publicités ! Ici, l'accent est mis
 sur l'ergonomie (Material 3) et la performance brute.
 
 👤 CRÉATEUR
-by DonkeyKong 🦍
+by DonkeyKong 🦍 ===> souffly007 (Franck R.-F.)
 
 ------------------------------------------------------------
 💎 LES FONCTIONNALITÉS PRO
@@ -50,4 +50,4 @@ by DonkeyKong 🦍
 猿 BONOBO EXPLORATEUR - Simple, Rapide, Puissant 猿
 ------------------------------------------------------------
 🖐️ Merci de soutenir le projet !
-🖐️ DonkeyKong
+🖐️ souffly007

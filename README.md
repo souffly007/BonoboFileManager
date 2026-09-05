@@ -1,5 +1,5 @@
 🐵 BONOBO EXPLORATEUR 🦍 - "DonkeyKong Edition"
-
+猿 BONOBO EXPLORATEUR - Simple, Rapide, Puissant 猿
 
 🚀 LA NAISSANCE D'UN PROJET
 Né de la volonté de créer un outil de gestion de fichiers à la fois simple,
@@ -54,7 +54,7 @@ by DonkeyKong 🦍
 ------------------------------------------------------------
 📜 Licence
 Ce projet est sous licence GPL v3 — voir le fichier LICENSE pour plus de détails.
-猿 BONOBO EXPLORATEUR - Simple, Rapide, Puissant 猿
+
 ------------------------------------------------------------
 
 🖐️ Merci de soutenir le projet !

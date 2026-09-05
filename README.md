@@ -61,3 +61,4 @@ Ce projet est sous licence GPL v3 — voir le fichier [LICENSE](LICENSE) pour pl
 ------------------------------------------------------------
 
 🖐️ Merci de soutenir le projet !
+👤 Auteur : souffly007 (Franck R.-F.)

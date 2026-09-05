@@ -52,6 +52,9 @@ by DonkeyKong 🦍
    - Tri mémorisé : L'app se souvient de vos préférences (Nom, Taille, Date).
 
 ------------------------------------------------------------
+
+📜 Licence
+Ce projet est sous licence GPL v3 — voir le fichier LICENSE pour plus de détails.
 猿 BONOBO EXPLORATEUR - Simple, Rapide, Puissant 猿
 ------------------------------------------------------------
 🖐️ Merci de soutenir le projet !

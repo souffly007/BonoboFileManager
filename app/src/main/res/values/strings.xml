@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Bonobo File Manager</string>
+    <string name="shortcut_explorer_short">Explorateur</string>
+    <string name="shortcut_explorer_long">Ouvrir l\'explorateur</string>
+    <string name="shortcut_trash_short">Corbeille</string>
+    <string name="shortcut_trash_long">Ouvrir la corbeille</string>
+</resources>

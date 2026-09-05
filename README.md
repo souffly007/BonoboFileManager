@@ -1,5 +1,4 @@
-
-           🐵 BONOBO EXPLORATEUR - PRÉSENTATION 🐵
+🐵 BONOBO EXPLORATEUR 🦍 - "DonkeyKong Edition"
 
 
 🚀 LA NAISSANCE D'UN PROJET

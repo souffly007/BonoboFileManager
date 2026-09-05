@@ -1,5 +1,8 @@
+-------------------------------------------------------------
 🐵 BONOBO EXPLORATEUR 🦍 - "DonkeyKong Edition"
+-------------------------------------------------------------
 猿 BONOBO EXPLORATEUR - Simple, Rapide, Puissant 猿
+-------------------------------------------------------------
 
 🚀 LA NAISSANCE D'UN PROJET
 Né de la volonté de créer un outil de gestion de fichiers à la fois simple,

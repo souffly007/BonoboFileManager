@@ -1,7 +1,7 @@
 -------------------------------------------------------------
 🐵 BONOBO EXPLORATEUR 🦍 - "DonkeyKong Edition"
 -------------------------------------------------------------
-猿 BONOBO EXPLORATEUR - Simple, Rapide, Puissant 猿
+猿 Simple, Rapide, Puissant 猿
 -------------------------------------------------------------
 
 🚀 LA NAISSANCE D'UN PROJET

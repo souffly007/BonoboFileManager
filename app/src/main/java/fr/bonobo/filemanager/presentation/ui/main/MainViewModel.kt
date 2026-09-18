@@ -20,6 +20,8 @@ import fr.bonobo.filemanager.data.local.SettingsKeys
 import fr.bonobo.filemanager.data.local.settingsDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -57,6 +59,10 @@ class MainViewModel @Inject constructor(
 
     val uiState: StateFlow<MainUiState> =
         _uiState.asStateFlow()
+
+    private val primaryLoadToken = java.util.concurrent.atomic.AtomicLong()
+    private val secondaryLoadToken = java.util.concurrent.atomic.AtomicLong()
+    private var favoriteRoot: String? = null
 
     init {
         loadSettings()
@@ -102,35 +108,41 @@ class MainViewModel @Inject constructor(
     }
 
     fun loadFiles(path: String = if (_uiState.value.activePanel == 1) _uiState.value.currentPath else _uiState.value.secondPath ?: _uiState.value.rootPath) {
-        val activePanel = _uiState.value.activePanel
+        val panel = _uiState.value.activePanel
         val category = _uiState.value.categoryName
-        
-        if (activePanel == 1) {
-            if (category != null && (path == _uiState.value.currentPath)) {
-                loadCategory(category)
-                return
-            }
-
-            viewModelScope.launch(Dispatchers.IO) {
-                _uiState.update { it.copy(currentPath = path, categoryName = null, isLoading = true, error = null) }
-                runCatching { getFilesUseCase(path) }.onSuccess { files ->
-                    val sortedFiles = sortFiles(files, _uiState.value.sortMode, _uiState.value.isSortAscending)
-                    _uiState.update { it.copy(files = sortedFiles, isLoading = false) }
-                }.onFailure { exception ->
-                    _uiState.update { it.copy(isLoading = false, error = exception.message ?: "Impossible de lire le dossier") }
+        if (panel == 1 && category != null && path == _uiState.value.currentPath) {
+            loadCategory(category, _uiState.value.searchQuery)
+            return
+        }
+        val counter = if (panel == 1) primaryLoadToken else secondaryLoadToken
+        val token = counter.incrementAndGet()
+        _uiState.update {
+            if (panel == 1) it.copy(currentPath = path, categoryName = null, files = emptyList(), isLoading = true, error = null)
+            else it.copy(secondPath = path, secondFiles = emptyList(), isSecondLoading = true, error = null)
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching { getFilesUseCase(path) }.onSuccess { files ->
+                _uiState.update { state ->
+                    if (token != counter.get()) state else {
+                        val sorted = sortFiles(files, state.sortMode, state.isSortAscending)
+                        if (panel == 1) state.copy(files = sorted, isLoading = false)
+                        else state.copy(secondFiles = sorted, isSecondLoading = false)
+                    }
                 }
-            }
-        } else {
-            viewModelScope.launch(Dispatchers.IO) {
-                _uiState.update { it.copy(secondPath = path, isSecondLoading = true, error = null) }
-                runCatching { getFilesUseCase(path) }.onSuccess { files ->
-                    val sortedFiles = sortFiles(files, _uiState.value.sortMode, _uiState.value.isSortAscending)
-                    _uiState.update { it.copy(secondFiles = sortedFiles, isSecondLoading = false) }
-                }.onFailure { exception ->
-                    _uiState.update { it.copy(isSecondLoading = false, error = exception.message ?: "Impossible de lire le dossier") }
+            }.onFailure { error ->
+                _uiState.update { state ->
+                    if (token != counter.get()) state else if (panel == 1)
+                        state.copy(isLoading = false, error = error.message ?: "Lecture impossible")
+                    else state.copy(isSecondLoading = false, error = error.message ?: "Lecture impossible")
                 }
             }
         }
+    }
+
+    fun openFolder(path: String, keepFavoriteOrigin: Boolean = false) {
+        favoriteRoot = if (keepFavoriteOrigin) favoriteRoot ?: path else null
+        _uiState.update { it.copy(categoryName = null, searchQuery = "") }
+        loadFiles(path)
     }
 
     private fun sortFiles(files: List<FileItem>, mode: SortMode, ascending: Boolean): List<FileItem> {
@@ -179,6 +191,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun toggleDualPane() {
+        if (_uiState.value.categoryName == "Favoris") return
         _uiState.update { state ->
             val newIsDualPane = !state.isDualPane
             state.copy(
@@ -275,40 +288,38 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun loadCategory(type: String) {
+    fun loadCategory(type: String, query: String = "") {
+        val token = primaryLoadToken.incrementAndGet()
+        favoriteRoot = null
+        _uiState.update { it.copy(categoryName = type, searchQuery = query,
+            files = emptyList(), selectedPaths = emptySet(), activePanel = 1,
+            isDualPane = if (type == "Favoris") false else it.isDualPane,
+            isLoading = true, error = null) }
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { it.copy(
-                categoryName = type,
-                isLoading = true,
-                error = null
-            ) }
-
             runCatching {
                 when (type) {
                     "Images" -> repository.getFilesByType("image/")
                     "Vidéos" -> repository.getFilesByType("video/")
                     "Musique" -> repository.getFilesByType("audio/")
                     "Documents" -> repository.getFilesByType("application/")
-                    "Téléchargements" -> {
-                        val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                        fr.bonobo.filemanager.util.FileUtils.listFiles(downloadDir)
-                    }
-                    "Gros fichiers" -> repository.getLargeFiles(100 * 1024 * 1024) // > 100MB
+                    "Téléchargements" -> fr.bonobo.filemanager.util.FileUtils.listFiles(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
+                    "Gros fichiers" -> repository.getLargeFiles(100 * 1024 * 1024)
                     "Corbeille" -> repository.getTrashFiles()
                     "Coffre-fort" -> repository.getVaultFiles()
+                    "Favoris" -> fr.bonobo.filemanager.domain.model.FavoriteFolders.select(repository.observeFavorites().first(), query)
                     else -> emptyList()
                 }
             }.onSuccess { files ->
-                val sortedFiles = sortFiles(files, _uiState.value.sortMode, _uiState.value.isSortAscending)
-                _uiState.update { it.copy(
-                    files = sortedFiles,
-                    isLoading = false
-                ) }
-            }.onFailure { exception ->
-                _uiState.update { it.copy(
-                    isLoading = false,
-                    error = exception.message ?: "Erreur catégorie"
-                ) }
+                _uiState.update { state ->
+                    if (token != primaryLoadToken.get()) state else state.copy(
+                        files = sortFiles(files, state.sortMode, state.isSortAscending), isLoading = false)
+                }
+            }.onFailure { error ->
+                _uiState.update { state ->
+                    if (token != primaryLoadToken.get()) state else state.copy(
+                        isLoading = false, error = error.message ?: "Chargement impossible")
+                }
             }
         }
     }
@@ -316,11 +327,24 @@ class MainViewModel @Inject constructor(
     fun refresh() {
         val category = _uiState.value.categoryName
         if (category != null) {
-            loadCategory(category)
+            loadCategory(category, _uiState.value.searchQuery)
         } else {
             loadFiles()
         }
         loadStorageInfo()
+    }
+
+    suspend fun importFileToVault(uri: String): Result<String> {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        val result = repository.importFileToVault(uri)
+        if (result.isSuccess) {
+            loadCategory("Coffre-fort")
+        } else {
+            _uiState.update {
+                it.copy(isLoading = false, error = result.exceptionOrNull()?.message ?: "Échec de l'importation")
+            }
+        }
+        return result
     }
 
     private fun loadStorageInfo() {
@@ -341,18 +365,22 @@ class MainViewModel @Inject constructor(
     }
 
     fun open(item: FileItem) {
+        if (item.isDirectory) {
+            openFolder(item.path, _uiState.value.categoryName == "Favoris" || favoriteRoot != null)
+        }
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 repository.addToHistory(item)
-            }
-
-            if (item.isDirectory) {
-                loadFiles(item.path)
             }
         }
     }
 
     fun search(query: String) {
+        if (_uiState.value.categoryName == "Favoris") {
+            loadCategory("Favoris", query)
+            return
+        }
+        val searchToken = primaryLoadToken.incrementAndGet()
         _uiState.update { it.copy(searchQuery = query) }
 
         if (query.isBlank()) {
@@ -360,21 +388,17 @@ class MainViewModel @Inject constructor(
             return
         }
 
+        _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { it.copy(
-                isLoading = true,
-                error = null
-            ) }
-
             runCatching {
                 searchFilesUseCase(query)
             }.onSuccess { files ->
-                _uiState.update { it.copy(
+                _uiState.update { if (searchToken != primaryLoadToken.get()) it else it.copy(
                     files = files,
                     isLoading = false
                 ) }
             }.onFailure { exception ->
-                _uiState.update { it.copy(
+                _uiState.update { if (searchToken != primaryLoadToken.get()) it else it.copy(
                     isLoading = false,
                     error = exception.message
                         ?: "Erreur lors de la recherche"
@@ -437,7 +461,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun compress(item: FileItem, zipName: String) {
+    fun compress(item: FileItem, zipName: String, password: String? = null) {
         val source = File(item.path)
         val normalizedName = zipName.trim()
             .removeSuffix(".zip")
@@ -472,7 +496,8 @@ class MainViewModel @Inject constructor(
 
             compressFileUseCase(
                 sources = listOf(source.absolutePath),
-                outputZip = destination.absolutePath
+                outputZip = destination.absolutePath,
+                password = password?.takeIf { it.isNotBlank() }
             ).onSuccess {
                 _uiState.update { it.copy(
                     isLoading = false
@@ -521,7 +546,7 @@ class MainViewModel @Inject constructor(
         _uiState.update { it.copy(pendingExtraction = null) }
     }
 
-    fun extractToCurrentPath() {
+    fun extractToCurrentPath(password: String? = null) {
         val zipFileItem = _uiState.value.pendingExtraction ?: return
         val zipFile = File(zipFileItem.path)
         val destinationDirectory = File(_uiState.value.currentPath)
@@ -534,7 +559,8 @@ class MainViewModel @Inject constructor(
 
             decompressFileUseCase(
                 zipFile = zipFile,
-                destDir = destinationDirectory
+                destDir = destinationDirectory,
+                password = password?.takeIf { it.isNotBlank() }
             ).onSuccess {
                 clearPendingExtraction()
                 _uiState.update { it.copy(isLoading = false) }
@@ -617,6 +643,10 @@ class MainViewModel @Inject constructor(
 
 
     fun goUp() {
+        if (favoriteRoot != null && _uiState.value.currentPath == favoriteRoot) {
+            loadCategory("Favoris")
+            return
+        }
         if (_uiState.value.categoryName != null) return
 
         val current = File(_uiState.value.currentPath)
@@ -629,10 +659,11 @@ class MainViewModel @Inject constructor(
     }
 
     fun isAtRoot(): Boolean {
-        return _uiState.value.categoryName != null || _uiState.value.currentPath == rootPath
+        return _uiState.value.categoryName != null || (favoriteRoot == null && _uiState.value.currentPath == rootPath)
     }
 
     fun resetToLocalRoot() {
+        favoriteRoot = null
         _uiState.update { it.copy(
             currentPath = rootPath,
             categoryName = null,
@@ -727,5 +758,8 @@ class MainViewModel @Inject constructor(
     }
 
     val bookmarks = repository.observeBookmarks()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val favorites = repository.observeFavorites()
+        .map { fr.bonobo.filemanager.domain.model.FavoriteFolders.select(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }

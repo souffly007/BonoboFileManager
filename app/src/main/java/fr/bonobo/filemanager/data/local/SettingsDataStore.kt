@@ -15,4 +15,6 @@ object SettingsKeys {
     val ROOT_ACCESS = booleanPreferencesKey("root_access")
     val THUMBNAIL_SIZE = stringPreferencesKey("thumbnail_size")
     val VAULT_PASSWORD = stringPreferencesKey("vault_password")
+    val VAULT_BIOMETRIC_ENABLED = booleanPreferencesKey("vault_biometric_enabled")
+    val VAULT_BIOMETRIC_SECRET = stringPreferencesKey("vault_biometric_secret")
 }

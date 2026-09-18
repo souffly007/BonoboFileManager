@@ -3,6 +3,8 @@ package fr.bonobo.filemanager.presentation.ui.main
 import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +33,7 @@ import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.VerticalSplit
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
@@ -67,12 +70,15 @@ import fr.bonobo.filemanager.presentation.ui.operations.DeleteDialog
 import fr.bonobo.filemanager.presentation.ui.operations.MultiDeleteDialog
 import fr.bonobo.filemanager.presentation.ui.operations.MultiRenameDialog
 import fr.bonobo.filemanager.presentation.ui.operations.EncryptionDialog
+import fr.bonobo.filemanager.presentation.ui.operations.ExtractionPasswordDialog
 import fr.bonobo.filemanager.presentation.ui.operations.RenameDialog
 import fr.bonobo.filemanager.util.ShareUtils
 import fr.bonobo.filemanager.util.verticalScrollbar
 import fr.bonobo.filemanager.util.verticalGridScrollbar
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.DateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,6 +89,9 @@ fun MainScreen(
     onOpenImage: (String) -> Unit = {},
     onOpenVideo: (String) -> Unit = {},
     onOpenAudio: (String) -> Unit = {},
+    onOpenPdf: (String) -> Unit = {},
+    onOpenEpub: (String) -> Unit = {},
+    onOpenArchive: (String) -> Unit = {},
     onOpenText: (String) -> Unit = {},
     onOpenTransfer: (String) -> Unit = {},
     onOpenDiff: (String, String) -> Unit = { _, _ -> }
@@ -91,6 +100,21 @@ fun MainScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val vaultFilePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                viewModel.importFileToVault(uri.toString())
+                    .onSuccess {
+                        snackbarHostState.showSnackbar("Fichier ajouté au coffre-fort")
+                    }
+                    .onFailure {
+                        snackbarHostState.showSnackbar("Importation impossible : ${it.message}")
+                    }
+            }
+        }
+    }
 
     var itemToRename by remember { mutableStateOf<FileItem?>(null) }
     var itemToDelete by remember { mutableStateOf<FileItem?>(null) }
@@ -103,6 +127,8 @@ fun MainScreen(
     var createMenuExpanded by remember { mutableStateOf(false) }
     var showCreateFolderDialog by remember { mutableStateOf(false) }
     var showCreateFileDialog by remember { mutableStateOf(false) }
+    var itemProperties by remember { mutableStateOf<FileItem?>(null) }
+    var showExtractionPassword by remember { mutableStateOf(false) }
 
     val isSelectionMode = state.selectedPaths.isNotEmpty()
     val isTrashView = state.categoryName == "Corbeille"
@@ -134,6 +160,7 @@ fun MainScreen(
             "ENCRYPT" -> itemToEncrypt = item
             "DECRYPT" -> itemToDecrypt = item
             "TRANSFER" -> onOpenTransfer(item.path)
+            "PROPERTIES" -> itemProperties = item
         }
     }
 
@@ -208,7 +235,7 @@ fun MainScreen(
                                 contentDescription = "Vue"
                             )
                         }
-                        IconButton(onClick = viewModel::toggleDualPane) {
+                        if (state.categoryName != "Favoris") IconButton(onClick = viewModel::toggleDualPane) {
                             Icon(Icons.Default.VerticalSplit, contentDescription = "Double panneau")
                         }
                         if (!viewModel.isAtRoot() && state.categoryName == null) {
@@ -257,7 +284,7 @@ fun MainScreen(
             ) {
                 state.pendingExtraction?.let {
                     ExtendedFloatingActionButton(
-                        onClick = { viewModel.extractToCurrentPath() },
+                        onClick = { showExtractionPassword = true },
                         icon = { Icon(Icons.Default.ArrowDownward, contentDescription = null) },
                         text = { Text("Extraire ici") },
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer
@@ -330,13 +357,26 @@ fun MainScreen(
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     AnimatedVisibility(visible = !isSelectionMode) {
-                        SearchBar(
-                            query = state.searchQuery,
-                            onQueryChange = viewModel::search
-                        )
+                        if (state.categoryName == "Coffre-fort") {
+                            OutlinedButton(
+                                onClick = { vaultFilePicker.launch(arrayOf("*/*")) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Icon(Icons.Default.Search, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Rechercher un fichier")
+                            }
+                        } else {
+                            SearchBar(
+                                query = state.searchQuery,
+                                onQueryChange = viewModel::search
+                            )
+                        }
                     }
 
-                    if (!viewModel.isAtRoot() && !isSelectionMode) {
+                    if (!viewModel.isAtRoot() && state.categoryName == null) {
                         BreadcrumbNav(
                             path = state.currentPath,
                             rootPath = state.rootPath,
@@ -467,6 +507,14 @@ fun MainScreen(
                         }
                     }
 
+                    if (state.categoryName == "Favoris" && !state.isLoading && state.files.isEmpty() && state.error == null) {
+                        Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(if (state.searchQuery.isBlank()) "Aucun dossier favori" else "Aucun favori ne correspond",
+                                style = MaterialTheme.typography.titleMedium)
+                            Text("Ajoutez un dossier avec son menu ⋮ → Ajouter aux favoris.",
+                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                     if (state.isDualPane) {
                         Row(modifier = Modifier.fillMaxSize()) {
                             // Panneau 1
@@ -480,7 +528,7 @@ fun MainScreen(
                                         else if (isTrashView) itemToDelete = item
                                         else {
                                             if (item.isDirectory) viewModel.open(item)
-                                            else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText)
+                                            else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive)
                                         }
                                     },
                                     onItemLongClick = { viewModel.setActivePanel(1); viewModel.toggleSelection(it.path) },
@@ -508,7 +556,7 @@ fun MainScreen(
                                         if (isSelectionMode) viewModel.toggleSelection(item.path)
                                         else {
                                             if (item.isDirectory) viewModel.loadFiles(item.path)
-                                            else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText)
+                                            else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive)
                                         }
                                     },
                                     onItemLongClick = { viewModel.setActivePanel(2); viewModel.toggleSelection(it.path) },
@@ -524,7 +572,7 @@ fun MainScreen(
                         // Vue classique (LazyColumn/Grid)
                         if (state.isGridView) {
                             LazyVerticalGrid(
-                                columns = GridCells.Adaptive(120.dp),
+                                columns = GridCells.Adaptive(fr.bonobo.filemanager.presentation.components.ThumbnailPreset.fromKey(state.thumbnailSize).gridWidth.dp),
                                 modifier = Modifier.fillMaxSize().verticalGridScrollbar(gridState),
                                 state = gridState,
                                 contentPadding = PaddingValues(8.dp),
@@ -543,7 +591,7 @@ fun MainScreen(
                                                 itemToDelete = item
                                             } else {
                                                 if (item.isDirectory) viewModel.open(item)
-                                                else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText)
+                                                else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive)
                                             }
                                         },
                                         onLongClick = { viewModel.toggleSelection(item.path) },
@@ -559,7 +607,9 @@ fun MainScreen(
                                         onEncrypt = { itemToEncrypt = item },
                                         onDecrypt = { itemToDecrypt = item },
                                         onTransfer = { onOpenTransfer(item.path) },
-                                        thumbnailSize = state.thumbnailSize
+                                        onProperties = { itemProperties = item },
+                                        thumbnailSize = state.thumbnailSize,
+                        isGrid = state.isGridView
                                     )
                                 }
                             }
@@ -580,7 +630,7 @@ fun MainScreen(
                                                 itemToDelete = item
                                             } else {
                                                 if (item.isDirectory) viewModel.open(item)
-                                                else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText)
+                                                else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive)
                                             }
                                         },
                                         onLongClick = { viewModel.toggleSelection(item.path) },
@@ -596,7 +646,9 @@ fun MainScreen(
                                         onEncrypt = { itemToEncrypt = item },
                                         onDecrypt = { itemToDecrypt = item },
                                         onTransfer = { onOpenTransfer(item.path) },
-                                        thumbnailSize = state.thumbnailSize
+                                        onProperties = { itemProperties = item },
+                                        thumbnailSize = state.thumbnailSize,
+                        isGrid = state.isGridView
                                     )
                                 }
                             }
@@ -608,6 +660,9 @@ fun MainScreen(
     }
 
     // Dialogues
+    itemProperties?.let { item ->
+        FilePropertiesDialog(item = item, onDismiss = { itemProperties = null })
+    }
     itemToEncrypt?.let { item ->
         EncryptionDialog(
             item = item,
@@ -656,12 +711,20 @@ fun MainScreen(
         CompressDialog(
             item = item,
             onDismiss = { itemToCompress = null },
-            onConfirm = { zipName ->
-                viewModel.compress(item, zipName)
+            onConfirm = { value ->
+                val parts = value.split('\u0000', limit = 2)
+                viewModel.compress(item, parts[0], parts.getOrNull(1))
                 itemToCompress = null
                 scope.launch { snackbarHostState.showSnackbar("Compression lancée…") }
             }
         )
+    }
+
+    if (showExtractionPassword) {
+        ExtractionPasswordDialog(onDismiss = { showExtractionPassword = false }) { password ->
+            showExtractionPassword = false
+            viewModel.extractToCurrentPath(password)
+        }
     }
 
     itemToRename?.let { item ->
@@ -763,13 +826,19 @@ private fun openItem(
     onOpenImage: (String) -> Unit,
     onOpenVideo: (String) -> Unit,
     onOpenAudio: (String) -> Unit,
-    onOpenText: (String) -> Unit
+    onOpenText: (String) -> Unit,
+    onOpenPdf: (String) -> Unit,
+    onOpenEpub: (String) -> Unit,
+    onOpenArchive: (String) -> Unit
 ) {
     when {
         item.name.lowercase().endsWith(".apk") -> installApk(context, item)
         item.mimeType?.startsWith("image/") == true -> onOpenImage(item.path)
         item.mimeType?.startsWith("video/") == true -> onOpenVideo(item.path)
         item.mimeType?.startsWith("audio/") == true -> onOpenAudio(item.path)
+        item.name.endsWith(".pdf", true) -> onOpenPdf(item.path)
+        item.name.endsWith(".epub", true) -> onOpenEpub(item.path)
+        fr.bonobo.filemanager.util.MimeTypeUtils.isArchive(File(item.path)) -> onOpenArchive(item.path)
         item.mimeType?.startsWith("text/") == true -> onOpenText(item.path)
         else -> openExternalFile(context, item)
     }
@@ -798,4 +867,26 @@ private fun openExternalFile(context: Context, item: FileItem) {
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     runCatching { context.startActivity(intent) }
+}
+
+@Composable
+private fun FilePropertiesDialog(item: FileItem, onDismiss: () -> Unit) {
+    val date = remember(item.lastModified) {
+        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault())
+            .format(item.lastModified)
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Propriétés") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(item.name, style = MaterialTheme.typography.titleMedium)
+                Text("Type : ${if (item.isDirectory) "Dossier" else (item.mimeType ?: "Fichier")}")
+                if (!item.isDirectory) Text("Taille : ${fr.bonobo.filemanager.util.FileUtils.formatSize(item.size)}")
+                Text("Modifié : $date")
+                Text("Chemin : ${item.path}", style = MaterialTheme.typography.bodySmall)
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Fermer") } }
+    )
 }

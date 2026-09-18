@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.ArchiveSecurityTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T15:00:57" hostname="localhost" time="0.102">
+  <properties/>
+  <testcase name="zipTraversalIsRejectedAndNormalZipWorks" classname="fr.bonobo.filemanager.ArchiveSecurityTest" time="0.102"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,1 @@
+Migration SQL 3 -> 4: données conservées. Mise à jour conditionnelle: une migration obsolète ne remplace pas un secret déjà migré. OK.

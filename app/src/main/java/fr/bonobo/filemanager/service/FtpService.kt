@@ -10,31 +10,40 @@ import android.os.Build
 import android.os.Environment
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.apache.ftpserver.FtpServer
-import org.apache.ftpserver.FtpServerFactory
-import org.apache.ftpserver.ftplet.Authority
-import org.apache.ftpserver.ftplet.UserManager
-import org.apache.ftpserver.listener.ListenerFactory
-import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory
-import org.apache.ftpserver.usermanager.impl.BaseUser
-import org.apache.ftpserver.usermanager.impl.WritePermission
 import java.io.File
 
 class FtpService : Service() {
 
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val lifecycleLock = Any()
+    @Volatile private var destroyed = false
     private var server: FtpServer? = null
+    private var sessionUsers: SessionUserManager? = null
 
     companion object {
         private const val CHANNEL_ID = "ftp_server_channel"
         private const val NOTIFICATION_ID = 1001
+        private const val EXTRA_PASSWORD = "ftp_password"
         
         private val _isRunning = MutableStateFlow(false)
         val isRunning: StateFlow<Boolean> = _isRunning
+        private val _password = MutableStateFlow<String?>(null)
+        val password: StateFlow<String?> = _password
+        private val _fingerprint = MutableStateFlow<String?>(null)
+        val fingerprint: StateFlow<String?> = _fingerprint
+        private val _error = MutableStateFlow<String?>(null)
+        val error: StateFlow<String?> = _error
+        private val _isStarting = MutableStateFlow(false)
+        val isStarting: StateFlow<Boolean> = _isStarting
 
-        fun start(context: Context) {
+        fun start(context: Context, password: String) {
+            require(password.length >= 8) { "Le mot de passe FTP doit contenir au moins 8 caractères" }
             val intent = Intent(context, FtpService::class.java)
+                .putExtra(EXTRA_PASSWORD, password)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
             } else {
@@ -54,52 +63,76 @@ class FtpService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForeground(NOTIFICATION_ID, createNotification("Serveur FTP actif"))
-        startFtpServer()
-        return START_STICKY
+        val password = intent?.getStringExtra(EXTRA_PASSWORD)
+        intent?.removeExtra(EXTRA_PASSWORD)
+        if (_isRunning.value || _isStarting.value) return START_NOT_STICKY
+        if (password == null || password.length < 8) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        _error.value = null
+        _isStarting.value = true
+        startForeground(NOTIFICATION_ID, createNotification("Démarrage FTPS sécurisé…"))
+        serviceScope.launch { startFtpServer(password) }
+        return START_NOT_STICKY
     }
 
-    private fun startFtpServer() {
+    private fun startFtpServer(password: String) = synchronized(lifecycleLock) {
+        var candidate: FtpServer? = null
         try {
-            val serverFactory = FtpServerFactory()
-            val listenerFactory = ListenerFactory()
-            listenerFactory.port = 2121
-
-            serverFactory.addListener("default", listenerFactory.createListener())
-
-            val userManagerFactory = PropertiesUserManagerFactory()
-            val userManager = userManagerFactory.createUserManager()
-
-            val user = BaseUser()
-            user.name = "bonobo"
-            user.password = "bonobo"
-            user.homeDirectory = Environment.getExternalStorageDirectory().absolutePath
-            
-            val authorities = mutableListOf<Authority>()
-            authorities.add(WritePermission())
-            user.authorities = authorities
-
-            userManager.save(user)
-            serverFactory.userManager = userManager
-
-            val ftpServer = serverFactory.createServer()
-            ftpServer.start()
-            server = ftpServer
+            if (destroyed) return@synchronized
+            val shared = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Bonobo-Partage")
+            check(shared.isDirectory || shared.mkdirs()) { "Impossible de créer le dossier partagé" }
+            val identity = FtpsIdentity.load()
+            if (destroyed) return@synchronized
+            val users = SessionUserManager(FtpsConfiguration.user(shared), password)
+            sessionUsers = users
+            candidate = FtpsConfiguration.factory(users, identity.tls).createServer()
+            candidate.start()
+            if (destroyed) {
+                candidate.stop()
+                users.clear()
+                return@synchronized
+            }
+            server = candidate
+            _fingerprint.value = identity.fingerprint
+            _password.value = password
             _isRunning.value = true
+            getSystemService(NotificationManager::class.java).notify(
+                NOTIFICATION_ID, createNotification("Serveur FTPS actif — TLS obligatoire"))
         } catch (e: Exception) {
-            e.printStackTrace()
+            runCatching { candidate?.stop() }
+            sessionUsers?.clear()
+            sessionUsers = null
+            _password.value = null
+            _fingerprint.value = null
+            _isRunning.value = false
+            _error.value = "Démarrage FTPS impossible : ${e.localizedMessage ?: e.javaClass.simpleName}"
             stopSelf()
+        } finally {
+            _isStarting.value = false
         }
     }
 
-    private fun stopFtpServer() {
-        server?.stop()
-        server = null
-        _isRunning.value = false
+    private fun stopFtpServer() = synchronized(lifecycleLock) {
+        try {
+            server?.stop()
+        } finally {
+            server = null
+            sessionUsers?.clear()
+            sessionUsers = null
+            _password.value = null
+            _isRunning.value = false
+            _fingerprint.value = null
+            _isStarting.value = false
+        }
     }
 
     override fun onDestroy() {
+        destroyed = true
+        serviceScope.cancel()
         stopFtpServer()
+        _password.value = null
         super.onDestroy()
     }
 
@@ -109,7 +142,7 @@ class FtpService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Serveur FTP",
+                "Serveur FTPS sécurisé",
                 NotificationManager.IMPORTANCE_LOW
             )
             val manager = getSystemService(NotificationManager::class.java)

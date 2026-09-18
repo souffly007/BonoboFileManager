@@ -19,20 +19,21 @@ import fr.bonobo.filemanager.domain.model.RemoteConnection
 @Composable
 fun AddRemoteDialog(
     initialHost: String = "",
+    initialConnection: RemoteConnection? = null,
     onDismiss: () -> Unit,
     onConfirm: (RemoteConnection) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var host by remember { mutableStateOf(initialHost) }
-    var port by remember { mutableStateOf("21") }
-    var user by remember { mutableStateOf("") }
-    var pass by remember { mutableStateOf("") }
-    var share by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf(ConnectionType.FTP) }
+    var name by remember(initialConnection) { mutableStateOf(initialConnection?.name ?: "") }
+    var host by remember(initialConnection) { mutableStateOf(initialConnection?.host ?: initialHost) }
+    var port by remember(initialConnection) { mutableStateOf((initialConnection?.port ?: 21).toString()) }
+    var user by remember(initialConnection) { mutableStateOf(initialConnection?.user ?: "") }
+    var pass by remember(initialConnection) { mutableStateOf(initialConnection?.pass ?: "") }
+    var share by remember(initialConnection) { mutableStateOf(initialConnection?.share ?: "") }
+    var type by remember(initialConnection) { mutableStateOf(initialConnection?.type?.takeUnless { it == ConnectionType.FTP } ?: ConnectionType.FTPS) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Ajouter un serveur") },
+        title = { Text(if (initialConnection == null) "Ajouter un serveur" else "Modifier le serveur") },
         text = {
             Column(
                 modifier = Modifier
@@ -61,13 +62,13 @@ fun AddRemoteDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ConnectionType.entries.forEach { connType ->
+                    ConnectionType.entries.filter { it != ConnectionType.FTP }.forEach { connType ->
                         FilterChip(
                             selected = type == connType,
                             onClick = { 
                                 type = connType
                                 if (port == "21" && connType == ConnectionType.SMB) port = "445"
-                                if (port == "445" && connType == ConnectionType.FTP) port = "21"
+                                if (port == "445" && connType == ConnectionType.FTPS) port = "2121"
                             },
                             label = { Text(connType.name) }
                         )
@@ -79,6 +80,7 @@ fun AddRemoteDialog(
             Button(
                 onClick = { 
                     onConfirm(RemoteConnection(
+                        id = initialConnection?.id ?: 0,
                         name = name, 
                         host = host, 
                         port = port.toIntOrNull() ?: 21, 
@@ -90,7 +92,7 @@ fun AddRemoteDialog(
                 },
                 enabled = name.isNotBlank() && host.isNotBlank()
             ) {
-                Text("Ajouter")
+                Text(if (initialConnection == null) "Ajouter" else "Enregistrer")
             }
         },
         dismissButton = {

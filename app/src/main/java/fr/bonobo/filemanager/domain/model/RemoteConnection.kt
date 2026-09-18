@@ -7,10 +7,11 @@ data class RemoteConnection(
     val port: Int = 21,
     val user: String = "anonymous",
     val pass: String = "",
-    val type: ConnectionType = ConnectionType.FTP,
+    val type: ConnectionType = ConnectionType.FTPS,
     val share: String? = null
 )
 
 enum class ConnectionType {
+    /** Legacy value kept only so old saved configurations can be migrated safely. */
     FTP, FTPS, SMB, SFTP, GOOGLE_DRIVE
 }

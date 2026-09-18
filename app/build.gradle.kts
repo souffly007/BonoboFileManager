@@ -9,13 +9,14 @@ plugins {
 android {
     namespace = "fr.bonobo.filemanager"
     compileSdk = 35
+    buildToolsVersion = "35.0.0"
 
     defaultConfig {
         applicationId = "fr.bonobo.filemanager"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.2"
+        versionCode = 8
+        versionName = "1.2.8"
 
         testInstrumentationRunner =
             "androidx.test.runner.AndroidJUnitRunner"
@@ -25,6 +26,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".https.preview"
+            versionNameSuffix = "-https-preview"
+            resValue("string", "app_name", "Bonobo Files Explorateur")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -81,13 +87,13 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.52")
     ksp("com.google.dagger:hilt-compiler:2.52")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    implementation("androidx.compose.material3:material3:1.3.2")
 
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
     implementation("androidx.work:work-runtime-ktx:2.10.0")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("io.coil-kt:coil-video:2.7.0")
@@ -104,8 +110,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("androidx.navigation:navigation-compose:2.8.6")
-
     // Network / FTP / SMB
     implementation("org.apache.ftpserver:ftpserver-core:1.2.0")
     implementation("org.slf4j:slf4j-android:1.7.36")
@@ -116,6 +120,7 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("com.github.junrar:junrar:8.1.1")
     implementation("org.tukaani:xz:1.12")
+    implementation("net.lingala.zip4j:zip4j:2.11.5")
 
     // QR Code & P2P
     implementation("com.google.zxing:core:3.5.4")
@@ -130,4 +135,9 @@ dependencies {
     val media3Version = "1.5.1"
     implementation("androidx.media3:media3-exoplayer:$media3Version")
     implementation("androidx.media3:media3-ui:$media3Version")
+}
+
+// JVM socket tests use a JVM logger; production keeps the Android SLF4J binding.
+configurations.matching { it.name.endsWith("UnitTestRuntimeClasspath") }.configureEach {
+    exclude(group = "org.slf4j", module = "slf4j-android")
 }

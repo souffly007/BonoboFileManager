@@ -103,10 +103,16 @@ fun AppManagerScreen(
                             onBackup = { viewModel.backupApp(app) },
                             onBackupTo = { onBackupTo(app) },
                             onUninstall = {
-                                val intent = Intent(Intent.ACTION_DELETE).apply {
-                                    data = Uri.parse("package:${app.packageName}")
+                                if (app.isSystemApp) {
+                                    viewModel.showMessage(
+                                        "${app.name} est une application système et ne peut pas être désinstallée."
+                                    )
+                                } else {
+                                    val intent = Intent(Intent.ACTION_DELETE).apply {
+                                        data = Uri.parse("package:${app.packageName}")
+                                    }
+                                    context.startActivity(intent)
                                 }
-                                context.startActivity(intent)
                             },
                             onSettings = {
                                 val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -207,18 +213,24 @@ fun AppItemCard(
                         onSettings()
                     }
                 )
-                if (!app.isSystemApp) {
-                    DropdownMenuItem(
-                        text = { Text("Désinstaller") },
-                        onClick = {
-                            menuExpanded = false
-                            onUninstall()
-                        },
-                        colors = MenuDefaults.itemColors(
-                            textColor = MaterialTheme.colorScheme.error
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            if (app.isSystemApp) "Application système — désinstallation impossible"
+                            else "Désinstaller"
                         )
+                    },
+                    leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                    onClick = {
+                        menuExpanded = false
+                        onUninstall()
+                    },
+                    colors = MenuDefaults.itemColors(
+                        textColor = if (app.isSystemApp)
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.error
                     )
-                }
+                )
             }
         }
     }

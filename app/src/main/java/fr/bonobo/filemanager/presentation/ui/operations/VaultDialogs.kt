@@ -12,6 +12,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import fr.bonobo.filemanager.util.BiometricUtils
 import androidx.fragment.app.FragmentActivity
+import fr.bonobo.filemanager.util.SecurityUtils
 
 @Composable
 fun VaultAccessDialog(
@@ -89,8 +90,8 @@ fun VaultAccessDialog(
         confirmButton = {
             Button(onClick = {
                 if (isFirstTime) {
-                    if (password.length < 4) {
-                        error = "Le mot de passe doit faire au moins 4 caractères"
+                    if (password.length < 8) {
+                        error = "Le mot de passe doit faire au moins 8 caractères"
                     } else if (password != confirmPassword) {
                         error = "Les mots de passe ne correspondent pas"
                     } else {
@@ -98,7 +99,10 @@ fun VaultAccessDialog(
                         onSuccess()
                     }
                 } else {
-                    if (password == storedPassword) {
+                    if (SecurityUtils.verifyPassword(password, storedPassword)) {
+                        if (!storedPassword.startsWith("v1$")) {
+                            onSetPassword(password)
+                        }
                         onSuccess()
                     } else {
                         error = "Mot de passe incorrect"

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.FtpsServerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-09-08T15:35:39" hostname="localhost" time="1.588">
+  <properties/>
+  <testcase name="missingPermissionExplains421AndConfiguredUserCanLogin" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.433"/>
+  <testcase name="clearLoginIsRejected" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.006"/>
+  <testcase name="downgradeIsRejectedAndReconnectWorks" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.217"/>
+  <testcase name="encryptedUploadListingAndDownload" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.326"/>
+  <testcase name="badPasswordIsRejectedOverTls" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.604"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+]]></system-err>
+</testsuite>

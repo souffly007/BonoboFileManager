@@ -14,7 +14,7 @@ import fr.bonobo.filemanager.data.local.entity.*
         RemoteConnectionEntity::class,
         BookmarkEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

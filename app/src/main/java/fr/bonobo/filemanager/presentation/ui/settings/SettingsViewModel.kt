@@ -65,16 +65,6 @@ class SettingsViewModel @Inject constructor(
             "MEDIUM"
         )
 
-    val vaultPassword = context.settingsDataStore.data
-        .map { preferences ->
-            preferences[SettingsKeys.VAULT_PASSWORD]
-        }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5_000),
-            null
-        )
-
     fun setShowHiddenFiles(value: Boolean) {
         viewModelScope.launch {
             context.settingsDataStore.edit { preferences ->
@@ -107,11 +97,4 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setVaultPassword(password: String) {
-        viewModelScope.launch {
-            context.settingsDataStore.edit { preferences ->
-                preferences[SettingsKeys.VAULT_PASSWORD] = password
-            }
-        }
-    }
 }

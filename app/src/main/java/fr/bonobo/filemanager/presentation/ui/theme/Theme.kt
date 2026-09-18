@@ -65,7 +65,16 @@ private val DarkColors = darkColorScheme(
 
 private val CyanogenColors = darkColorScheme(
     primary = CmGreen,
+    primaryContainer = androidx.compose.ui.graphics.Color(0xFF263D28),
+    onPrimaryContainer = androidx.compose.ui.graphics.Color(0xFFD5F0C3),
     secondary = CmGreenLight,
+    onSecondary = androidx.compose.ui.graphics.Color(0xFF203020),
+    secondaryContainer = androidx.compose.ui.graphics.Color(0xFF293D36),
+    onSecondaryContainer = androidx.compose.ui.graphics.Color(0xFFCCEADD),
+    tertiary = androidx.compose.ui.graphics.Color(0xFF82D4D6),
+    onTertiary = androidx.compose.ui.graphics.Color(0xFF003739),
+    tertiaryContainer = androidx.compose.ui.graphics.Color(0xFF193C43),
+    onTertiaryContainer = androidx.compose.ui.graphics.Color(0xFFBEEDF1),
     background = CmDarkBackground,
     surface = CmSurfaceCard,
     surfaceVariant = CmSurfaceCard,

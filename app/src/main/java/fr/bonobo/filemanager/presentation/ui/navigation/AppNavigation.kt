@@ -24,8 +24,12 @@ import fr.bonobo.filemanager.presentation.ui.viewer.ImageViewerScreen
 import fr.bonobo.filemanager.presentation.ui.viewer.TextDiffScreen
 import fr.bonobo.filemanager.presentation.ui.viewer.TextEditorScreen
 import fr.bonobo.filemanager.presentation.ui.viewer.VideoPlayerScreen
+import fr.bonobo.filemanager.presentation.ui.viewer.PdfViewerScreen
+import fr.bonobo.filemanager.presentation.ui.viewer.EpubViewerScreen
+import fr.bonobo.filemanager.presentation.ui.viewer.ArchivePreviewScreen
 
 object Routes {
+    const val VAULT = "vault"
     const val DASHBOARD = "dashboard"
     const val ABOUT = "about"
     const val NETWORK = "network"
@@ -41,6 +45,9 @@ object Routes {
     const val TEXT = "text/{path}"
     const val TRANSFER = "transfer/{path}"
     const val DIFF = "diff/{path1}/{path2}"
+    const val PDF = "pdf/{path}"
+    const val EPUB = "epub/{path}"
+    const val ARCHIVE = "archive/{path}"
 
     fun category(type: String): String = "category/$type"
     fun image(path: String): String = "image/${Uri.encode(path)}"
@@ -49,6 +56,9 @@ object Routes {
     fun text(path: String): String = "text/${Uri.encode(path)}"
     fun transfer(path: String): String = "transfer/${Uri.encode(path)}"
     fun diff(path1: String, path2: String): String = "diff/${Uri.encode(path1)}/${Uri.encode(path2)}"
+    fun pdf(path: String) = "pdf/${Uri.encode(path)}"
+    fun epub(path: String) = "epub/${Uri.encode(path)}"
+    fun archive(path: String) = "archive/${Uri.encode(path)}"
 }
 
 @Composable
@@ -71,9 +81,18 @@ fun AppNavigation(
                     sharedViewModel.resetToLocalRoot()
                     navController.navigate(Routes.FILES)
                 },
+                onNavigateToPath = { path ->
+                    sharedViewModel.setActivePanel(1)
+                    sharedViewModel.openFolder(path)
+                    navController.navigate(Routes.FILES)
+                },
                 onNavigateToCategory = { type ->
-                    sharedViewModel.loadCategory(type)
-                    navController.navigate(Routes.category(type))
+                    if (type == "Coffre-fort") {
+                        navController.navigate(Routes.VAULT)
+                    } else {
+                        sharedViewModel.loadCategory(type)
+                        navController.navigate(Routes.category(type))
+                    }
                 },
                 onNavigateToNetwork = {
                     navController.navigate(Routes.NETWORK)
@@ -92,6 +111,10 @@ fun AppNavigation(
                 },
                 onExit = onExit
             )
+        }
+
+        composable(Routes.VAULT) {
+            fr.bonobo.filemanager.presentation.ui.vault.VaultScreen(onBack = { navController.popBackStack() })
         }
 
         composable(Routes.APPS) {
@@ -183,6 +206,9 @@ fun AppNavigation(
                 onOpenAudio = { path ->
                     navController.navigate(Routes.audio(path))
                 },
+                onOpenPdf = { path -> navController.navigate(Routes.pdf(path)) },
+                onOpenEpub = { path -> navController.navigate(Routes.epub(path)) },
+                onOpenArchive = { path -> navController.navigate(Routes.archive(path)) },
                 onOpenText = { path ->
                     navController.navigate(Routes.text(path))
                 },
@@ -218,6 +244,9 @@ fun AppNavigation(
                 onOpenAudio = { path ->
                     navController.navigate(Routes.audio(path))
                 },
+                onOpenPdf = { path -> navController.navigate(Routes.pdf(path)) },
+                onOpenEpub = { path -> navController.navigate(Routes.epub(path)) },
+                onOpenArchive = { path -> navController.navigate(Routes.archive(path)) },
                 onOpenText = { path ->
                     navController.navigate(Routes.text(path))
                 },
@@ -231,7 +260,7 @@ fun AppNavigation(
         }
 
         composable(Routes.SETTINGS) {
-            SettingsScreen()
+            SettingsScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable(
@@ -295,5 +324,8 @@ fun AppNavigation(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+        composable(Routes.PDF, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> PdfViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
+        composable(Routes.EPUB, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> EpubViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
+        composable(Routes.ARCHIVE, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> ArchivePreviewScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
     }
 }

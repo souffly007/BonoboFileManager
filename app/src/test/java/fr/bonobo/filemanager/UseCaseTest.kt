@@ -36,6 +36,7 @@ class UseCaseTest {
             override suspend fun clearHistory() {}
             override suspend fun addBookmark(path: String, name: String) {}
             override suspend fun removeBookmark(path: String) {}
+            override suspend fun importFileToVault(uri: String) = Result.success(uri)
             override suspend fun getVaultFiles() = emptyList<fr.bonobo.filemanager.domain.model.FileItem>()
         }
 

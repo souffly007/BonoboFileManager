@@ -156,6 +156,7 @@ fun JunkListView(state: CleanerUiState, viewModel: CleanerViewModel) {
             items(state.junkFiles) { file ->
                 JunkItemRow(
                     name = file.name,
+                    path = file.path,
                     size = FileUtils.formatSize(file.size),
                     isSelected = state.selectedJunkPaths.contains(file.path),
                     onToggle = { viewModel.toggleJunkSelection(file.path) },
@@ -173,6 +174,7 @@ fun JunkListView(state: CleanerUiState, viewModel: CleanerViewModel) {
             items(state.emptyFolders) { folder ->
                 JunkItemRow(
                     name = folder.name,
+                    path = folder.path,
                     size = "Vide",
                     isSelected = state.selectedFolderPaths.contains(folder.path),
                     onToggle = { viewModel.toggleFolderSelection(folder.path) },
@@ -201,6 +203,7 @@ fun JunkListView(state: CleanerUiState, viewModel: CleanerViewModel) {
 fun JunkItemRow(
     name: String,
     size: String,
+    path: String,
     isSelected: Boolean,
     onToggle: () -> Unit,
     icon: androidx.compose.ui.graphics.vector.ImageVector
@@ -215,6 +218,12 @@ fun JunkItemRow(
         Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
             Text(text = name, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
             Text(text = size, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                text = path,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                maxLines = 2
+            )
         }
         Checkbox(checked = isSelected, onCheckedChange = { onToggle() })
     }

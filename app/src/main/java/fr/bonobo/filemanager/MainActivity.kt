@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
@@ -19,7 +20,11 @@ import fr.bonobo.filemanager.presentation.ui.navigation.AppNavigation
 import fr.bonobo.filemanager.presentation.ui.theme.AppThemeMode
 import fr.bonobo.filemanager.presentation.ui.theme.BonoboFileManagerTheme
 import fr.bonobo.filemanager.util.PermissionUtils
+import fr.bonobo.filemanager.service.DropboxCloudManager
+import fr.bonobo.filemanager.service.OneDriveCloudManager
+import fr.bonobo.filemanager.service.GoogleDriveCloudManager
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
@@ -28,6 +33,8 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
 
         checkPermissions()
+        handleDropboxIntent(intent)
+        handleOneDriveIntent(intent)
 
         val themeFlow = settingsDataStore.data
             .map { preferences ->
@@ -51,6 +58,34 @@ class MainActivity : FragmentActivity() {
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleDropboxIntent(intent)
+        handleOneDriveIntent(intent)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == GoogleDriveCloudManager.REQUEST_CODE) {
+            GoogleDriveCloudManager.handleSignInResult(this, data)
+        }
+    }
+
+    private fun handleDropboxIntent(intent: Intent?) {
+        if (intent?.data?.scheme == "db-a4pj0x994ilv7o6") {
+            lifecycleScope.launch { DropboxCloudManager.handleCallback(this@MainActivity, intent.data!!) }
+        }
+    }
+
+    private fun handleOneDriveIntent(intent: Intent?) {
+        val data = intent?.data
+        if (data?.scheme == "msauth" && data.host == "fr.bonobo.filemanager.https.preview") {
+            lifecycleScope.launch { OneDriveCloudManager.handleCallback(this@MainActivity, data) }
+        }
+    }
+
 
     private fun checkPermissions() {
         if (!PermissionUtils.hasStoragePermission(this)) {

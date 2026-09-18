@@ -1,5 +1,6 @@
 package fr.bonobo.filemanager.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import fr.bonobo.filemanager.domain.model.ConnectionType
@@ -13,5 +14,6 @@ data class RemoteConnectionEntity(
     val user: String,
     val pass: String,
     val type: ConnectionType,
-    val share: String? = null
+    val share: String? = null,
+    @ColumnInfo(defaultValue = "0") val credentialsEncrypted: Boolean = false
 )

@@ -1,0 +1,11 @@
+app/src/main/AndroidManifest.xml
+app/src/main/java/fr/bonobo/filemanager/data/repository/FtpClientRepository.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/RemoteFileRepository.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/SmbClientRepository.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteViewModel.kt
+app/src/main/java/fr/bonobo/filemanager/service/RemoteDownloadService.kt
+app/src/main/java/fr/bonobo/filemanager/service/RemoteDownloadTarget.kt
+app/src/main/java/fr/bonobo/filemanager/util/DownloadStream.kt
+app/src/test/java/fr/bonobo/filemanager/DownloadStreamTest.kt
+app/src/test/java/fr/bonobo/filemanager/FtpsServerTest.kt

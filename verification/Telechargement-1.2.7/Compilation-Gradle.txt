@@ -1,0 +1,84 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.9/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon JVM discovery is an incubating feature.
+Daemon will be stopped at the end of the build 
+> Task :app:clean
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:mergeDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:javaPreCompileDebug
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:checkDebugDuplicateClasses
+> Task :app:processDebugResources
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so.
+
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:30:25 'constructor(p0: File!): SevenZFile' is deprecated. Deprecated in Java.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:45:25 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/apps/AppManagerScreen.kt:186:56 'val Icons.Filled.Launch: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Launch.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:512:33 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:512:48 'val ipAddress: Int' is deprecated. Deprecated in Java.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:33 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:48 'val ipAddress: Int' is deprecated. Deprecated in Java.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/theme/Theme.kt:119:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/AudioPlayerScreen.kt:71:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:60:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/TextDiffScreen.kt:46:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///workspace/scratch/15ec0db1bcf5/ui127/BonoboFileManager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/VideoPlayerScreen.kt:70:45 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+
+> Task :app:compileDebugJavaWithJavac
+> Task :app:hiltAggregateDepsDebug
+> Task :app:hiltJavaCompileDebug
+> Task :app:processDebugJavaRes
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:transformDebugClassesWithAsm
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:kspDebugUnitTestKotlin
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:mergeDebugJavaResource
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:mergeProjectDexDebug
+> Task :app:hiltAggregateDepsDebugUnitTest
+> Task :app:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:transformDebugUnitTestClassesWithAsm
+> Task :app:testDebugUnitTest
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 1m 14s
+51 actionable tasks: 51 executed

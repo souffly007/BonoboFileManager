@@ -214,6 +214,7 @@ fun CompressDialog(
     var name by remember { 
         mutableStateOf(item.name.removeSuffix(".${File(item.path).extension}")) 
     }
+    var password by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -225,10 +226,12 @@ fun CompressDialog(
                 singleLine = true,
                 label = { Text("Nom de l'archive (.zip)") }
             )
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(password, { password = it }, singleLine = true, label = { Text("Mot de passe (facultatif)") })
         },
         confirmButton = {
             Button(
-                onClick = { onConfirm(name.trim()) },
+                onClick = { onConfirm(if (password.isBlank()) name.trim() else "${name.trim()}\u0000${password}") },
                 enabled = name.isNotBlank()
             ) {
                 Text("Compresser")
@@ -240,4 +243,12 @@ fun CompressDialog(
             }
         }
     )
+}
+
+@Composable
+fun ExtractionPasswordDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
+    var password by remember { mutableStateOf("") }
+    AlertDialog(onDismissRequest = onDismiss, title = { Text("Extraire l’archive") }, text = {
+        Column { Text("Laissez vide si l’archive n’a pas de mot de passe."); Spacer(Modifier.height(8.dp)); OutlinedTextField(password, { password = it }, singleLine = true, label = { Text("Mot de passe (facultatif)") }) }
+    }, confirmButton = { Button(onClick = { onConfirm(password) }) { Text("Extraire") } }, dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } })
 }

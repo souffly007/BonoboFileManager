@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.SecurityRegressionTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-08T15:35:40" hostname="localhost" time="1.1">
+  <properties/>
+  <testcase name="roundTripAndEmptyFile" classname="fr.bonobo.filemanager.SecurityRegressionTest" time="0.485"/>
+  <testcase name="rejectTraversalAndExternalSymlinks" classname="fr.bonobo.filemanager.SecurityRegressionTest" time="0.001"/>
+  <testcase name="wrongPasswordAndTamperingPublishNothing" classname="fr.bonobo.filemanager.SecurityRegressionTest" time="0.281"/>
+  <testcase name="newNamesRejectParentComponents" classname="fr.bonobo.filemanager.SecurityRegressionTest" time="0.002"/>
+  <testcase name="failedImportLeavesNoCiphertext" classname="fr.bonobo.filemanager.SecurityRegressionTest" time="0.051"/>
+  <testcase name="hashSaltAndLegacyPasswords" classname="fr.bonobo.filemanager.SecurityRegressionTest" time="0.2"/>
+  <testcase name="existingDestinationAndSymlinkAreNeverOverwritten" classname="fr.bonobo.filemanager.SecurityRegressionTest" time="0.078"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

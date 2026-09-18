@@ -1,0 +1,7 @@
+app/build.gradle.kts
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt
+app/src/main/java/fr/bonobo/filemanager/service/CertificateKeyManager.kt
+app/src/main/java/fr/bonobo/filemanager/service/FtpService.kt
+app/src/main/java/fr/bonobo/filemanager/service/FtpsConfiguration.kt
+app/src/main/java/fr/bonobo/filemanager/service/FtpsIdentity.kt
+app/src/test/java/fr/bonobo/filemanager/FtpsServerTest.kt

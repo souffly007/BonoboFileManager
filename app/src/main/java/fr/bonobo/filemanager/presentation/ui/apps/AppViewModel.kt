@@ -89,4 +89,8 @@ class AppViewModel @Inject constructor(
     fun clearMessage() {
         _uiState.update { it.copy(message = null, error = null) }
     }
+
+    fun showMessage(message: String) {
+        _uiState.update { it.copy(message = message, error = null) }
+    }
 }

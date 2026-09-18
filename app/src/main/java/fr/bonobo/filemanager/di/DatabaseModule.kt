@@ -25,7 +25,11 @@ object DatabaseModule {
             AppDatabase::class.java,
             "bonobo_database"
         )
-        .fallbackToDestructiveMigration()
+        .addMigrations(object : androidx.room.migration.Migration(3, 4) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE remote_connections ADD COLUMN credentialsEncrypted INTEGER NOT NULL DEFAULT 0")
+            }
+        })
         .build()
     }
 

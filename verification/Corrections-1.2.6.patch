@@ -1,0 +1,2294 @@
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,24 @@
++## Version 1.2.6 — corrections après revue de la 1.2.5
++
++Le détail des changements et des vérifications figure dans `Corrections-BonoboFileManager-1.2.6.txt`.
++
++- Coffre : importation chiffrée dans le stockage privé, accès par mot de passe,
++  verrouillage en arrière-plan et exportation explicite d'une copie déchiffrée.
++- Ancien coffre : bouton « Récupérer l'ancien coffre ». Les originaux sont conservés.
++  Vérifier les nouvelles copies avant de supprimer les fichiers encore en clair.
++- Le coffre privé est supprimé à la désinstallation et n'est pas sauvegardé automatiquement.
++  Conserver le mot de passe et des copies de secours adaptées.
++- FTP : dossier `Téléchargements/Bonobo-Partage` uniquement. FTP et transfert direct HTTP
++  ne chiffrent pas le transport : utiliser un réseau de confiance.
++- Les fichiers existants ne sont plus remplacés silencieusement par les opérations corrigées.
++- Les sauvegardes d'applications multi-APK sont refusées plutôt que produites incomplètes.
++
++Les nouveaux fichiers du coffre utilisent AES-GCM et le mot de passe maître ; la biométrie
++seule a été retirée de ce parcours, faute de clé cryptographique associée.
++Les anciens fichiers AES-CBC ne sont pas convertis automatiquement.
++
++---
++
+ -------------------------------------------------------------
+ 🐵 BONOBO EXPLORATEUR 🦍 - "DonkeyKong Edition"
+ -------------------------------------------------------------
+@@ -16,9 +37,9 @@
+ by DonkeyKong 🦍 (humour et clin d'oeil au game)
+ 
+ ![Android](https://img.shields.io/badge/Android-8.0%2B-green?logo=android)
+-![Kotlin](https://img.shields.io/badge/Kotlin-1.9-blue?logo=kotlin)
++![Kotlin](https://img.shields.io/badge/Kotlin-2.0.20-blue?logo=kotlin)
+ ![License](https://img.shields.io/badge/License-GPL%20v3-orange)
+-![Version](https://img.shields.io/badge/Version-1.2-cyan)
++![Version](https://img.shields.io/badge/Version-1.2.6-cyan)
+ 
+ 
+ ------------------------------------------------------------
+--- a/app/build.gradle.kts
++++ b/app/build.gradle.kts
+@@ -9,13 +9,14 @@
+ android {
+     namespace = "fr.bonobo.filemanager"
+     compileSdk = 35
++    buildToolsVersion = "35.0.0"
+ 
+     defaultConfig {
+         applicationId = "fr.bonobo.filemanager"
+         minSdk = 26
+         targetSdk = 35
+-        versionCode = 6
+-        versionName = "1.2.5"
++        versionCode = 7
++        versionName = "1.2.6"
+ 
+         testInstrumentationRunner =
+             "androidx.test.runner.AndroidJUnitRunner"
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -16,7 +16,7 @@
+ 
+     <application
+         android:name=".BonoboFileManagerApp"
+-        android:allowBackup="true"
++        android:allowBackup="false"
+         android:dataExtractionRules="@xml/data_extraction_rules"
+         android:fullBackupContent="@xml/backup_rules"
+         android:icon="@mipmap/ic_launcher"
+--- a/app/src/main/java/fr/bonobo/filemanager/data/local/AppDatabase.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/local/AppDatabase.kt
+@@ -14,7 +14,7 @@
+         RemoteConnectionEntity::class,
+         BookmarkEntity::class
+     ],
+-    version = 3,
++    version = 4,
+     exportSchema = false
+ )
+ @TypeConverters(Converters::class)
+--- a/app/src/main/java/fr/bonobo/filemanager/data/local/dao/RemoteConnectionDao.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/local/dao/RemoteConnectionDao.kt
+@@ -15,6 +15,12 @@
+     @Insert(onConflict = OnConflictStrategy.REPLACE)
+     suspend fun insertAll(connections: List<RemoteConnectionEntity>)
+ 
++    @Query("UPDATE remote_connections SET pass = :encrypted, credentialsEncrypted = 1 WHERE id = :id AND credentialsEncrypted = 0 AND pass = :original")
++    suspend fun migratePassword(id: Long, original: String, encrypted: String)
++
++    @Query("DELETE FROM remote_connections WHERE id = :id")
++    suspend fun deleteById(id: Long)
++
+     @Delete
+     suspend fun deleteConnection(connection: RemoteConnectionEntity)
+ }
+--- a/app/src/main/java/fr/bonobo/filemanager/data/local/entity/RemoteConnectionEntity.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/local/entity/RemoteConnectionEntity.kt
+@@ -1,5 +1,6 @@
+ package fr.bonobo.filemanager.data.local.entity
+ 
++import androidx.room.ColumnInfo
+ import androidx.room.Entity
+ import androidx.room.PrimaryKey
+ import fr.bonobo.filemanager.domain.model.ConnectionType
+@@ -13,5 +14,6 @@
+     val user: String,
+     val pass: String,
+     val type: ConnectionType,
+-    val share: String? = null
++    val share: String? = null,
++    @ColumnInfo(defaultValue = "0") val credentialsEncrypted: Boolean = false
+ )
+--- a/app/src/main/java/fr/bonobo/filemanager/data/repository/AppRepositoryImpl.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/repository/AppRepositoryImpl.kt
+@@ -38,6 +38,10 @@
+ 
+     override suspend fun backupApp(app: AppItem, destinationPath: String?): Result<String> = withContext(Dispatchers.IO) {
+         runCatching {
++            val info = context.packageManager.getApplicationInfo(app.packageName, 0)
++            require(info.splitSourceDirs.isNullOrEmpty()) {
++                "Application multi-APK : la sauvegarde complète n'est pas encore prise en charge"
++            }
+             val source = File(app.apkPath)
+             val backupDir = if (destinationPath != null) {
+                 File(destinationPath)
+@@ -47,8 +51,12 @@
+             
+             if (!backupDir.exists()) backupDir.mkdirs()
+             
+-            val destination = File(backupDir, "${app.name}_${app.versionName}.apk")
+-            source.copyTo(destination, overwrite = true)
++            val version = app.versionName.replace(Regex("[^A-Za-z0-9._-]"), "_").take(40)
++            val destination = fr.bonobo.filemanager.util.SafeFiles.child(backupDir,
++                "${app.packageName.take(100)}_$version.apk")
++            fr.bonobo.filemanager.util.SafeFiles.writeNew(destination) { output ->
++                source.inputStream().use { it.copyTo(output) }
++            }
+             destination.absolutePath
+         }
+     }
+--- a/app/src/main/java/fr/bonobo/filemanager/data/repository/FileRepositoryImpl.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/repository/FileRepositoryImpl.kt
+@@ -10,6 +10,7 @@
+ import fr.bonobo.filemanager.domain.model.FileItem
+ import fr.bonobo.filemanager.domain.repository.IFileRepository
+ import fr.bonobo.filemanager.util.FileUtils
++import fr.bonobo.filemanager.util.SafeFiles
+ import kotlinx.coroutines.Dispatchers
+ import kotlinx.coroutines.flow.Flow
+ import kotlinx.coroutines.flow.first
+@@ -40,11 +41,12 @@
+     }
+ 
+     override suspend fun getFiles(path: String): List<FileItem> = withContext(Dispatchers.IO) {
++        val showHidden = context.settingsDataStore.data.first()[SettingsKeys.SHOW_HIDDEN_FILES] ?: false
+         if (isRootEnabled() && hasRootAccess()) {
+-            return@withContext getFilesRoot(path)
+-        }
+-
+-        val files = FileUtils.listFiles(directory = File(path))
++            return@withContext getFilesRoot(path, showHidden)
++        }
++
++        val files = FileUtils.listFiles(directory = File(path), showHidden = showHidden)
+ 
+         fileDao.insertAll(
+             files.map { item ->
+@@ -64,47 +66,34 @@
+         }
+     }
+ 
+-    private fun hasRootAccess(): Boolean {
++    private fun hasRootAccess(): Boolean = try {
++        val process = ProcessBuilder("su", "-c", "id").start()
++        try {
++            if (!process.waitFor(30, java.util.concurrent.TimeUnit.SECONDS)) false
++            else process.inputStream.bufferedReader().use { it.readLine()?.contains("uid=0") == true }
++        } finally { process.destroy() }
++    } catch (_: Exception) { false }
++
++    private fun getFilesRoot(path: String, showHidden: Boolean): List<FileItem> {
++        val quoted = SafeFiles.shellQuote(File(path).absolutePath)
++        val patterns = if (showHidden) "$quoted/* $quoted/.[!.]* $quoted/..?*" else "$quoted/*"
++        val command = """for entry in $patterns; do
++            [ -e "${'$'}entry" ] || [ -L "${'$'}entry" ] || continue
++            if [ -d "${'$'}entry" ]; then printf 'd\0%s\0' "${'$'}entry";
++            else printf 'f\0%s\0' "${'$'}entry"; fi
++            done"""
++        val process = ProcessBuilder("su", "-c", command).redirectError(java.lang.ProcessBuilder.Redirect.INHERIT).start()
+         return try {
+-            val process = Runtime.getRuntime().exec("su -c id")
+-            val reader = BufferedReader(InputStreamReader(process.inputStream))
+-            val line = reader.readLine()
+-            line?.contains("uid=0") ?: false
+-        } catch (e: Exception) {
+-            false
+-        }
+-    }
+-
+-    private fun getFilesRoot(path: String): List<FileItem> {
+-        val result = mutableListOf<FileItem>()
+-        try {
+-            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "ls -ld $path/*"))
+-            val reader = BufferedReader(InputStreamReader(process.inputStream))
+-            var line: String? = reader.readLine()
+-            
+-            while (line != null) {
+-                val parts = line.split(Regex("\\s+"))
+-                if (parts.size >= 8) {
+-                    val fullPath = parts.last()
+-                    val name = fullPath.substringAfterLast("/")
+-                    val isDir = line.startsWith("d")
+-                    
+-                    result.add(FileItem(
+-                        path = fullPath,
+-                        name = name,
+-                        size = 0,
+-                        lastModified = Date(),
+-                        isDirectory = isDir,
+-                        mimeType = if (isDir) null else "application/octet-stream"
+-                    ))
+-                }
+-                line = reader.readLine()
+-            }
+-            process.waitFor()
+-        } catch (e: Exception) {
+-            e.printStackTrace()
+-        }
+-        return result
++            val fields = process.inputStream.use { it.readBytes().toString(Charsets.UTF_8).split('\u0000') }
++            check(process.waitFor() == 0) { "Lecture root impossible" }
++            fields.dropLastWhile { it.isEmpty() }.chunked(2).map { pair ->
++                require(pair.size == 2) { "Réponse root invalide" }
++                val file = File(pair[1])
++                FileItem(path = file.absolutePath, name = file.name, size = file.length(),
++                    lastModified = Date(file.lastModified()), isDirectory = pair[0] == "d",
++                    mimeType = if (pair[0] == "d") null else "application/octet-stream")
++            }
++        } finally { process.destroy() }
+     }
+ 
+     override suspend fun getFilesByType(mimeTypePrefix: String): List<FileItem> = withContext(Dispatchers.IO) {
+@@ -147,9 +136,10 @@
+             val source = File(path)
+             require(source.exists()) { "Le fichier n'existe pas" }
+             val parent = source.parentFile ?: error("Dossier parent introuvable")
+-            val destination = File(parent, newName.trim())
++            val destination = SafeFiles.child(parent, newName.trim())
+             require(!destination.exists()) { "Un fichier portant ce nom existe déjà" }
+-            check(source.renameTo(destination)) { "Impossible de renommer le fichier" }
++            java.nio.file.Files.move(source.toPath(), destination.toPath())
++            Unit
+         }
+     }
+ 
+@@ -172,7 +162,7 @@
+     }
+ 
+     override suspend fun deleteFiles(paths: List<String>): Result<Unit> = withContext(Dispatchers.IO) {
+-        runCatching { paths.forEach { path -> FileUtils.deleteRecursively(File(path)) } }
++        runCatching { paths.forEach { path -> check(FileUtils.deleteRecursively(File(path))) { "Suppression impossible : $path" } } }
+     }
+ 
+     private val trashDir = File(Environment.getExternalStorageDirectory(), ".bonobo_trash")
+@@ -185,8 +175,13 @@
+                 source.absolutePath.toByteArray(),
+                 android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP
+             )
+-            val destination = File(trashDir, "trash_${encodedPath}_#_${source.name}")
+-            check(source.renameTo(destination)) { "Échec du déplacement vers la corbeille" }
++            var destination = File(trashDir, "trash_${encodedPath}_#_${source.name}")
++            var duplicate = 1
++            while (SafeFiles.exists(destination)) {
++                destination = File(trashDir, "trash_${encodedPath}_#_${source.name} (${duplicate++})")
++            }
++            java.nio.file.Files.move(source.toPath(), destination.toPath())
++            Unit
+         }
+     }
+ 
+@@ -209,6 +204,7 @@
+     override suspend fun restoreFromTrash(item: FileItem): Result<Unit> = withContext(Dispatchers.IO) {
+         runCatching {
+             val fileInTrash = File(item.path)
++            require(fileInTrash.canonicalFile.parentFile == trashDir.canonicalFile) { "Entrée de corbeille invalide" }
+             val fileName = fileInTrash.name
+             val encodedPath = when {
+                 fileName.contains("_#_") -> fileName.substringAfter("trash_").substringBefore("_#_")
+@@ -216,9 +212,14 @@
+                 else -> error("Format de fichier inconnu")
+             }
+             val originalPath = String(android.util.Base64.decode(encodedPath, android.util.Base64.URL_SAFE))
+-            val destination = File(originalPath)
++            val destination = File(originalPath).canonicalFile
++            val storage = Environment.getExternalStorageDirectory().canonicalFile.toPath()
++            require(destination.toPath().startsWith(storage) && destination.toPath() != storage &&
++                !destination.toPath().startsWith(trashDir.canonicalFile.toPath())) { "Chemin de restauration invalide" }
++            require(!SafeFiles.exists(destination)) { "La destination existe déjà : restauration annulée" }
+             destination.parentFile?.mkdirs()
+-            check(fileInTrash.renameTo(destination)) { "Échec de la restauration" }
++            java.nio.file.Files.move(fileInTrash.toPath(), destination.toPath())
++            Unit
+         }
+     }
+ 
+@@ -305,53 +306,9 @@
+         bookmarkDao.deleteByPath(path)
+     }
+ 
+-    private val vaultDir = File(Environment.getExternalStorageDirectory(), ".bonobo_vault")
+-
+-    override suspend fun getVaultFiles(): List<FileItem> = withContext(Dispatchers.IO) {
+-        if (!vaultDir.exists()) vaultDir.mkdirs()
+-        FileUtils.listFiles(vaultDir, showHidden = true)
+-    }
+-
+-    override suspend fun importFileToVault(uri: String): Result<String> = withContext(Dispatchers.IO) {
+-        runCatching {
+-            if (!vaultDir.exists() && !vaultDir.mkdirs()) {
+-                error("Impossible de créer le dossier du coffre-fort")
+-            }
+-            val parsedUri = Uri.parse(uri)
+-            val resolver = context.contentResolver
+-            val suppliedName = resolver.query(
+-                parsedUri,
+-                arrayOf(OpenableColumns.DISPLAY_NAME),
+-                null,
+-                null,
+-                null
+-            )?.use { cursor ->
+-                if (cursor.moveToFirst()) cursor.getString(0) else null
+-            }
+-            val safeName = suppliedName
+-                ?.substringAfterLast('/')
+-                ?.substringAfterLast('\\')
+-                ?.replace(Regex("[\\r\\n]"), "_")
+-                ?.takeIf { it.isNotBlank() }
+-                ?: "fichier_importé"
+-            val destination = uniqueVaultFile(safeName)
+-            resolver.openInputStream(parsedUri)?.use { input ->
+-                destination.outputStream().use { output -> input.copyTo(output) }
+-            } ?: error("Impossible d'ouvrir le fichier sélectionné")
+-            destination.absolutePath
+-        }
+-    }
+-
+-    private fun uniqueVaultFile(fileName: String): File {
+-        var candidate = File(vaultDir, fileName)
+-        if (!candidate.exists()) return candidate
+-        val extension = fileName.substringAfterLast('.', "").let { if (it.isEmpty()) "" else ".$it" }
+-        val baseName = if (extension.isEmpty()) fileName else fileName.removeSuffix(extension)
+-        var index = 1
+-        while (candidate.exists()) {
+-            candidate = File(vaultDir, "$baseName ($index)$extension")
+-            index++
+-        }
+-        return candidate
+-    }
++    override suspend fun getVaultFiles(): List<FileItem> =
++        error("Ouvrez le coffre-fort depuis l'accueil pour vous authentifier")
++
++    override suspend fun importFileToVault(uri: String): Result<String> =
++        Result.failure(IllegalStateException("Utilisez l'importation du coffre-fort sécurisé"))
+ }
+--- a/app/src/main/java/fr/bonobo/filemanager/data/repository/FtpClientRepository.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/repository/FtpClientRepository.kt
+@@ -15,11 +15,11 @@
+ class FtpClientRepository @Inject constructor() {
+ 
+     suspend fun listRemoteFiles(connection: RemoteConnection, path: String): Result<List<FileItem>> = withContext(Dispatchers.IO) {
+-        val client = if (connection.type == ConnectionType.FTPS) FTPSClient() else FTPClient()
++        val client = createClient(connection)
+         
+         runCatching {
+             client.connect(connection.host, connection.port)
+-            client.login(connection.user, connection.pass)
++            check(client.login(connection.user, connection.pass)) { "Identifiants FTP refusés" }
+             client.enterLocalPassiveMode()
+             
+             if (client is FTPSClient) {
+@@ -44,10 +44,10 @@
+     }
+ 
+     suspend fun deleteFile(connection: RemoteConnection, path: String): Result<Unit> = withContext(Dispatchers.IO) {
+-        val client = if (connection.type == ConnectionType.FTPS) FTPSClient() else FTPClient()
++        val client = createClient(connection)
+         runCatching {
+             client.connect(connection.host, connection.port)
+-            client.login(connection.user, connection.pass)
++            check(client.login(connection.user, connection.pass)) { "Identifiants FTP refusés" }
+             
+             val deleted = client.deleteFile(path)
+             if (!deleted) {
+@@ -61,6 +61,21 @@
+         }
+     }
+ 
++    private fun createClient(connection: RemoteConnection): FTPClient {
++        val client = if (connection.type == ConnectionType.FTPS) {
++            FTPSClient().apply {
++                val factory = javax.net.ssl.TrustManagerFactory.getInstance(javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm())
++                factory.init(null as java.security.KeyStore?)
++                setTrustManager(factory.trustManagers.filterIsInstance<javax.net.ssl.X509TrustManager>().first())
++                isEndpointCheckingEnabled = true
++            }
++        } else FTPClient()
++        client.connectTimeout = 10_000
++        client.defaultTimeout = 15_000
++        client.setDataTimeout(java.time.Duration.ofSeconds(30))
++        return client
++    }
++
+     private fun cleanup(client: FTPClient) {
+         try {
+             if (client.isConnected) {
+--- a/app/src/main/java/fr/bonobo/filemanager/data/repository/RemoteRepositoryImpl.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/repository/RemoteRepositoryImpl.kt
+@@ -4,6 +4,9 @@
+ import fr.bonobo.filemanager.data.local.entity.RemoteConnectionEntity
+ import fr.bonobo.filemanager.domain.model.RemoteConnection
+ import fr.bonobo.filemanager.domain.repository.IRemoteRepository
++import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.flow.flowOn
++import fr.bonobo.filemanager.util.CredentialStore
+ import kotlinx.coroutines.flow.Flow
+ import kotlinx.coroutines.flow.map
+ import javax.inject.Inject
+@@ -11,13 +14,21 @@
+ 
+ @Singleton
+ class RemoteRepositoryImpl @Inject constructor(
+-    private val dao: RemoteConnectionDao
++    private val dao: RemoteConnectionDao,
++    private val credentials: CredentialStore
+ ) : IRemoteRepository {
+ 
+     override fun getAllConnections(): Flow<List<RemoteConnection>> {
+         return dao.getAllConnections().map { entities ->
+-            entities.map { it.toDomain() }
+-        }
++            val securedEntities = entities.map { entity ->
++                if (entity.credentialsEncrypted) entity else entity.copy(
++                    pass = credentials.encrypt(entity.pass), credentialsEncrypted = true)
++            }
++            securedEntities.zip(entities).filter { !it.second.credentialsEncrypted }.forEach { (secured, original) ->
++                dao.migratePassword(original.id, original.pass, secured.pass)
++            }
++            securedEntities.map { it.toDomain() }
++        }.flowOn(Dispatchers.IO)
+     }
+ 
+     override suspend fun saveConnection(connection: RemoteConnection) {
+@@ -29,19 +40,22 @@
+     }
+ 
+     override suspend fun deleteConnection(connection: RemoteConnection) {
+-        dao.deleteConnection(connection.toEntity())
++        dao.deleteById(connection.id)
+     }
+ 
+-    private fun RemoteConnectionEntity.toDomain() = RemoteConnection(
+-        id = id,
+-        name = name,
+-        host = host,
+-        port = port,
+-        user = user,
+-        pass = pass,
+-        type = type,
+-        share = share
+-    )
++    private fun RemoteConnectionEntity.toDomain(): RemoteConnection {
++        val decoded = runCatching { if (credentialsEncrypted) credentials.decrypt(pass) else pass }
++        return RemoteConnection(
++            id = id,
++            name = if (decoded.isFailure) "$name (mot de passe à reconfigurer)" else name,
++            host = host,
++            port = port,
++            user = user,
++            pass = decoded.getOrDefault(""),
++            type = type,
++            share = share
++        )
++    }
+ 
+     private fun RemoteConnection.toEntity() = RemoteConnectionEntity(
+         id = id,
+@@ -49,8 +63,9 @@
+         host = host,
+         port = port,
+         user = user,
+-        pass = pass,
++        pass = credentials.encrypt(pass),
+         type = type,
+-        share = share
++        share = share,
++        credentialsEncrypted = true
+     )
+ }
+--- a/app/src/main/java/fr/bonobo/filemanager/data/repository/SmbClientRepository.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/repository/SmbClientRepository.kt
+@@ -62,10 +62,7 @@
+                     }
+                 }
+             }
+-        }.onFailure { e ->
+-            e.printStackTrace()
+-            client.close()
+-        }
++        }.also { client.close() }
+     }
+ 
+     suspend fun deleteFile(connection: RemoteConnection, path: String): Result<Unit> = withContext(Dispatchers.IO) {
+@@ -89,9 +86,7 @@
+                     }
+                 }
+             }
+-        }.onFailure { 
+-            client.close()
+-        }
++        }.also { client.close() }
+     }
+ 
+     suspend fun downloadToCache(connection: RemoteConnection, path: String, destination: java.io.File): Result<java.io.File> = withContext(Dispatchers.IO) {
+@@ -128,7 +123,7 @@
+                 }
+             }
+             destination
+-        }.onFailure { client.close() }
++        }.also { client.close() }
+     }
+ 
+     private fun getAuthContext(connection: RemoteConnection): AuthenticationContext {
+--- a/app/src/main/java/fr/bonobo/filemanager/di/DatabaseModule.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/di/DatabaseModule.kt
+@@ -25,7 +25,11 @@
+             AppDatabase::class.java,
+             "bonobo_database"
+         )
+-        .fallbackToDestructiveMigration()
++        .addMigrations(object : androidx.room.migration.Migration(3, 4) {
++            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
++                db.execSQL("ALTER TABLE remote_connections ADD COLUMN credentialsEncrypted INTEGER NOT NULL DEFAULT 0")
++            }
++        })
+         .build()
+     }
+ 
+--- a/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt
+@@ -1,89 +1,101 @@
+ package fr.bonobo.filemanager.domain.usecase
+ 
+ import com.github.junrar.Archive
++import fr.bonobo.filemanager.util.SafeFiles
+ import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.CancellationException
+ import kotlinx.coroutines.withContext
+ import org.apache.commons.compress.archivers.sevenz.SevenZFile
+ import org.apache.commons.compress.archivers.zip.ZipFile
+ import java.io.File
+-import java.io.FileOutputStream
++import java.io.OutputStream
+ import javax.inject.Inject
+ 
+ class DecompressFileUseCase @Inject constructor() {
+     suspend operator fun invoke(zipFile: File, destDir: File): Result<Unit> = withContext(Dispatchers.IO) {
+         try {
+-            if (!destDir.exists()) destDir.mkdirs()
+-            
+-            val ext = zipFile.extension.lowercase()
+-            when (ext) {
+-                "rar" -> extractRar(zipFile, destDir)
+-                "7z" -> extract7z(zipFile, destDir)
+-                else -> extractZip(zipFile, destDir)
+-            }
+-            
+-            Result.success(Unit)
+-        } catch (e: Exception) {
+-            Result.failure(e)
+-        }
+-    }
+-
+-    private fun extractZip(file: File, destDir: File) {
+-        ZipFile(file).use { zipFile ->
+-            val entries = zipFile.entries
+-            while (entries.hasMoreElements()) {
+-                val entry = entries.nextElement()
+-                val outFile = File(destDir, entry.name)
+-                if (entry.isDirectory) {
+-                    outFile.mkdirs()
+-                } else {
+-                    outFile.parentFile?.mkdirs()
+-                    zipFile.getInputStream(entry).use { input ->
+-                        FileOutputStream(outFile).use { output ->
+-                            input.copyTo(output)
++            check(destDir.isDirectory || destDir.mkdirs()) { "Dossier d'extraction inaccessible" }
++            val budget = Budget()
++            when (zipFile.extension.lowercase()) {
++                "rar" -> Archive(zipFile).use { archive ->
++                    var entry = archive.nextFileHeader()
++                    while (entry != null) {
++                        val current = entry
++                        extract(destDir, current.fileName.trim(), current.isDirectory, budget) {
++                            archive.extractFile(current, it)
++                        }
++                        entry = archive.nextFileHeader()
++                    }
++                }
++                "7z" -> SevenZFile(zipFile).use { archive ->
++                    var entry = archive.nextEntry
++                    while (entry != null) {
++                        val current = entry
++                        extract(destDir, current.name, current.isDirectory, budget) { output ->
++                            val buffer = ByteArray(8192)
++                            while (true) {
++                                val n = archive.read(buffer)
++                                if (n < 0) break
++                                output.write(buffer, 0, n)
++                            }
++                        }
++                        entry = archive.nextEntry
++                    }
++                }
++                else -> ZipFile(zipFile).use { archive ->
++                    val entries = archive.entries
++                    while (entries.hasMoreElements()) {
++                        val entry = entries.nextElement()
++                        require(!entry.isUnixSymlink) { "Lien symbolique interdit dans l'archive" }
++                        extract(destDir, entry.name, entry.isDirectory, budget) { output ->
++                            archive.getInputStream(entry).use { it.copyTo(output) }
+                         }
+                     }
+                 }
+             }
++            Result.success(Unit)
++        } catch (error: CancellationException) {
++            throw error
++        } catch (error: Exception) {
++            Result.failure(error)
+         }
+     }
+ 
+-    private fun extractRar(file: File, destDir: File) {
+-        Archive(file).use { archive ->
+-            var fh = archive.nextFileHeader()
+-            while (fh != null) {
+-                val outFile = File(destDir, fh.fileName.trim())
+-                if (fh.isDirectory) {
+-                    outFile.mkdirs()
+-                } else {
+-                    outFile.parentFile?.mkdirs()
+-                    FileOutputStream(outFile).use { fos ->
+-                        archive.extractFile(fh, fos)
+-                    }
+-                }
+-                fh = archive.nextFileHeader()
+-            }
++    private class Budget {
++        var entries = 0
++        var bytes = 0L
++        fun consume(count: Int) {
++            check(!Thread.currentThread().isInterrupted) { "Extraction interrompue" }
++            bytes += count
++            check(bytes <= 4L * 1024 * 1024 * 1024) { "Archive trop volumineuse : limite de 4 Gio décompressés" }
+         }
+     }
+ 
+-    private fun extract7z(file: File, destDir: File) {
+-        SevenZFile(file).use { sevenZFile ->
+-            var entry = sevenZFile.nextEntry
+-            while (entry != null) {
+-                val outFile = File(destDir, entry.name)
+-                if (entry.isDirectory) {
+-                    outFile.mkdirs()
+-                } else {
+-                    outFile.parentFile?.mkdirs()
+-                    FileOutputStream(outFile).use { fos ->
+-                        val buffer = ByteArray(8192)
+-                        var bytesRead: Int
+-                        while (sevenZFile.read(buffer).also { bytesRead = it } != -1) {
+-                            fos.write(buffer, 0, bytesRead)
+-                        }
++    private fun extract(root: File, name: String, directory: Boolean, budget: Budget,
++                        write: (OutputStream) -> Unit) {
++        check(++budget.entries <= 10_000) { "Archive trop volumineuse : limite de 10 000 entrées" }
++        val destination = SafeFiles.archiveChild(root, name)
++        if (directory) {
++            check(destination.isDirectory || destination.mkdirs()) { "Impossible de créer un dossier" }
++            return
++        }
++        require(!SafeFiles.exists(destination)) { "Un fichier existe déjà : $name" }
++        check(destination.parentFile!!.let { it.isDirectory || it.mkdirs() }) { "Dossier inaccessible" }
++        val temporary = File.createTempFile(".extraction-", ".tmp", destination.parentFile)
++        try {
++            temporary.outputStream().use { target ->
++                write(object : OutputStream() {
++                    override fun write(value: Int) { budget.consume(1); target.write(value) }
++                    override fun write(buffer: ByteArray, offset: Int, length: Int) {
++                        budget.consume(length)
++                        target.write(buffer, offset, length)
+                     }
+-                }
+-                entry = sevenZFile.nextEntry
++                })
+             }
++            SafeFiles.archiveChild(root, name)
++            SafeFiles.publish(temporary, destination)
++        } finally {
++            temporary.delete()
+         }
+     }
+ }
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/dashboard/DashboardScreen.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/dashboard/DashboardScreen.kt
+@@ -68,22 +68,6 @@
+     val rootAccess by settingsViewModel.rootAccess.collectAsStateWithLifecycle()
+     val bookmarks by viewModel.bookmarks.collectAsStateWithLifecycle()
+     val favorites by viewModel.favorites.collectAsStateWithLifecycle()
+-    val vaultPassword by settingsViewModel.vaultPassword.collectAsStateWithLifecycle()
+-
+-    var showVaultAccess by remember { mutableStateOf(false) }
+-
+-    if (showVaultAccess) {
+-        fr.bonobo.filemanager.presentation.ui.operations.VaultAccessDialog(
+-            storedPassword = vaultPassword,
+-            onDismiss = { showVaultAccess = false },
+-            onSetPassword = { settingsViewModel.setVaultPassword(it) },
+-            onSuccess = {
+-                showVaultAccess = false
+-                onNavigateToCategory("Coffre-fort")
+-            }
+-        )
+-    }
+-
+     Scaffold(
+         topBar = {
+             CenterAlignedTopAppBar(
+@@ -224,7 +208,7 @@
+                                     "Réseau" -> onNavigateToNetwork()
+                                     "Applications" -> onNavigateToApps()
+                                     "Nettoyeur" -> onNavigateToCleaner()
+-                                    "Coffre-fort" -> showVaultAccess = true
++                                    "Coffre-fort" -> onNavigateToCategory("Coffre-fort")
+                                     "Système Root" -> {
+                                         viewModel.loadFiles("/")
+                                         onNavigateToExplorer()
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/navigation/AppNavigation.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/navigation/AppNavigation.kt
+@@ -26,6 +26,7 @@
+ import fr.bonobo.filemanager.presentation.ui.viewer.VideoPlayerScreen
+ 
+ object Routes {
++    const val VAULT = "vault"
+     const val DASHBOARD = "dashboard"
+     const val ABOUT = "about"
+     const val NETWORK = "network"
+@@ -72,8 +73,12 @@
+                     navController.navigate(Routes.FILES)
+                 },
+                 onNavigateToCategory = { type ->
+-                    sharedViewModel.loadCategory(type)
+-                    navController.navigate(Routes.category(type))
++                    if (type == "Coffre-fort") {
++                        navController.navigate(Routes.VAULT)
++                    } else {
++                        sharedViewModel.loadCategory(type)
++                        navController.navigate(Routes.category(type))
++                    }
+                 },
+                 onNavigateToNetwork = {
+                     navController.navigate(Routes.NETWORK)
+@@ -92,6 +97,10 @@
+                 },
+                 onExit = onExit
+             )
++        }
++
++        composable(Routes.VAULT) {
++            fr.bonobo.filemanager.presentation.ui.vault.VaultScreen(onBack = { navController.popBackStack() })
+         }
+ 
+         composable(Routes.APPS) {
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt
+@@ -237,7 +237,7 @@
+         )
+ 
+         Text(
+-            text = "Accédez aux fichiers de votre téléphone depuis un ordinateur sur le même réseau WiFi.",
++            text = "Dossier partagé : Téléchargements/Bonobo-Partage (lecture et écriture). Utilisez un Wi-Fi de confiance : FTP ne chiffre ni les identifiants ni les fichiers.",
+             style = MaterialTheme.typography.bodyMedium,
+             color = MaterialTheme.colorScheme.onSurfaceVariant,
+             modifier = Modifier.padding(16.dp),
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkViewModel.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkViewModel.kt
+@@ -26,7 +26,10 @@
+     private val _isScanning = MutableStateFlow(false)
+     
+     val uiState: StateFlow<NetworkUiState> = combine(
+-        repository.getAllConnections(),
++        repository.getAllConnections().catch {
++            _message.value = "Connexions indisponibles : ${it.message}"
++            emit(emptyList())
++        },
+         _scannedIps,
+         _isScanning,
+         _message
+@@ -52,20 +55,23 @@
+ 
+     fun addConnection(connection: RemoteConnection) {
+         viewModelScope.launch {
+-            repository.saveConnection(connection)
++            runCatching { repository.saveConnection(connection) }
++                .onFailure { _message.value = "Enregistrement impossible : ${it.message}" }
+         }
+     }
+ 
+     fun addAllConnections(connections: List<RemoteConnection>) {
+         viewModelScope.launch {
+-            repository.saveAll(connections)
+-            _message.value = "${connections.size} serveurs importés"
++            runCatching { repository.saveAll(connections) }
++                .onSuccess { _message.value = "${connections.size} serveurs importés" }
++                .onFailure { _message.value = "Importation impossible : ${it.message}" }
+         }
+     }
+ 
+     fun removeConnection(connection: RemoteConnection) {
+         viewModelScope.launch {
+-            repository.deleteConnection(connection)
++            runCatching { repository.deleteConnection(connection) }
++                .onFailure { _message.value = "Suppression impossible : ${it.message}" }
+         }
+     }
+ 
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt
+@@ -1,6 +1,9 @@
+ package fr.bonobo.filemanager.presentation.ui.network
+ 
+ import android.net.wifi.WifiManager
++import androidx.lifecycle.Lifecycle
++import androidx.lifecycle.LifecycleEventObserver
++import androidx.lifecycle.compose.LocalLifecycleOwner
+ import androidx.compose.foundation.Image
+ import androidx.compose.foundation.layout.*
+ import androidx.compose.foundation.text.KeyboardOptions
+@@ -40,8 +43,23 @@
+     var error by remember { mutableStateOf<String?>(null) }
+     var server by remember { mutableStateOf<TransferServer?>(null) }
+ 
+-    DisposableEffect(server) {
+-        onDispose { server?.stop() }
++    val owner = LocalLifecycleOwner.current
++    DisposableEffect(server, owner) {
++        val session = server
++        val observer = LifecycleEventObserver { _, event ->
++            if (event == Lifecycle.Event.ON_STOP) {
++                session?.stop()
++                server = null
++                activePassword = null
++                password = ""
++                confirmation = ""
++            }
++        }
++        owner.lifecycle.addObserver(observer)
++        onDispose {
++            owner.lifecycle.removeObserver(observer)
++            session?.stop()
++        }
+     }
+ 
+     Scaffold(
+@@ -115,11 +133,15 @@
+                             password != confirmation -> error = "Les deux mots de passe ne correspondent pas."
+                             else -> {
+                                 val newServer = TransferServer(password)
+-                                newServer.start(file)
+-                                server = newServer
+-                                activePassword = password
+-                                password = ""
+-                                confirmation = ""
++                                newServer.start(file).onSuccess {
++                                    server = newServer
++                                    activePassword = password
++                                    password = ""
++                                    confirmation = ""
++                                }.onFailure {
++                                    newServer.stop()
++                                    error = "Démarrage impossible : ${it.message}"
++                                }
+                             }
+                         }
+                     },
+@@ -150,7 +172,7 @@
+                 }
+                 Spacer(modifier = Modifier.height(16.dp))
+                 Text(
+-                    "Le navigateur demandera ces identifiants. Les deux appareils doivent être sur le même réseau Wi-Fi.",
++                    "Le navigateur demandera ces identifiants. Les deux appareils doivent être sur le même réseau Wi-Fi de confiance. HTTP ne chiffre ni les identifiants ni le fichier. Le transfert s’arrête en quittant cet écran.",
+                     style = MaterialTheme.typography.bodySmall,
+                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                 )
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/operations/EncryptionDialog.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/operations/EncryptionDialog.kt
+@@ -16,6 +16,7 @@
+     onConfirm: (String) -> Unit
+ ) {
+     var password by remember { mutableStateOf("") }
++    var confirmation by remember { mutableStateOf("") }
+ 
+     AlertDialog(
+         onDismissRequest = onDismiss,
+@@ -24,7 +25,7 @@
+             Column {
+                 Text(
+                     text = if (isDecrypt) "Entrez le mot de passe pour décrypter le fichier." 
+-                          else "Le fichier sera crypté en AES-256. Ne perdez pas votre mot de passe !",
++                          else "Le fichier sera chiffré en AES-GCM. Choisissez au moins 8 caractères et conservez votre mot de passe.",
+                     style = MaterialTheme.typography.bodySmall,
+                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                 )
+@@ -36,12 +37,18 @@
+                     visualTransformation = PasswordVisualTransformation(),
+                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                 )
++                if (!isDecrypt) {
++                    OutlinedTextField(value = confirmation, onValueChange = { confirmation = it },
++                        label = { Text("Confirmer le mot de passe") }, singleLine = true,
++                        visualTransformation = PasswordVisualTransformation(),
++                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
++                }
+             }
+         },
+         confirmButton = {
+             Button(
+                 onClick = { onConfirm(password) },
+-                enabled = password.isNotBlank()
++                enabled = if (isDecrypt) password.isNotEmpty() else password.length >= 8 && password == confirmation
+             ) {
+                 Text(if (isDecrypt) "Décrypter" else "Crypter")
+             }
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/settings/SettingsViewModel.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/settings/SettingsViewModel.kt
+@@ -65,16 +65,6 @@
+             "MEDIUM"
+         )
+ 
+-    val vaultPassword = context.settingsDataStore.data
+-        .map { preferences ->
+-            preferences[SettingsKeys.VAULT_PASSWORD]
+-        }
+-        .stateIn(
+-            viewModelScope,
+-            SharingStarted.WhileSubscribed(5_000),
+-            null
+-        )
+-
+     fun setShowHiddenFiles(value: Boolean) {
+         viewModelScope.launch {
+             context.settingsDataStore.edit { preferences ->
+@@ -107,12 +97,4 @@
+         }
+     }
+ 
+-    fun setVaultPassword(password: String) {
+-        viewModelScope.launch {
+-            context.settingsDataStore.edit { preferences ->
+-                preferences[SettingsKeys.VAULT_PASSWORD] =
+-                    fr.bonobo.filemanager.util.SecurityUtils.hashPassword(password)
+-            }
+-        }
+-    }
+ }
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/vault/VaultScreen.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/vault/VaultScreen.kt
+@@ -0,0 +1,137 @@
++package fr.bonobo.filemanager.presentation.ui.vault
++
++import android.app.Activity
++import android.view.WindowManager
++import androidx.activity.compose.rememberLauncherForActivityResult
++import androidx.activity.result.contract.ActivityResultContracts
++import androidx.compose.foundation.layout.*
++import androidx.compose.foundation.lazy.LazyColumn
++import androidx.compose.foundation.lazy.items
++import androidx.compose.material.icons.Icons
++import androidx.compose.material.icons.automirrored.filled.ArrowBack
++import androidx.compose.material3.*
++import androidx.compose.runtime.*
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.platform.LocalContext
++import androidx.compose.ui.text.input.PasswordVisualTransformation
++import androidx.compose.ui.unit.dp
++import androidx.hilt.navigation.compose.hiltViewModel
++import androidx.lifecycle.Lifecycle
++import androidx.lifecycle.LifecycleEventObserver
++import androidx.lifecycle.compose.LocalLifecycleOwner
++import androidx.lifecycle.compose.collectAsStateWithLifecycle
++import java.io.File
++
++@OptIn(ExperimentalMaterial3Api::class)
++@Composable
++fun VaultScreen(onBack: () -> Unit, viewModel: VaultViewModel = hiltViewModel()) {
++    val state by viewModel.state.collectAsStateWithLifecycle()
++    var password by remember { mutableStateOf("") }
++    var confirmation by remember { mutableStateOf("") }
++    var exportFile by remember { mutableStateOf<File?>(null) }
++    var deleteFile by remember { mutableStateOf<File?>(null) }
++    var confirmLegacy by remember { mutableStateOf(false) }
++    val owner = LocalLifecycleOwner.current
++    val activity = LocalContext.current as? Activity
++    DisposableEffect(owner, activity) {
++        val alreadySecure = activity?.window?.attributes?.flags?.and(WindowManager.LayoutParams.FLAG_SECURE) != 0
++        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
++        val observer = LifecycleEventObserver { _, event ->
++            if (event == Lifecycle.Event.ON_STOP) {
++                password = ""
++                confirmation = ""
++                deleteFile = null
++                confirmLegacy = false
++                viewModel.lock()
++            }
++        }
++        owner.lifecycle.addObserver(observer)
++        onDispose {
++            owner.lifecycle.removeObserver(observer)
++            viewModel.lock()
++            if (!alreadySecure) activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
++        }
++    }
++    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
++        if (uri != null) viewModel.importDocument(uri)
++    }
++    val exporter = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
++        val file = exportFile
++        exportFile = null
++        if (uri != null && file != null) viewModel.exportDocument(file, uri)
++    }
++    Scaffold(topBar = {
++        TopAppBar(title = { Text("Coffre-fort") }, navigationIcon = {
++            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour") }
++        }, actions = {
++            if (state.unlocked) TextButton(onClick = { viewModel.lock() }) { Text("Verrouiller") }
++        })
++    }) { padding ->
++        LazyColumn(Modifier.fillMaxSize().padding(padding).padding(16.dp),
++            verticalArrangement = Arrangement.spacedBy(12.dp)) {
++            item {
++                Text("Les fichiers importés sont chiffrés dans l'espace privé de l'application. " +
++                    "Conservez votre mot de passe et une copie de secours : désinstaller l'application supprime ce coffre.")
++            }
++            state.message?.let { message -> item { Text(message, color = MaterialTheme.colorScheme.primary) } }
++            if (state.busy || state.configured == null) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
++            if (!state.unlocked) {
++                item {
++                    OutlinedTextField(password, { password = it }, enabled = !state.busy,
++                        label = { Text(if (state.configured == false) "Créer le mot de passe (8 caractères minimum)" else "Mot de passe maître") },
++                        visualTransformation = PasswordVisualTransformation(), singleLine = true,
++                        modifier = Modifier.fillMaxWidth())
++                }
++                if (state.configured == false) item {
++                    OutlinedTextField(confirmation, { confirmation = it }, enabled = !state.busy,
++                        label = { Text("Confirmer le mot de passe") },
++                        visualTransformation = PasswordVisualTransformation(), singleLine = true,
++                        modifier = Modifier.fillMaxWidth())
++                }
++                item {
++                    Button(enabled = !state.busy && state.configured != null, onClick = {
++                        viewModel.unlock(password, confirmation)
++                        password = ""
++                        confirmation = ""
++                    }) { Text(if (state.configured == false) "Créer le coffre" else "Déverrouiller") }
++                }
++            } else {
++                item {
++                    Button(enabled = !state.busy, onClick = { importer.launch(arrayOf("*/*")) }) {
++                        Text("Rechercher un fichier")
++                    }
++                    Text("L'importation conserve l'original. L'exportation crée une copie en clair.",
++                        style = MaterialTheme.typography.bodySmall)
++                    OutlinedButton(enabled = !state.busy, onClick = { confirmLegacy = true }) {
++                        Text("Récupérer l'ancien coffre")
++                    }
++                }
++                items(state.files, key = { it.absolutePath }) { file ->
++                    Card(Modifier.fillMaxWidth()) {
++                        Column(Modifier.padding(12.dp)) {
++                            Text(file.name.removeSuffix(".crypt"))
++                            Row {
++                                TextButton(enabled = !state.busy, onClick = {
++                                    exportFile = file
++                                    exporter.launch(file.name.removeSuffix(".crypt"))
++                                }) { Text("Exporter une copie") }
++                                TextButton(enabled = !state.busy, onClick = { deleteFile = file }) { Text("Supprimer") }
++                            }
++                        }
++                    }
++                }
++            }
++        }
++    }
++    deleteFile?.let { file ->
++        AlertDialog(onDismissRequest = { deleteFile = null }, title = { Text("Supprimer du coffre ?") },
++            text = { Text("Cette suppression est définitive. Vérifiez que vous avez une copie si nécessaire.") },
++            confirmButton = { TextButton(onClick = { deleteFile = null; viewModel.delete(file) }) { Text("Supprimer") } },
++            dismissButton = { TextButton(onClick = { deleteFile = null }) { Text("Annuler") } })
++    }
++    if (confirmLegacy) AlertDialog(onDismissRequest = { confirmLegacy = false }, title = { Text("Récupérer l'ancien coffre") },
++        text = { Text("Les fichiers de .bonobo_vault seront copiés et chiffrés. Les anciens fichiers resteront en place. " +
++            "Vérifiez les copies avant de supprimer les originaux. Relancer l'importation crée des doublons.") },
++        confirmButton = { TextButton(onClick = { confirmLegacy = false; viewModel.importLegacy() }) { Text("Copier et chiffrer") } },
++        dismissButton = { TextButton(onClick = { confirmLegacy = false }) { Text("Annuler") } })
++}
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/vault/VaultViewModel.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/vault/VaultViewModel.kt
+@@ -0,0 +1,216 @@
++package fr.bonobo.filemanager.presentation.ui.vault
++
++import android.content.Context
++import android.net.Uri
++import android.os.Environment
++import android.provider.OpenableColumns
++import androidx.datastore.preferences.core.edit
++import androidx.lifecycle.ViewModel
++import androidx.lifecycle.viewModelScope
++import dagger.hilt.android.lifecycle.HiltViewModel
++import dagger.hilt.android.qualifiers.ApplicationContext
++import fr.bonobo.filemanager.data.local.SettingsKeys
++import fr.bonobo.filemanager.data.local.settingsDataStore
++import fr.bonobo.filemanager.util.SafeFiles
++import fr.bonobo.filemanager.util.SecurityUtils
++import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.CancellationException
++import kotlinx.coroutines.flow.MutableStateFlow
++import kotlinx.coroutines.flow.asStateFlow
++import kotlinx.coroutines.flow.first
++import kotlinx.coroutines.flow.update
++import kotlinx.coroutines.launch
++import kotlinx.coroutines.withContext
++import java.io.File
++import java.nio.file.Files
++import javax.inject.Inject
++
++data class VaultState(
++    val configured: Boolean? = null,
++    val unlocked: Boolean = false,
++    val busy: Boolean = false,
++    val files: List<File> = emptyList(),
++    val message: String? = null
++)
++
++@HiltViewModel
++class VaultViewModel @Inject constructor(@ApplicationContext private val context: Context) : ViewModel() {
++    private val mutable = MutableStateFlow(VaultState())
++    val state = mutable.asStateFlow()
++    private var secret: CharArray? = null
++    private var generation = 0
++    private val vault = File(context.noBackupFilesDir, "encrypted_vault")
++    private val work = File(context.noBackupFilesDir, "vault_work")
++    private var pending: (suspend (String) -> String)? = null
++
++    init {
++        viewModelScope.launch {
++            try {
++                withContext(Dispatchers.IO) {
++                    check(vault.isDirectory || vault.mkdirs()) { "Coffre inaccessible" }
++                    // Private plaintext work files from an interrupted export are never retained.
++                    work.deleteRecursively()
++                    check(work.mkdirs()) { "Dossier temporaire inaccessible" }
++                }
++                val stored = context.settingsDataStore.data.first()[SettingsKeys.VAULT_PASSWORD]
++                mutable.update { it.copy(configured = stored != null) }
++            } catch (e: Exception) {
++                mutable.update { it.copy(message = "Impossible de charger le coffre : ${e.message}") }
++            }
++        }
++    }
++
++    fun unlock(password: String, confirmation: String) {
++        if (mutable.value.busy || mutable.value.configured == null) return
++        val epoch = generation
++        mutable.update { it.copy(busy = true, message = null) }
++        viewModelScope.launch {
++            try {
++                withContext(Dispatchers.IO) {
++                    val stored = context.settingsDataStore.data.first()[SettingsKeys.VAULT_PASSWORD]
++                    if (stored == null) {
++                        require(password.length >= 8 && password == confirmation) {
++                            "Au moins 8 caractères et une confirmation identique sont nécessaires"
++                        }
++                        require(vault.listFiles()?.none { it.name.endsWith(".crypt") } == true) {
++                            "Configuration absente : conserver les fichiers, ne pas recréer de mot de passe"
++                        }
++                    } else {
++                        require(SecurityUtils.verifyPassword(password, stored)) { "Mot de passe incorrect" }
++                    }
++                    if (stored == null || !stored.startsWith("v1$")) {
++                        val hashed = SecurityUtils.hashPassword(password)
++                        context.settingsDataStore.edit {
++                            check(it[SettingsKeys.VAULT_PASSWORD] == stored) { "Configuration modifiée, réessayez" }
++                            it[SettingsKeys.VAULT_PASSWORD] = hashed
++                        }
++                    }
++                }
++                if (epoch == generation) {
++                    val files = withContext(Dispatchers.IO) { listFiles() }
++                    if (epoch == generation) {
++                        secret?.fill('\u0000')
++                        secret = password.toCharArray()
++                        mutable.update { it.copy(unlocked = true, configured = true, files = files) }
++                    }
++                }
++            } catch (e: CancellationException) {
++                throw e
++            } catch (e: Exception) {
++                mutable.update { it.copy(message = e.message ?: "Déverrouillage impossible") }
++            } finally {
++                mutable.update { it.copy(busy = false) }
++            }
++            if (mutable.value.unlocked) {
++                val action = pending
++                pending = null
++                if (action != null) perform(action)
++            }
++        }
++    }
++
++    fun lock() {
++        generation++
++        secret?.fill('\u0000')
++        secret = null
++        mutable.update { it.copy(unlocked = false, files = emptyList(), message = null) }
++    }
++
++    private fun listFiles(): List<File> = (vault.listFiles() ?: error("Coffre inaccessible"))
++        .filter { it.isFile && it.name.endsWith(".crypt") && !Files.isSymbolicLink(it.toPath()) }
++        .sortedBy { it.name.lowercase() }
++
++    private fun destination(name: String): File {
++        val safe = name.substringAfterLast('/').substringAfterLast('\\')
++            .replace(Regex("[\\p{Cntrl}]"), "_").take(120)
++            .takeIf { it.isNotBlank() && it != "." && it != ".." } ?: "fichier"
++        var target = SafeFiles.child(vault, "$safe.crypt")
++        var index = 1
++        while (SafeFiles.exists(target)) target = SafeFiles.child(vault, "$safe (${index++}).crypt")
++        return target
++    }
++
++    fun importDocument(uri: Uri) = perform { password ->
++        val resolver = context.contentResolver
++        val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
++            if (it.moveToFirst()) it.getString(0) else null
++        } ?: "fichier"
++        val target = destination(name)
++        resolver.openInputStream(uri)?.use { SecurityUtils.encryptTo(it, target, password) }
++            ?: error("Impossible d'ouvrir le document")
++        "Fichier chiffré et ajouté. L'original reste à son emplacement."
++    }
++
++    fun exportDocument(file: File, uri: Uri) = perform { password ->
++        validateFile(file)
++        val temporary = File(work, "export-${java.util.UUID.randomUUID()}")
++        try {
++            SecurityUtils.decryptTo(file, temporary, password)
++            context.contentResolver.openOutputStream(uri, "wt")?.use { output ->
++                temporary.inputStream().use { it.copyTo(output) }
++            } ?: error("Impossible d'écrire le document")
++        } finally {
++            temporary.delete()
++        }
++        "Copie déchiffrée exportée à l'emplacement choisi."
++    }
++
++    fun delete(file: File) = perform {
++        validateFile(file)
++        check(file.delete()) { "Suppression impossible" }
++        "Fichier supprimé du coffre."
++    }
++
++    fun importLegacy() = perform { password ->
++        val legacy = File(Environment.getExternalStorageDirectory(), ".bonobo_vault")
++        require(legacy.isDirectory && !Files.isSymbolicLink(legacy.toPath())) { "Aucun ancien coffre trouvé" }
++        var count = 0
++        legacy.walkTopDown().onEnter { !Files.isSymbolicLink(it.toPath()) }
++            .onFail { _, error -> throw error }.forEach { file ->
++                if (file.isFile && !Files.isSymbolicLink(file.toPath())) {
++                    file.inputStream().use { SecurityUtils.encryptTo(it, destination(file.name), password) }
++                    count++
++                }
++            }
++        "$count fichier(s) copié(s) et chiffré(s). Les anciens originaux sont conservés : vérifiez puis supprimez-les si souhaité."
++    }
++
++    private fun validateFile(file: File) {
++        require(file.canonicalFile.parentFile == vault.canonicalFile &&
++            !Files.isSymbolicLink(file.toPath()) && file.isFile) { "Fichier de coffre invalide" }
++    }
++
++    private fun perform(action: suspend (String) -> String) {
++        if (mutable.value.busy) {
++            mutable.update { it.copy(message = "Une opération est déjà en cours") }
++            return
++        }
++        val password = secret?.concatToString()
++        if (password == null) {
++            pending = action
++            mutable.update { it.copy(message = "Déverrouillez le coffre pour terminer l'opération choisie") }
++            return
++        }
++        val epoch = generation
++        mutable.update { it.copy(busy = true, message = null) }
++        viewModelScope.launch {
++            try {
++                val message = withContext(Dispatchers.IO) { action(password) }
++                val files = withContext(Dispatchers.IO) { listFiles() }
++                mutable.update { it.copy(message = message, files = if (epoch == generation) files else emptyList()) }
++            } catch (e: CancellationException) {
++                throw e
++            } catch (e: Exception) {
++                mutable.update { it.copy(message = "Opération interrompue : ${e.message}. Les sources sont conservées.") }
++            } finally {
++                mutable.update { it.copy(busy = false) }
++            }
++        }
++    }
++
++    override fun onCleared() {
++        lock()
++        pending = null
++        super.onCleared()
++    }
++}
+--- a/app/src/main/java/fr/bonobo/filemanager/service/FtpService.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/service/FtpService.kt
+@@ -17,7 +17,6 @@
+ import org.apache.ftpserver.ftplet.Authority
+ import org.apache.ftpserver.ftplet.UserManager
+ import org.apache.ftpserver.listener.ListenerFactory
+-import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory
+ import org.apache.ftpserver.usermanager.impl.BaseUser
+ import org.apache.ftpserver.usermanager.impl.WritePermission
+ import java.io.File
+@@ -25,6 +24,7 @@
+ class FtpService : Service() {
+ 
+     private var server: FtpServer? = null
++    private var sessionUsers: SessionUserManager? = null
+ 
+     companion object {
+         private const val CHANNEL_ID = "ftp_server_channel"
+@@ -38,7 +38,6 @@
+ 
+         fun start(context: Context, password: String) {
+             require(password.length >= 8) { "Le mot de passe FTP doit contenir au moins 8 caractères" }
+-            _password.value = password
+             val intent = Intent(context, FtpService::class.java)
+                 .putExtra(EXTRA_PASSWORD, password)
+             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+@@ -61,7 +60,9 @@
+ 
+     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+         val password = intent?.getStringExtra(EXTRA_PASSWORD)
+-        if (password.isNullOrBlank()) {
++        intent?.removeExtra(EXTRA_PASSWORD)
++        if (server != null) return START_NOT_STICKY
++        if (password == null || password.length < 8) {
+             stopSelf()
+             return START_NOT_STICKY
+         }
+@@ -78,25 +79,25 @@
+ 
+             serverFactory.addListener("default", listenerFactory.createListener())
+ 
+-            val userManagerFactory = PropertiesUserManagerFactory()
+-            val userManager = userManagerFactory.createUserManager()
+-
+             val user = BaseUser()
+             user.name = "bonobo"
+-            user.password = password
+-            user.homeDirectory = Environment.getExternalStorageDirectory().absolutePath
++            val shared = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Bonobo-Partage")
++            check(shared.isDirectory || shared.mkdirs()) { "Impossible de créer le dossier partagé" }
++            user.homeDirectory = shared.absolutePath
++            user.maxIdleTime = 120
+             
+             val authorities = mutableListOf<Authority>()
+             authorities.add(WritePermission())
+             user.authorities = authorities
+ 
+-            userManager.save(user)
+-            serverFactory.userManager = userManager
++            sessionUsers = SessionUserManager(user, password)
++            serverFactory.userManager = sessionUsers
+ 
+             val ftpServer = serverFactory.createServer()
+             ftpServer.start()
+             server = ftpServer
+             _isRunning.value = true
++            _password.value = password
+         } catch (e: Exception) {
+             e.printStackTrace()
+             stopSelf()
+@@ -104,9 +105,15 @@
+     }
+ 
+     private fun stopFtpServer() {
+-        server?.stop()
+-        server = null
+-        _isRunning.value = false
++        try {
++            server?.stop()
++        } finally {
++            server = null
++            sessionUsers?.clear()
++            sessionUsers = null
++            _password.value = null
++            _isRunning.value = false
++        }
+     }
+ 
+     override fun onDestroy() {
+--- a/app/src/main/java/fr/bonobo/filemanager/service/SessionUserManager.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/service/SessionUserManager.kt
+@@ -0,0 +1,28 @@
++package fr.bonobo.filemanager.service
++
++import org.apache.ftpserver.ftplet.Authentication
++import org.apache.ftpserver.ftplet.AuthenticationFailedException
++import org.apache.ftpserver.ftplet.User
++import org.apache.ftpserver.ftplet.UserManager
++import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication
++import java.security.MessageDigest
++
++/** Ephemeral FTP user: never calls a file-backed PropertiesUserManager. */
++class SessionUserManager(private val user: User, password: String) : UserManager {
++    private val expected = MessageDigest.getInstance("SHA-256").digest(password.toByteArray(Charsets.UTF_8))
++    override fun getUserByName(name: String): User? = if (name == user.name) user else null
++    override fun getAllUserNames(): Array<String> = arrayOf(user.name)
++    override fun delete(name: String) { throw UnsupportedOperationException("Session en mémoire") }
++    override fun save(user: User) { throw UnsupportedOperationException("Session en mémoire") }
++    override fun doesExist(name: String): Boolean = name == user.name
++    override fun getAdminName(): String = user.name
++    override fun isAdmin(name: String): Boolean = false
++    override fun authenticate(authentication: Authentication): User {
++        if (authentication is UsernamePasswordAuthentication && authentication.username == user.name) {
++            val actual = MessageDigest.getInstance("SHA-256").digest(authentication.password.toByteArray(Charsets.UTF_8))
++            if (MessageDigest.isEqual(actual, expected)) return user
++        }
++        throw AuthenticationFailedException("Identifiants invalides")
++    }
++    fun clear() { expected.fill(0) }
++}
+--- a/app/src/main/java/fr/bonobo/filemanager/service/TransferServer.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/service/TransferServer.kt
+@@ -6,116 +6,152 @@
+ import java.net.Socket
+ import java.security.MessageDigest
+ import java.util.Base64
++import java.util.Collections
+ import java.util.concurrent.atomic.AtomicBoolean
+ 
+-class TransferServer(private val password: String, private val port: Int = 8080) {
++/** One sharing session. Authentication is mandatory; HTTP itself is not encrypted. */
++class TransferServer(password: String, private val port: Int = 8080) {
+     private var serverSocket: ServerSocket? = null
+-    private val isRunning = AtomicBoolean(false)
++    private val running = AtomicBoolean(false)
+     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
++    private val clients = Collections.synchronizedSet(mutableSetOf<Socket>())
++    private val expected = digest("bonobo:$password".toByteArray(Charsets.UTF_8))
++    private var failures = 0
++    private var failureWindow = System.nanoTime()
+ 
+-    fun start(file: File) {
+-        if (isRunning.get()) return
+-        isRunning.set(true)
+-        
++    init { require(password.length >= 8) { "Mot de passe de 8 caractères minimum" } }
++
++    @Synchronized
++    fun start(file: File): Result<Unit> = runCatching {
++        require(file.isFile && file.canRead()) { "Fichier source inaccessible" }
++        check(scope.isActive) { "Créez une nouvelle session de transfert" }
++        if (running.get()) return@runCatching
++        val listener = ServerSocket(port)
++        serverSocket = listener
++        running.set(true)
+         scope.launch {
+             try {
+-                serverSocket = ServerSocket(port)
+-                while (isRunning.get()) {
+-                    val client = serverSocket?.accept() ?: break
+-                    handleClient(client, file)
++                while (running.get()) {
++                    val client = listener.accept()
++                    synchronized(clients) {
++                        if (!running.get() || clients.size >= 4) client.close()
++                        else {
++                            clients.add(client)
++                            launch { handleClient(client, file) }
++                        }
++                    }
+                 }
+-            } catch (e: Exception) {
+-                e.printStackTrace()
+-            } finally {
+-                stop()
+-            }
++            } catch (_: IOException) {
++                // Closing the listener is the normal shutdown path.
++            } finally { stop() }
+         }
+     }
+ 
+-    private suspend fun handleClient(socket: Socket, file: File) = withContext(Dispatchers.IO) {
++    private suspend fun handleClient(socket: Socket, file: File) = coroutineScope {
++        val deadline = launch { delay(10 * 60_000L); socket.close() }
+         try {
+-            socket.soTimeout = 5_000
+-            val requestLines = readRequestHeaders(socket.getInputStream())
+-            val requestLine = requestLines.firstOrNull()
+-            val authorization = requestLines.firstOrNull {
+-                it.startsWith("Authorization:", ignoreCase = true)
+-            }?.substringAfter(':')?.trim()
++            val headers = readRequestHeaders(socket)
++            val request = headers.firstOrNull()?.split(' ') ?: emptyList()
+             val output = socket.getOutputStream()
+-            val writer = PrintWriter(output)
+-            if (requestLine != "GET / HTTP/1.1") {
+-                writer.print("HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Length: 0\r\n\r\n")
+-                writer.flush()
+-                return@withContext
++            if (request.size != 3 || request[0] != "GET" || request[1] != "/" ||
++                request[2] !in listOf("HTTP/1.0", "HTTP/1.1")) {
++                respond(output, "404 Not Found")
++                return@coroutineScope
+             }
+-            if (!isAuthorized(authorization)) {
+-                writer.print(
+-                    "HTTP/1.1 401 Unauthorized\r\n" +
+-                        "WWW-Authenticate: Basic realm=\"Bonobo Transfert Direct\", charset=\"UTF-8\"\r\n" +
+-                        "Connection: close\r\nContent-Length: 0\r\n\r\n"
+-                )
+-                writer.flush()
+-                return@withContext
++            val authorization = headers.drop(1).filter { it.startsWith("Authorization:", true) }
++            if (isThrottled()) {
++                respond(output, "429 Too Many Requests", "Retry-After: 60\r\n")
++                return@coroutineScope
+             }
+-
+-            val safeName = file.name.replace('"', '_').replace('\r', '_').replace('\n', '_')
+-            writer.println("HTTP/1.1 200 OK")
+-            writer.println("Content-Type: application/octet-stream")
+-            writer.println("Content-Length: ${file.length()}")
+-
+-            writer.println("Content-Disposition: attachment; filename=\"$safeName\"")
+-            writer.println("Connection: close")
+-            writer.println()
+-            writer.flush()
+-            
++            if (authorization.size != 1 || !isAuthorized(authorization.single().substringAfter(':').trim())) {
++                recordFailure()
++                respond(output, "401 Unauthorized",
++                    "WWW-Authenticate: Basic realm=\"Bonobo\", charset=\"UTF-8\"\r\n")
++                return@coroutineScope
++            }
+             file.inputStream().use { input ->
+-                input.copyTo(output)
++                val size = input.channel.size()
++                val safeName = file.name.map { if (it.code in 32..126 && it != '"' && it != '\\') it else '_' }.joinToString("")
++                val header = "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\n" +
++                    "Content-Length: $size\r\nContent-Disposition: attachment; filename=\"$safeName\"\r\n" +
++                    "Cache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nConnection: close\r\n\r\n"
++                output.write(header.toByteArray(Charsets.ISO_8859_1))
++                val buffer = ByteArray(64 * 1024)
++                var remaining = size
++                while (remaining > 0 && running.get()) {
++                    val n = input.read(buffer, 0, minOf(buffer.size.toLong(), remaining).toInt())
++                    if (n < 0) throw EOFException("Source modifiée pendant le transfert")
++                    output.write(buffer, 0, n)
++                    remaining -= n
++                }
++                output.flush()
+             }
+-            output.flush()
+-        } catch (e: Exception) {
+-            e.printStackTrace()
++        } catch (_: IOException) {
++            // Invalid/incomplete request, disconnect or session timeout: send no file.
+         } finally {
++            deadline.cancel()
++            clients.remove(socket)
+             socket.close()
+         }
+     }
+ 
+-    private fun readRequestHeaders(input: InputStream): List<String> {
++    private fun respond(output: OutputStream, status: String, extra: String = "") {
++        output.write(("HTTP/1.1 $status\r\n${extra}Cache-Control: no-store\r\n" +
++            "Connection: close\r\nContent-Length: 0\r\n\r\n").toByteArray(Charsets.ISO_8859_1))
++        output.flush()
++    }
++
++    private fun readRequestHeaders(socket: Socket): List<String> {
++        val input = socket.getInputStream()
++        val end = System.nanoTime() + 5_000_000_000L
+         val lines = mutableListOf<String>()
+-        var totalLength = 0
+-        while (lines.size < 64 && totalLength <= 16_384) {
++        var total = 0
++        while (lines.size < 64) {
+             val line = StringBuilder()
+-            while (line.length <= 2_048) {
++            while (true) {
++                val remainingMs = (end - System.nanoTime()) / 1_000_000
++                if (remainingMs <= 0) throw IOException("En-têtes trop lents")
++                socket.soTimeout = remainingMs.toInt().coerceAtLeast(1)
+                 val value = input.read()
+-                if (value == -1 || value == '\n'.code) break
++                if (value < 0) throw EOFException()
++                if (++total > 16_384 || line.length > 2048) throw IOException("En-têtes trop longs")
++                if (value == '\n'.code) break
+                 if (value != '\r'.code) line.append(value.toChar())
+             }
+-            val value = line.toString()
+-            totalLength += value.length
+-            if (value.isEmpty()) break
+-            lines += value
++            if (line.isEmpty()) return lines
++            lines += line.toString()
+         }
+-        return lines
++        throw IOException("Trop d'en-têtes")
+     }
+ 
+-    private fun isAuthorized(header: String?): Boolean {
+-        if (header == null || !header.startsWith("Basic ", ignoreCase = true)) return false
++    private fun isAuthorized(header: String): Boolean {
++        if (!header.startsWith("Basic ", true)) return false
+         return try {
+-            val decoded = String(Base64.getDecoder().decode(header.substringAfter(' ').trim()), Charsets.UTF_8)
+-            MessageDigest.isEqual(
+-                decoded.toByteArray(Charsets.UTF_8),
+-                "bonobo:$password".toByteArray(Charsets.UTF_8)
+-            )
+-        } catch (_: IllegalArgumentException) {
+-            false
+-        }
++            MessageDigest.isEqual(expected, digest(Base64.getDecoder().decode(header.substringAfter(' ').trim())))
++        } catch (_: IllegalArgumentException) { false }
+     }
+ 
++    @Synchronized private fun isThrottled(): Boolean {
++        if (System.nanoTime() - failureWindow > 60_000_000_000L) {
++            failures = 0
++            failureWindow = System.nanoTime()
++        }
++        return failures >= 20
++    }
++    @Synchronized private fun recordFailure() { failures++ }
++
++    @Synchronized
+     fun stop() {
+-        isRunning.set(false)
+-        try {
+-            serverSocket?.close()
+-        } catch (e: Exception) {
+-            e.printStackTrace()
++        running.set(false)
++        try { serverSocket?.close() } catch (_: IOException) { }
++        serverSocket = null
++        synchronized(clients) {
++            clients.toList().forEach { try { it.close() } catch (_: IOException) { } }
++            clients.clear()
+         }
+-        serverSocket = null
++        expected.fill(0)
++        scope.cancel()
+     }
++
++    private fun digest(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes)
+ }
+--- a/app/src/main/java/fr/bonobo/filemanager/util/CredentialStore.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/util/CredentialStore.kt
+@@ -0,0 +1,43 @@
++package fr.bonobo.filemanager.util
++
++import android.security.keystore.KeyGenParameterSpec
++import android.security.keystore.KeyProperties
++import java.security.KeyStore
++import java.util.Base64
++import javax.crypto.Cipher
++import javax.crypto.KeyGenerator
++import javax.crypto.SecretKey
++import javax.crypto.spec.GCMParameterSpec
++import javax.inject.Inject
++import javax.inject.Singleton
++
++@Singleton
++class CredentialStore @Inject constructor() {
++    private val alias = "bonobo.remote.credentials.v1"
++
++    @Synchronized
++    private fun key(create: Boolean): SecretKey {
++        val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
++        if (store.containsAlias(alias)) return store.getKey(alias, null) as SecretKey
++        check(create) { "Clé des connexions indisponible : recréez la connexion" }
++        return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore").apply {
++            init(KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
++                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
++                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).build())
++        }.generateKey()
++    }
++
++    fun encrypt(password: String): String {
++        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
++        cipher.init(Cipher.ENCRYPT_MODE, key(true))
++        return Base64.getEncoder().encodeToString(cipher.iv + cipher.doFinal(password.toByteArray(Charsets.UTF_8)))
++    }
++
++    fun decrypt(encoded: String): String {
++        val data = Base64.getDecoder().decode(encoded)
++        require(data.size >= 28) { "Identifiant chiffré invalide" }
++        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
++        cipher.init(Cipher.DECRYPT_MODE, key(false), GCMParameterSpec(128, data.copyOfRange(0, 12)))
++        return String(cipher.doFinal(data, 12, data.size - 12), Charsets.UTF_8)
++    }
++}
+--- a/app/src/main/java/fr/bonobo/filemanager/util/FileUtils.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/util/FileUtils.kt
+@@ -164,11 +164,12 @@
+         source: File,
+         destination: File
+     ) {
++        require(!java.nio.file.Files.isSymbolicLink(source.toPath())) { "Copie de lien symbolique non prise en charge" }
+         require(source.exists()) {
+             "Le fichier source n'existe pas"
+         }
+ 
+-        if (source.absolutePath == destination.absolutePath) {
++        if (source.canonicalPath == destination.canonicalPath) {
+             error("La source et la destination sont identiques")
+         }
+ 
+@@ -179,10 +180,7 @@
+             )
+         } else {
+             destination.parentFile?.mkdirs()
+-            source.copyTo(
+-                target = destination,
+-                overwrite = true
+-            )
++            SafeFiles.writeNew(destination) { output -> source.inputStream().use { it.copyTo(output) } }
+         }
+     }
+ 
+@@ -191,16 +189,17 @@
+         destination: File
+     ) {
+         require(
+-            !destination.absolutePath.startsWith(
+-                source.absolutePath + File.separator
++            !destination.canonicalPath.startsWith(
++                source.canonicalPath + File.separator
+             )
+         ) {
+             "Impossible de copier un dossier dans lui-même"
+         }
+ 
+-        destination.mkdirs()
+-
+-        source.listFiles()?.forEach { child ->
++        require(!SafeFiles.exists(destination)) { "La destination existe déjà" }
++        check(destination.mkdirs()) { "Impossible de créer le dossier de destination" }
++        val children = source.listFiles() ?: error("Impossible de lire le dossier source")
++        children.forEach { child ->
+             copy(
+                 source = child,
+                 destination = File(
+@@ -222,12 +221,12 @@
+     }
+ 
+     fun createDirectory(parent: File, name: String): Boolean {
+-        val dir = File(parent, name)
++        val dir = SafeFiles.child(parent, name)
+         return if (dir.exists()) false else dir.mkdirs()
+     }
+ 
+     fun createEmptyFile(parent: File, name: String): Boolean {
+-        val file = File(parent, name)
++        val file = SafeFiles.child(parent, name)
+         return if (file.exists()) false else file.createNewFile()
+     }
+ 
+--- a/app/src/main/java/fr/bonobo/filemanager/util/SafeFiles.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/util/SafeFiles.kt
+@@ -0,0 +1,59 @@
++package fr.bonobo.filemanager.util
++
++import java.io.File
++import java.io.OutputStream
++import java.nio.file.Files
++import java.nio.file.LinkOption
++import java.nio.file.StandardOpenOption
++
++/** Shared checks for user supplied names, archive paths and non-destructive writes. */
++object SafeFiles {
++    fun child(parent: File, name: String): File {
++        require(name.isNotBlank() && name != "." && name != ".." &&
++            name.none { it == '/' || it == '\\' || it == '\u0000' }) { "Nom de fichier invalide" }
++        return File(parent, name)
++    }
++
++    fun archiveChild(root: File, name: String): File {
++        val normalized = name.replace('\\', '/')
++        require(normalized.isNotBlank() && !normalized.startsWith('/') &&
++            !Regex("^[A-Za-z]:").containsMatchIn(normalized) &&
++            normalized.split('/').none { it == ".." } && '\u0000' !in normalized) {
++            "Chemin dangereux dans l'archive"
++        }
++        val base = root.canonicalFile.toPath()
++        val destination = File(root, normalized)
++        require(destination.canonicalFile.toPath().startsWith(base) &&
++            destination.canonicalFile.toPath() != base) { "Entrée hors du dossier d'extraction" }
++        var part: File? = destination.absoluteFile
++        while (part != null && part.toPath() != root.absoluteFile.toPath()) {
++            require(!Files.isSymbolicLink(part.toPath())) { "Lien symbolique interdit" }
++            part = part.parentFile
++        }
++        return destination
++    }
++
++    fun writeNew(destination: File, write: (OutputStream) -> Unit) {
++        check(destination.parentFile?.let { it.isDirectory || it.mkdirs() } != false) {
++            "Dossier de destination inaccessible"
++        }
++        // CREATE_NEW is an atomic reservation, including against existing symlinks.
++        val output = Files.newOutputStream(destination.toPath(),
++            StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)
++        try {
++            output.use(write)
++        } catch (error: Throwable) {
++            destination.delete()
++            throw error
++        }
++    }
++
++    fun publish(temporary: File, destination: File) {
++        writeNew(destination) { output -> temporary.inputStream().use { it.copyTo(output) } }
++        temporary.delete()
++    }
++
++    fun exists(file: File): Boolean = Files.exists(file.toPath(), LinkOption.NOFOLLOW_LINKS)
++
++    fun shellQuote(value: String): String = "'" + value.replace("'", "'\"'\"'") + "'"
++}
+--- a/app/src/main/java/fr/bonobo/filemanager/util/SecurityUtils.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/util/SecurityUtils.kt
+@@ -7,7 +7,7 @@
+ import java.security.SecureRandom
+ import java.util.Base64
+ import javax.crypto.Cipher
+-import javax.crypto.CipherInputStream
++import java.io.InputStream
+ import javax.crypto.CipherOutputStream
+ import javax.crypto.SecretKeyFactory
+ import javax.crypto.spec.GCMParameterSpec
+@@ -25,47 +25,54 @@
+     private val MAGIC = byteArrayOf('B'.code.toByte(), 'N'.code.toByte(), 'B'.code.toByte(), '2'.code.toByte())
+ 
+     fun encrypt(file: File, password: String): File {
++        require(password.length >= 8) { "Mot de passe de 8 caractères minimum" }
+         require(file.isFile) { "Fichier source introuvable" }
++        val destination = File(file.parentFile, "${file.name}.crypt")
++        file.inputStream().use { encryptTo(it, destination, password) }
++        return destination
++    }
++
++    fun encryptTo(input: InputStream, destination: File, password: String) {
+         require(password.isNotEmpty()) { "Mot de passe vide" }
+-        val destination = File(file.parentFile, "${file.name}.crypt")
+-        require(!destination.exists()) { "Le fichier chiffré existe déjà" }
+-        val temporary = File(file.parentFile, ".${destination.name}.${System.nanoTime()}.tmp")
++        require(!SafeFiles.exists(destination)) { "Le fichier chiffré existe déjà" }
++        val temporary = File.createTempFile(".bonobo-", ".tmp", destination.parentFile)
+         val salt = ByteArray(SALT_SIZE).also(SecureRandom()::nextBytes)
+         val iv = ByteArray(IV_SIZE).also(SecureRandom()::nextBytes)
+-        val cipher = Cipher.getInstance(ALGORITHM).apply {
+-            init(Cipher.ENCRYPT_MODE, deriveKey(password, salt), GCMParameterSpec(TAG_LENGTH_BITS, iv))
+-            updateAAD(MAGIC)
+-        }
+-
+         try {
++            val cipher = Cipher.getInstance(ALGORITHM).apply {
++                init(Cipher.ENCRYPT_MODE, deriveKey(password, salt), GCMParameterSpec(TAG_LENGTH_BITS, iv))
++                updateAAD(MAGIC)
++            }
+             FileOutputStream(temporary).use { output ->
+                 output.write(MAGIC)
+                 output.write(salt)
+                 output.write(iv)
+-                CipherOutputStream(output, cipher).use { encrypted ->
+-                    FileInputStream(file).use { input -> input.copyTo(encrypted) }
+-                }
++                CipherOutputStream(output, cipher).use { encrypted -> input.copyTo(encrypted) }
+             }
+-            check(temporary.renameTo(destination)) { "Impossible de finaliser le fichier chiffré" }
+-            return destination
+-        } catch (error: Exception) {
++            SafeFiles.publish(temporary, destination)
++        } finally {
+             temporary.delete()
+-            throw error
+         }
+     }
+ 
+     fun decrypt(file: File, password: String): File {
++        require(file.name.endsWith(".crypt")) { "Extension .crypt attendue" }
++        val destination = File(file.parentFile, file.name.removeSuffix(".crypt"))
++        decryptTo(file, destination, password)
++        return destination
++    }
++
++    fun decryptTo(file: File, destination: File, password: String) {
+         require(file.isFile) { "Fichier chiffré introuvable" }
+-        require(file.name.endsWith(".crypt")) { "Extension .crypt attendue" }
+         require(password.isNotEmpty()) { "Mot de passe vide" }
+-        val destination = File(file.parentFile, file.name.removeSuffix(".crypt"))
+-        require(!destination.exists()) { "Le fichier de destination existe déjà" }
+-        val temporary = File(file.parentFile, ".${destination.name}.${System.nanoTime()}.tmp")
+-
++        require(!SafeFiles.exists(destination)) { "Le fichier de destination existe déjà" }
++        val temporary = File.createTempFile(".bonobo-", ".tmp", destination.parentFile)
+         try {
+             FileInputStream(file).use { input ->
+                 val magic = input.readExact(MAGIC.size)
+-                require(MessageDigest.isEqual(magic, MAGIC)) { "Format chiffré non pris en charge" }
++                require(MessageDigest.isEqual(magic, MAGIC)) {
++                    "Ancien format ou fichier inconnu : conserver l'original pour récupération"
++                }
+                 val salt = input.readExact(SALT_SIZE)
+                 val iv = input.readExact(IV_SIZE)
+                 val cipher = Cipher.getInstance(ALGORITHM).apply {
+@@ -73,14 +80,19 @@
+                     updateAAD(MAGIC)
+                 }
+                 FileOutputStream(temporary).use { output ->
+-                    CipherInputStream(input, cipher).use { decrypted -> decrypted.copyTo(output) }
++                    val buffer = ByteArray(64 * 1024)
++                    while (true) {
++                        val count = input.read(buffer)
++                        if (count < 0) break
++                        cipher.update(buffer, 0, count)?.let { output.write(it) }
++                    }
++                    // Explicit doFinal: authentication failure must never be swallowed by a stream.
++                    output.write(cipher.doFinal())
+                 }
+             }
+-            check(temporary.renameTo(destination)) { "Impossible de finaliser le fichier déchiffré" }
+-            return destination
+-        } catch (error: Exception) {
++            SafeFiles.publish(temporary, destination)
++        } finally {
+             temporary.delete()
+-            throw error
+         }
+     }
+ 
+@@ -101,7 +113,8 @@
+             } else {
+                 val salt = Base64.getDecoder().decode(parts[2])
+                 val expected = Base64.getDecoder().decode(parts[3])
+-                MessageDigest.isEqual(expected, deriveBytes(password, salt))
++                salt.size == SALT_SIZE && expected.size == KEY_LENGTH / 8 &&
++                    MessageDigest.isEqual(expected, deriveBytes(password, salt))
+             }
+         } catch (_: Exception) {
+             false
+--- a/app/src/main/res/xml/backup_rules.xml
++++ b/app/src/main/res/xml/backup_rules.xml
+@@ -1,13 +1,8 @@
+-<?xml version="1.0" encoding="utf-8"?><!--
+-   Sample backup rules file; uncomment and customize as necessary.
+-   See https://developer.android.com/guide/topics/data/autobackup
+-   for details.
+-   Note: This file is ignored for devices older than API 31
+-   See https://developer.android.com/about/versions/12/backup-restore
+--->
++<?xml version="1.0" encoding="utf-8"?>
+ <full-backup-content>
+-    <!--
+-   <include domain="sharedpref" path="."/>
+-   <exclude domain="sharedpref" path="device.xml"/>
+--->
+-</full-backup-content>+    <exclude domain="root" path="." />
++    <exclude domain="file" path="." />
++    <exclude domain="database" path="." />
++    <exclude domain="sharedpref" path="." />
++    <exclude domain="external" path="." />
++</full-backup-content>
+--- a/app/src/main/res/xml/data_extraction_rules.xml
++++ b/app/src/main/res/xml/data_extraction_rules.xml
+@@ -1,19 +1,17 @@
+-<?xml version="1.0" encoding="utf-8"?><!--
+-   Sample data extraction rules file; uncomment and customize as necessary.
+-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
+-   for details.
+--->
++<?xml version="1.0" encoding="utf-8"?>
+ <data-extraction-rules>
+     <cloud-backup>
+-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
+-        <include .../>
+-        <exclude .../>
+-        -->
++        <exclude domain="root" path="." />
++        <exclude domain="file" path="." />
++        <exclude domain="database" path="." />
++        <exclude domain="sharedpref" path="." />
++        <exclude domain="external" path="." />
+     </cloud-backup>
+-    <!--
+     <device-transfer>
+-        <include .../>
+-        <exclude .../>
++        <exclude domain="root" path="." />
++        <exclude domain="file" path="." />
++        <exclude domain="database" path="." />
++        <exclude domain="sharedpref" path="." />
++        <exclude domain="external" path="." />
+     </device-transfer>
+-    -->
+-</data-extraction-rules>+</data-extraction-rules>
+--- a/app/src/test/java/fr/bonobo/filemanager/ArchiveSecurityTest.kt
++++ b/app/src/test/java/fr/bonobo/filemanager/ArchiveSecurityTest.kt
+@@ -0,0 +1,34 @@
++package fr.bonobo.filemanager
++
++import fr.bonobo.filemanager.domain.usecase.DecompressFileUseCase
++import kotlinx.coroutines.runBlocking
++import org.junit.Assert.*
++import org.junit.Test
++import java.io.File
++import java.nio.file.Files
++import java.util.zip.ZipEntry
++import java.util.zip.ZipOutputStream
++
++class ArchiveSecurityTest {
++    @Test fun zipTraversalIsRejectedAndNormalZipWorks() = runBlocking {
++        val root = Files.createTempDirectory("archive-test").toFile()
++        try {
++            val zip = File(root, "test.zip")
++            val output = File(root, "extracted")
++            fun archive(name: String) {
++                ZipOutputStream(zip.outputStream()).use {
++                    it.putNextEntry(ZipEntry(name)); it.write("payload".toByteArray()); it.closeEntry()
++                }
++            }
++            archive("../outside.txt")
++            assertTrue(DecompressFileUseCase()(zip, output).isFailure)
++            assertFalse(File(root, "outside.txt").exists())
++            archive("nested/inside.txt")
++            assertTrue(DecompressFileUseCase()(zip, output).isSuccess)
++            assertEquals("payload", File(output, "nested/inside.txt").readText())
++            File(output, "nested/inside.txt").writeText("preserve")
++            assertTrue(DecompressFileUseCase()(zip, output).isFailure)
++            assertEquals("preserve", File(output, "nested/inside.txt").readText())
++        } finally { root.deleteRecursively() }
++    }
++}
+--- a/app/src/test/java/fr/bonobo/filemanager/FileCopySecurityTest.kt
++++ b/app/src/test/java/fr/bonobo/filemanager/FileCopySecurityTest.kt
+@@ -0,0 +1,26 @@
++package fr.bonobo.filemanager
++
++import fr.bonobo.filemanager.util.FileUtils
++import org.junit.Assert.*
++import org.junit.Test
++import java.io.File
++import java.nio.file.Files
++
++class FileCopySecurityTest {
++    @Test fun copyPreservesExistingFileAndRejectsCanonicalSelfCopy() {
++        val root = Files.createTempDirectory("copy-test").toFile()
++        try {
++            val source = File(root, "source").apply { writeText("source") }
++            val destination = File(root, "destination").apply { writeText("keep") }
++            assertTrue(runCatching { FileUtils.copy(source, destination) }.isFailure)
++            assertEquals("keep", destination.readText())
++            assertTrue(runCatching { FileUtils.copy(source, File(root, "./source")) }.isFailure)
++            assertEquals("source", source.readText())
++            val folder = File(root, "folder").apply { mkdir() }
++            assertTrue(runCatching { FileUtils.copy(folder, File(folder, "sub")) }.isFailure)
++            val fresh = File(root, "fresh")
++            FileUtils.copy(source, fresh)
++            assertEquals("source", fresh.readText())
++        } finally { root.deleteRecursively() }
++    }
++}
+--- a/app/src/test/java/fr/bonobo/filemanager/SecurityRegressionTest.kt
++++ b/app/src/test/java/fr/bonobo/filemanager/SecurityRegressionTest.kt
+@@ -0,0 +1,97 @@
++package fr.bonobo.filemanager
++
++import fr.bonobo.filemanager.util.SafeFiles
++import fr.bonobo.filemanager.util.SecurityUtils
++import org.junit.Assert.*
++import org.junit.Test
++import java.io.File
++import java.nio.file.Files
++
++class SecurityRegressionTest {
++    private fun inDirectory(test: (File) -> Unit) {
++        val root = Files.createTempDirectory("bonobo-test").toFile()
++        try { test(root) } finally { root.deleteRecursively() }
++    }
++
++    @Test fun roundTripAndEmptyFile() = inDirectory { root ->
++        for (size in listOf(0, 1, 100_000)) {
++            val file = File(root, "file-$size")
++            val bytes = ByteArray(size) { (it % 251).toByte() }
++            file.writeBytes(bytes)
++            val encrypted = SecurityUtils.encrypt(file, "password123")
++            assertTrue(file.delete())
++            assertArrayEquals(bytes, SecurityUtils.decrypt(encrypted, "password123").readBytes())
++        }
++    }
++
++    @Test fun wrongPasswordAndTamperingPublishNothing() = inDirectory { root ->
++        val source = File(root, "document").apply { writeText("private document") }
++        val encrypted = SecurityUtils.encrypt(source, "password123")
++        source.delete()
++        assertTrue(runCatching { SecurityUtils.decrypt(encrypted, "wrong") }.isFailure)
++        assertFalse(source.exists())
++        val original = encrypted.readBytes()
++        for (index in listOf(0, 4, 20, original.lastIndex)) {
++            val corrupt = original.copyOf()
++            corrupt[index] = (corrupt[index].toInt() xor 1).toByte()
++            encrypted.writeBytes(corrupt)
++            assertTrue(runCatching { SecurityUtils.decrypt(encrypted, "password123") }.isFailure)
++            assertFalse(source.exists())
++            assertEquals(listOf(encrypted.name), root.list()!!.toList())
++        }
++        encrypted.writeBytes(original.copyOf(10))
++        assertTrue(runCatching { SecurityUtils.decrypt(encrypted, "password123") }.isFailure)
++        assertFalse(source.exists())
++    }
++
++    @Test fun existingDestinationAndSymlinkAreNeverOverwritten() = inDirectory { root ->
++        val source = File(root, "document").apply { writeText("keep me") }
++        val encrypted = SecurityUtils.encrypt(source, "password123")
++        assertTrue(runCatching { SecurityUtils.decrypt(encrypted, "password123") }.isFailure)
++        assertEquals("keep me", source.readText())
++        val original = encrypted.readBytes()
++        assertTrue(runCatching { SecurityUtils.encrypt(source, "password123") }.isFailure)
++        assertArrayEquals(original, encrypted.readBytes())
++        val link = File(root, "link")
++        Files.createSymbolicLink(link.toPath(), source.toPath())
++        assertTrue(runCatching { SafeFiles.writeNew(link) { it.write(0) } }.isFailure)
++        assertEquals("keep me", source.readText())
++    }
++
++    @Test fun failedImportLeavesNoCiphertext() = inDirectory { root ->
++        val target = File(root, "document.crypt")
++        val input = object : java.io.InputStream() {
++            override fun read(): Int = throw java.io.IOException("provider disconnected")
++        }
++        assertTrue(runCatching { SecurityUtils.encryptTo(input, target, "password123") }.isFailure)
++        assertTrue(root.list()!!.isEmpty())
++    }
++
++    @Test fun rejectTraversalAndExternalSymlinks() = inDirectory { root ->
++        for (name in listOf("../outside", "a/../../outside", "a\\..\\outside", "/absolute", "C:\\file", "..")) {
++            assertTrue(name, runCatching { SafeFiles.archiveChild(root, name) }.isFailure)
++        }
++        assertEquals(File(root, "folder/file"), SafeFiles.archiveChild(root, "folder/file"))
++        val outside = Files.createTempDirectory("outside").toFile()
++        try {
++            Files.createSymbolicLink(File(root, "escape").toPath(), outside.toPath())
++            assertTrue(runCatching { SafeFiles.archiveChild(root, "escape/file") }.isFailure)
++        } finally { outside.deleteRecursively() }
++    }
++
++    @Test fun newNamesRejectParentComponents() = inDirectory { root ->
++        for (name in listOf("", ".", "..", "../secret", "a/b", "a\\b")) {
++            assertTrue(runCatching { SafeFiles.child(root, name) }.isFailure)
++        }
++    }
++
++    @Test fun hashSaltAndLegacyPasswords() {
++        val one = SecurityUtils.hashPassword("password123")
++        val two = SecurityUtils.hashPassword("password123")
++        assertNotEquals(one, two)
++        assertTrue(SecurityUtils.verifyPassword("password123", one))
++        assertFalse(SecurityUtils.verifyPassword("wrong", one))
++        assertTrue(SecurityUtils.verifyPassword("old", "old"))
++        assertFalse(SecurityUtils.verifyPassword("x", "v1\$210000\$invalid\$invalid"))
++    }
++}
+--- a/app/src/test/java/fr/bonobo/filemanager/SessionUserManagerTest.kt
++++ b/app/src/test/java/fr/bonobo/filemanager/SessionUserManagerTest.kt
+@@ -0,0 +1,21 @@
++package fr.bonobo.filemanager
++
++import fr.bonobo.filemanager.service.SessionUserManager
++import org.apache.ftpserver.usermanager.impl.BaseUser
++import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication
++import org.apache.ftpserver.usermanager.AnonymousAuthentication
++import org.junit.Assert.*
++import org.junit.Test
++
++class SessionUserManagerTest {
++    @Test fun onlyCurrentSessionPasswordIsAccepted() {
++        val user = BaseUser().apply { name = "bonobo" }
++        val manager = SessionUserManager(user, "password123")
++        assertEquals(user, manager.authenticate(UsernamePasswordAuthentication("bonobo", "password123")))
++        assertTrue(runCatching { manager.authenticate(UsernamePasswordAuthentication("bonobo", "wrong")) }.isFailure)
++        assertTrue(runCatching { manager.authenticate(AnonymousAuthentication()) }.isFailure)
++        assertTrue(runCatching { manager.save(user) }.isFailure)
++        manager.clear()
++        assertTrue(runCatching { manager.authenticate(UsernamePasswordAuthentication("bonobo", "password123")) }.isFailure)
++    }
++}
+--- a/app/src/test/java/fr/bonobo/filemanager/TransferSecurityTest.kt
++++ b/app/src/test/java/fr/bonobo/filemanager/TransferSecurityTest.kt
+@@ -0,0 +1,56 @@
++package fr.bonobo.filemanager
++
++import fr.bonobo.filemanager.service.TransferServer
++import org.junit.Assert.*
++import org.junit.Test
++import java.io.File
++import java.net.ServerSocket
++import java.net.Socket
++import java.nio.file.Files
++import java.util.Base64
++
++class TransferSecurityTest {
++    private fun session(test: (TransferServer, Int) -> Unit) {
++        val file = Files.createTempFile("transfer", ".txt").toFile().apply { writeText("secret-content") }
++        val port = ServerSocket(0).use { it.localPort }
++        val server = TransferServer("password123", port)
++        try {
++            assertTrue(server.start(file).isSuccess)
++            test(server, port)
++        } finally { server.stop(); file.delete() }
++    }
++    private fun request(port: Int, auth: String? = null, path: String = "/"): String = Socket("127.0.0.1", port).use {
++        it.soTimeout = 3000
++        val authorization = auth?.let { value -> "Authorization: Basic ${Base64.getEncoder().encodeToString(value.toByteArray())}\r\n" } ?: ""
++        it.getOutputStream().write("GET $path HTTP/1.1\r\nHost: localhost\r\n${authorization}\r\n".toByteArray())
++        it.getInputStream().readBytes().toString(Charsets.UTF_8)
++    }
++    @Test fun authenticationRequiredAndCorrectPasswordWorks() = session { _, port ->
++        assertTrue(request(port).startsWith("HTTP/1.1 401"))
++        assertFalse(request(port, "bonobo:wrong").contains("secret-content"))
++        val response = request(port, "bonobo:password123")
++        assertTrue(response.startsWith("HTTP/1.1 200"))
++        assertTrue(response.contains("\r\n\r\nsecret-content"))
++        assertTrue(request(port, "bonobo:password123", "/other").startsWith("HTTP/1.1 404"))
++    }
++    @Test fun stopClosesPendingClient() = session { server, port ->
++        Socket("127.0.0.1", port).use { socket ->
++            socket.soTimeout = 3000
++            socket.getOutputStream().write("GET / HTTP/1.1\r\n".toByteArray())
++            server.stop()
++            try { assertEquals(-1, socket.getInputStream().read()) }
++            catch (_: java.net.SocketException) { /* Reset also terminates the client. */ }
++        }
++    }
++    @Test fun occupiedPortIsReported() {
++        ServerSocket(0).use { busy ->
++            val server = TransferServer("password123", busy.localPort)
++            val file = Files.createTempFile("transfer", ".txt").toFile()
++            try { assertTrue(server.start(file).isFailure) }
++            finally { server.stop(); file.delete() }
++        }
++    }
++    @Test fun shortPasswordRejected() {
++        assertTrue(runCatching { TransferServer("short") }.isFailure)
++    }
++}
+--- a/app/src/test/java/fr/bonobo/filemanager/UseCaseTest.kt
++++ b/app/src/test/java/fr/bonobo/filemanager/UseCaseTest.kt
+@@ -36,6 +36,7 @@
+             override suspend fun clearHistory() {}
+             override suspend fun addBookmark(path: String, name: String) {}
+             override suspend fun removeBookmark(path: String) {}
++            override suspend fun importFileToVault(uri: String) = Result.success(uri)
+             override suspend fun getVaultFiles() = emptyList<fr.bonobo.filemanager.domain.model.FileItem>()
+         }
+ 

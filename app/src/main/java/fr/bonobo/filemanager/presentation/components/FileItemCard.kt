@@ -3,6 +3,10 @@ package fr.bonobo.filemanager.presentation.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
+import coil.request.ImageRequest
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,23 +71,19 @@ fun FileItemCard(
     onEncrypt: () -> Unit,
     onDecrypt: () -> Unit,
     onTransfer: () -> Unit,
-    thumbnailSize: String = "MEDIUM"
+    onProperties: () -> Unit = {},
+    thumbnailSize: String = "MEDIUM",
+    isGrid: Boolean = false
 ) {
     var menuExpanded by remember { mutableStateOf(value = false) }
 
-    val iconSize = when(thumbnailSize) {
-        "SMALL" -> 32.dp
-        "LARGE" -> 64.dp
-        else -> 40.dp
-    }
-    
-    val isMedia = (item.mimeType?.startsWith("image/") == true) || 
-                  (item.mimeType?.startsWith("video/") == true)
+    val preset = ThumbnailPreset.fromKey(thumbnailSize)
+    val isMedia = item.mimeType?.startsWith("image/") == true || item.mimeType?.startsWith("video/") == true
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = if (isGrid) 0.dp else 12.dp, vertical = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = when {
                 isSelected -> MaterialTheme.colorScheme.primaryContainer
@@ -98,74 +99,44 @@ fun FileItemCard(
             BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
         } else null
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .combinedClickable(
-                    onClick = onClick,
-                    onLongClick = onLongClick
-                )
-                .padding(horizontal = 12.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            if (isSelected) {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Sélectionné",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(iconSize)
-                )
-            } else if (isMedia) {
-                AsyncImage(
-                    model = File(item.path),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(iconSize)
-                        .clip(MaterialTheme.shapes.small),
-                    contentScale = ContentScale.Crop,
-                    error = remember { null }
-                )
-            } else {
-                Icon(
-                    imageVector = if (item.isDirectory) {
-                        Icons.Default.Folder
-                    } else {
-                        Icons.AutoMirrored.Filled.InsertDriveFile
-                    },
-                    contentDescription = null,
-                    tint = if (item.isDirectory) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.secondary
-                    },
-                    modifier = Modifier.size(iconSize)
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1
-                )
-                if (!item.isDirectory) {
-                    Text(
-                        text = FileUtils.formatSize(item.size),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+        @Composable
+        fun preview(modifier: Modifier) {
+            Box(modifier, contentAlignment = Alignment.Center) {
+                // A themed placeholder remains visible while loading or on error.
+                FileTypeIcon(item, size = if (isGrid) 56.dp else 44.dp)
+                if (isMedia) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current).data(File(item.path)).crossfade(true).build(),
+                        contentDescription = "Aperçu de ${item.name}",
+                        modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.medium),
+                        contentScale = ContentScale.Crop
                     )
                 }
+                if (isSelected) {
+                    Surface(modifier = Modifier.align(if (isGrid) Alignment.TopStart else Alignment.TopEnd).padding(4.dp),
+                        shape = androidx.compose.foundation.shape.CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer) {
+                        Icon(Icons.Default.CheckCircle, "Sélectionné", tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(3.dp).size(22.dp))
+                    }
+                }
             }
-
-            if (item.isFavorite && !isSelected && !isTrash) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "Favori",
-                    tint = Color(0xFFE91E63)
-                )
+        }
+        @Composable
+        fun details(modifier: Modifier = Modifier) {
+            Column(modifier) {
+                Text(item.name, style = MaterialTheme.typography.bodyMedium,
+                    maxLines = if (isGrid) 2 else 1, overflow = TextOverflow.Ellipsis)
+                if (!item.isDirectory) Text(FileUtils.formatSize(item.size),
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-
+        }
+        @Composable
+        fun actions() {
+            if (item.isFavorite && !isTrash) {
+                Icon(Icons.Default.Favorite, "Favori", tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp))
+            }
             Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
                 IconButton(onClick = { menuExpanded = true }) {
                     Icon(
@@ -199,12 +170,21 @@ fun FileItemCard(
                         )
                     } else {
                         DropdownMenuItem(
+                            text = { Text("Propriétés") },
+                            onClick = {
+                                menuExpanded = false
+                                onProperties()
+                            }
+                        )
+                        if (item.isDirectory || item.isFavorite) {
+                        DropdownMenuItem(
                             text = { Text(if (item.isFavorite) "Retirer des favoris" else "Ajouter aux favoris") },
                             onClick = {
                                 menuExpanded = false
                                 onFavorite()
                             }
                         )
+                        }
                         DropdownMenuItem(
                             text = { Text("Copier") },
                             onClick = {
@@ -270,7 +250,7 @@ fun FileItemCard(
                             }
                         )
 
-                        if (item.name.lowercase().endsWith(".zip")) {
+                        if (fr.bonobo.filemanager.util.MimeTypeUtils.isArchive(File(item.path))) {
                             DropdownMenuItem(
                                 text = { Text("Extraire vers…") },
                                 onClick = {
@@ -291,6 +271,30 @@ fun FileItemCard(
                             )
                         )
                     }
+                }
+            }
+        }
+        if (isGrid) {
+            Column(Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongClick).padding(10.dp)) {
+                Box(Modifier.fillMaxWidth()) {
+                    preview(Modifier.fillMaxWidth().aspectRatio(1f))
+                    Surface(Modifier.align(Alignment.BottomEnd), shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) { actions() }
+                    }
+                }
+                details(Modifier.fillMaxWidth().padding(top = 8.dp))
+            }
+        } else {
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                // Leave room for the title and a 48 dp menu target, even in a narrow split panel.
+                val mediaSize = minOf(preset.listSize.dp, maxWidth * 0.34f)
+                Row(Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    preview(Modifier.size(if (isMedia) mediaSize else 44.dp))
+                    details(Modifier.weight(1f))
+                    actions()
                 }
             }
         }

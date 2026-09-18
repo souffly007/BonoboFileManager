@@ -1,0 +1,522 @@
+--- a/app/build.gradle.kts
++++ b/app/build.gradle.kts
+@@ -134,3 +134,8 @@
+     implementation("androidx.media3:media3-exoplayer:$media3Version")
+     implementation("androidx.media3:media3-ui:$media3Version")
+ }
++
++// JVM socket tests use a JVM logger; production keeps the Android SLF4J binding.
++configurations.matching { it.name.endsWith("UnitTestRuntimeClasspath") }.configureEach {
++    exclude(group = "org.slf4j", module = "slf4j-android")
++}
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt
+@@ -1,4 +1,7 @@
+ package fr.bonobo.filemanager.presentation.ui.network
++
++import androidx.compose.foundation.verticalScroll
++import androidx.compose.foundation.rememberScrollState
+ 
+ import android.net.wifi.WifiManager
+ import androidx.activity.compose.rememberLauncherForActivityResult
+@@ -145,6 +148,9 @@
+     ftpPassword: String?,
+     context: android.content.Context
+ ) {
++    val fingerprint by FtpService.fingerprint.collectAsState()
++    val serverError by FtpService.error.collectAsState()
++    val isStarting by FtpService.isStarting.collectAsState()
+     var showPasswordDialog by remember { mutableStateOf(false) }
+     var password by remember { mutableStateOf("") }
+     var confirmation by remember { mutableStateOf("") }
+@@ -216,6 +222,7 @@
+     Column(
+         modifier = Modifier
+             .fillMaxSize()
++            .verticalScroll(rememberScrollState())
+             .padding(16.dp),
+         horizontalAlignment = Alignment.CenterHorizontally
+     ) {
+@@ -229,7 +236,7 @@
+         Spacer(modifier = Modifier.height(24.dp))
+ 
+         Text(
+-            text = "Accès PC (FTP)",
++            text = "Accès PC sécurisé (FTPS)",
+             style = MaterialTheme.typography.headlineSmall,
+             fontWeight = FontWeight.Bold,
+             modifier = Modifier.fillMaxWidth(),
+@@ -237,7 +244,7 @@
+         )
+ 
+         Text(
+-            text = "Dossier partagé : Téléchargements/Bonobo-Partage (lecture et écriture). Utilisez un Wi-Fi de confiance : FTP ne chiffre ni les identifiants ni les fichiers.",
++            text = "Dossier partagé : Téléchargements/Bonobo-Partage. Dans FileZilla : FTP, chiffrement « Exiger une connexion FTP explicite sur TLS », port 2121 et mode passif.",
+             style = MaterialTheme.typography.bodyMedium,
+             color = MaterialTheme.colorScheme.onSurfaceVariant,
+             modifier = Modifier.padding(16.dp),
+@@ -260,7 +267,7 @@
+                 horizontalAlignment = Alignment.CenterHorizontally
+             ) {
+                 Text(
+-                    text = if (isRunning) "Le serveur est ACTIF" else "Le serveur est ARRÊTÉ",
++                    text = if (isStarting) "Démarrage sécurisé…" else if (isRunning) "Le serveur FTPS est ACTIF" else "Le serveur est ARRÊTÉ",
+                     style = MaterialTheme.typography.titleMedium,
+                     fontWeight = FontWeight.Bold
+                 )
+@@ -268,21 +275,32 @@
+                 if (isRunning) {
+                     Spacer(modifier = Modifier.height(8.dp))
+                     Text(
+-                        text = "ftp://$ipAddress:2121",
+-                        style = MaterialTheme.typography.headlineMedium,
++                        text = "$ipAddress:2121",
++                        style = MaterialTheme.typography.titleLarge,
+                         color = MaterialTheme.colorScheme.primary
+                     )
+                     Text(
+                         text = "Utilisateur: bonobo / MDP: ${ftpPassword ?: "indisponible"}",
+                         style = MaterialTheme.typography.bodySmall
+                     )
+-                }
+-            }
+-        }
+-
+-        Spacer(modifier = Modifier.height(32.dp))
++                    fingerprint?.let { value ->
++                        Spacer(Modifier.height(12.dp))
++                        Text("Certificat SHA-256", style = MaterialTheme.typography.labelLarge)
++                        androidx.compose.foundation.text.selection.SelectionContainer {
++                            Text(value, style = MaterialTheme.typography.bodySmall)
++                        }
++                        Text("Au premier accès, comparez cette empreinte avec celle affichée par FileZilla avant d'accepter le certificat. Un avertissement de nom/adresse est normal pour ce certificat local.",
++                            style = MaterialTheme.typography.bodySmall)
++                    }
++                }
++            }
++        }
++
++        serverError?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 12.dp)) }
++        Spacer(modifier = Modifier.height(24.dp))
+ 
+         Button(
++            enabled = !isStarting,
+             onClick = { 
+                 if (isRunning) FtpService.stop(context)
+                 else showPasswordDialog = true
+--- /dev/null
++++ b/app/src/main/java/fr/bonobo/filemanager/service/CertificateKeyManager.kt
+@@ -0,0 +1,26 @@
++package fr.bonobo.filemanager.service
++
++import java.net.Socket
++import java.security.Principal
++import java.security.PrivateKey
++import java.security.cert.X509Certificate
++import javax.net.ssl.SSLEngine
++import javax.net.ssl.X509ExtendedKeyManager
++
++/** Uses the key handle directly: AndroidKeyStore keys are deliberately not exportable. */
++class CertificateKeyManager(
++    private val alias: String,
++    private val key: PrivateKey,
++    private val chain: Array<X509Certificate>
++) : X509ExtendedKeyManager() {
++    override fun getPrivateKey(alias: String?) = if (alias == this.alias) key else null
++    override fun getCertificateChain(alias: String?) = if (alias == this.alias) chain.copyOf() else null
++    override fun getServerAliases(keyType: String?, issuers: Array<out Principal>?) =
++        if (keyType == "EC") arrayOf(alias) else null
++    override fun chooseServerAlias(keyType: String?, issuers: Array<out Principal>?, socket: Socket?) =
++        getServerAliases(keyType, issuers)?.firstOrNull()
++    override fun chooseEngineServerAlias(keyType: String?, issuers: Array<out Principal>?, engine: SSLEngine?) =
++        getServerAliases(keyType, issuers)?.firstOrNull()
++    override fun getClientAliases(keyType: String?, issuers: Array<out Principal>?): Array<String>? = null
++    override fun chooseClientAlias(keyType: Array<out String>?, issuers: Array<out Principal>?, socket: Socket?): String? = null
++}
+--- a/app/src/main/java/fr/bonobo/filemanager/service/FtpService.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/service/FtpService.kt
+@@ -10,19 +10,17 @@
+ import android.os.Environment
+ import android.os.IBinder
+ import androidx.core.app.NotificationCompat
++import kotlinx.coroutines.*
+ import kotlinx.coroutines.flow.MutableStateFlow
+ import kotlinx.coroutines.flow.StateFlow
+ import org.apache.ftpserver.FtpServer
+-import org.apache.ftpserver.FtpServerFactory
+-import org.apache.ftpserver.ftplet.Authority
+-import org.apache.ftpserver.ftplet.UserManager
+-import org.apache.ftpserver.listener.ListenerFactory
+-import org.apache.ftpserver.usermanager.impl.BaseUser
+-import org.apache.ftpserver.usermanager.impl.WritePermission
+ import java.io.File
+ 
+ class FtpService : Service() {
+ 
++    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
++    private val lifecycleLock = Any()
++    @Volatile private var destroyed = false
+     private var server: FtpServer? = null
+     private var sessionUsers: SessionUserManager? = null
+ 
+@@ -35,6 +33,12 @@
+         val isRunning: StateFlow<Boolean> = _isRunning
+         private val _password = MutableStateFlow<String?>(null)
+         val password: StateFlow<String?> = _password
++        private val _fingerprint = MutableStateFlow<String?>(null)
++        val fingerprint: StateFlow<String?> = _fingerprint
++        private val _error = MutableStateFlow<String?>(null)
++        val error: StateFlow<String?> = _error
++        private val _isStarting = MutableStateFlow(false)
++        val isStarting: StateFlow<Boolean> = _isStarting
+ 
+         fun start(context: Context, password: String) {
+             require(password.length >= 8) { "Le mot de passe FTP doit contenir au moins 8 caractères" }
+@@ -61,50 +65,56 @@
+     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+         val password = intent?.getStringExtra(EXTRA_PASSWORD)
+         intent?.removeExtra(EXTRA_PASSWORD)
+-        if (server != null) return START_NOT_STICKY
++        if (_isRunning.value || _isStarting.value) return START_NOT_STICKY
+         if (password == null || password.length < 8) {
+             stopSelf()
+             return START_NOT_STICKY
+         }
+-        startForeground(NOTIFICATION_ID, createNotification("Serveur FTP actif"))
+-        startFtpServer(password)
++        _error.value = null
++        _isStarting.value = true
++        startForeground(NOTIFICATION_ID, createNotification("Démarrage FTPS sécurisé…"))
++        serviceScope.launch { startFtpServer(password) }
+         return START_NOT_STICKY
+     }
+ 
+-    private fun startFtpServer(password: String) {
++    private fun startFtpServer(password: String) = synchronized(lifecycleLock) {
++        var candidate: FtpServer? = null
+         try {
+-            val serverFactory = FtpServerFactory()
+-            val listenerFactory = ListenerFactory()
+-            listenerFactory.port = 2121
+-
+-            serverFactory.addListener("default", listenerFactory.createListener())
+-
+-            val user = BaseUser()
+-            user.name = "bonobo"
++            if (destroyed) return@synchronized
+             val shared = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Bonobo-Partage")
+             check(shared.isDirectory || shared.mkdirs()) { "Impossible de créer le dossier partagé" }
+-            user.homeDirectory = shared.absolutePath
+-            user.maxIdleTime = 120
+-            
+-            val authorities = mutableListOf<Authority>()
+-            authorities.add(WritePermission())
+-            user.authorities = authorities
+-
+-            sessionUsers = SessionUserManager(user, password)
+-            serverFactory.userManager = sessionUsers
+-
+-            val ftpServer = serverFactory.createServer()
+-            ftpServer.start()
+-            server = ftpServer
++            val identity = FtpsIdentity.load()
++            if (destroyed) return@synchronized
++            val users = SessionUserManager(FtpsConfiguration.user(shared), password)
++            sessionUsers = users
++            candidate = FtpsConfiguration.factory(users, identity.tls).createServer()
++            candidate.start()
++            if (destroyed) {
++                candidate.stop()
++                users.clear()
++                return@synchronized
++            }
++            server = candidate
++            _fingerprint.value = identity.fingerprint
++            _password.value = password
+             _isRunning.value = true
+-            _password.value = password
++            getSystemService(NotificationManager::class.java).notify(
++                NOTIFICATION_ID, createNotification("Serveur FTPS actif — TLS obligatoire"))
+         } catch (e: Exception) {
+-            e.printStackTrace()
++            runCatching { candidate?.stop() }
++            sessionUsers?.clear()
++            sessionUsers = null
++            _password.value = null
++            _fingerprint.value = null
++            _isRunning.value = false
++            _error.value = "Démarrage FTPS impossible : ${e.localizedMessage ?: e.javaClass.simpleName}"
+             stopSelf()
++        } finally {
++            _isStarting.value = false
+         }
+     }
+ 
+-    private fun stopFtpServer() {
++    private fun stopFtpServer() = synchronized(lifecycleLock) {
+         try {
+             server?.stop()
+         } finally {
+@@ -113,10 +123,14 @@
+             sessionUsers = null
+             _password.value = null
+             _isRunning.value = false
++            _fingerprint.value = null
++            _isStarting.value = false
+         }
+     }
+ 
+     override fun onDestroy() {
++        destroyed = true
++        serviceScope.cancel()
+         stopFtpServer()
+         _password.value = null
+         super.onDestroy()
+--- /dev/null
++++ b/app/src/main/java/fr/bonobo/filemanager/service/FtpsConfiguration.kt
+@@ -0,0 +1,76 @@
++package fr.bonobo.filemanager.service
++
++import org.apache.ftpserver.DataConnectionConfigurationFactory
++import org.apache.ftpserver.FtpServerFactory
++import org.apache.ftpserver.ftplet.*
++import org.apache.ftpserver.listener.ListenerFactory
++import org.apache.ftpserver.ssl.ClientAuth
++import org.apache.ftpserver.ssl.SslConfiguration
++import org.apache.ftpserver.usermanager.impl.BaseUser
++import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission
++import org.apache.ftpserver.usermanager.impl.TransferRatePermission
++import org.apache.ftpserver.usermanager.impl.WritePermission
++import java.io.File
++import java.util.Locale
++import javax.net.ssl.SSLContext
++
++/** The same configuration is exercised by the JVM socket integration tests. */
++object FtpsConfiguration {
++    fun user(home: File) = BaseUser().apply {
++        name = "bonobo"
++        homeDirectory = home.absolutePath
++        maxIdleTime = 120
++        authorities = listOf(WritePermission(), ConcurrentLoginPermission(10, 5), TransferRatePermission(0, 0))
++    }
++
++    fun factory(users: SessionUserManager, tls: SslConfiguration, port: Int = 2121): FtpServerFactory {
++        val data = DataConnectionConfigurationFactory().apply {
++            isImplicitSsl = true // Even a client omitting PROT must never get a clear data channel.
++            sslConfiguration = tls
++            isActiveEnabled = false
++            isPassiveIpCheck = true
++        }
++        val listener = ListenerFactory().apply {
++            this.port = port
++            isImplicitSsl = false // Explicit AUTH TLS, compatible with FileZilla on port 2121.
++            sslConfiguration = tls
++            dataConnectionConfiguration = data.createDataConnectionConfiguration()
++        }
++        return FtpServerFactory().apply {
++            userManager = users
++            ftplets = mutableMapOf("require-tls" to RequireTlsFtplet())
++            addListener("default", listener.createListener())
++        }
++    }
++}
++
++class ContextSslConfiguration(private val context: SSLContext) : SslConfiguration {
++    override fun getSSLContext() = context
++    override fun getSSLContext(protocol: String) = context
++    override fun getSocketFactory() = context.socketFactory
++    override fun getEnabledCipherSuites(): Array<String>? = null
++    // TLS 1.2 works on all supported Android versions (API 26+) and current FTP clients.
++    override fun getEnabledProtocols() = arrayOf("TLSv1.2")
++    override fun getClientAuth() = ClientAuth.NONE
++}
++
++class RequireTlsFtplet : DefaultFtplet() {
++    override fun beforeCommand(session: FtpSession, request: FtpRequest): FtpletResult {
++        val command = request.command.uppercase(Locale.ROOT)
++        val reply = when {
++            command == "CCC" -> DefaultFtpReply(534, "TLS must remain enabled.")
++            command == "AUTH" && !request.argument.equals("TLS", ignoreCase = true) ->
++                DefaultFtpReply(504, "Use AUTH TLS.")
++            !session.isSecure && command !in setOf("AUTH", "FEAT", "SYST", "NOOP", "QUIT") ->
++                DefaultFtpReply(534, "TLS required. Use AUTH TLS before login.")
++            command == "PROT" && !request.argument.equals("P", ignoreCase = true) ->
++                DefaultFtpReply(534, "Encrypted data required. Use PROT P.")
++            else -> null
++        }
++        if (reply != null) {
++            session.write(reply)
++            return FtpletResult.SKIP
++        }
++        return FtpletResult.DEFAULT
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/fr/bonobo/filemanager/service/FtpsIdentity.kt
+@@ -0,0 +1,46 @@
++package fr.bonobo.filemanager.service
++
++import android.security.keystore.KeyGenParameterSpec
++import android.security.keystore.KeyProperties
++import java.math.BigInteger
++import java.security.KeyPairGenerator
++import java.security.KeyStore
++import java.security.MessageDigest
++import java.security.PrivateKey
++import java.security.SecureRandom
++import java.security.cert.X509Certificate
++import java.security.spec.ECGenParameterSpec
++import java.util.Date
++import javax.net.ssl.SSLContext
++import javax.security.auth.x500.X500Principal
++
++/** Persistent, per-installation TLS identity; private key never leaves AndroidKeyStore. */
++object FtpsIdentity {
++    private const val ALIAS = "bonobo_ftps_identity_v1"
++    data class Identity(val tls: ContextSslConfiguration, val fingerprint: String)
++
++    fun load(): Identity {
++        val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
++        if (!store.containsAlias(ALIAS)) {
++            val now = System.currentTimeMillis()
++            KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore").apply {
++                initialize(KeyGenParameterSpec.Builder(ALIAS, KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY)
++                    .setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
++                    .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA384, KeyProperties.DIGEST_SHA512)
++                    .setCertificateSubject(X500Principal("CN=Bonobo FTPS"))
++                    .setCertificateSerialNumber(BigInteger(128, SecureRandom()).add(BigInteger.ONE))
++                    .setCertificateNotBefore(Date(now - 86_400_000L))
++                    .setCertificateNotAfter(Date(now + 10L * 365 * 86_400_000L))
++                    .build())
++            }.generateKeyPair()
++        }
++        val key = store.getKey(ALIAS, null) as PrivateKey
++        val chain = store.getCertificateChain(ALIAS).map { it as X509Certificate }.toTypedArray()
++        chain[0].checkValidity()
++        val manager = CertificateKeyManager(ALIAS, key, chain)
++        val context = SSLContext.getInstance("TLS").apply { init(arrayOf(manager), null, SecureRandom()) }
++        val fingerprint = MessageDigest.getInstance("SHA-256").digest(chain[0].encoded)
++            .joinToString(":") { "%02X".format(it.toInt() and 0xff) }
++        return Identity(ContextSslConfiguration(context), fingerprint)
++    }
++}
+--- /dev/null
++++ b/app/src/test/java/fr/bonobo/filemanager/FtpsServerTest.kt
+@@ -0,0 +1,117 @@
++package fr.bonobo.filemanager
++
++import fr.bonobo.filemanager.service.*
++import org.apache.commons.net.ftp.FTPClient
++import org.apache.commons.net.ftp.FTPSClient
++import org.apache.ftpserver.FtpServer
++import org.apache.ftpserver.usermanager.impl.BaseUser
++import org.apache.ftpserver.usermanager.impl.ConcurrentLoginRequest
++import org.junit.*
++import org.junit.Assert.*
++import java.io.ByteArrayInputStream
++import java.io.ByteArrayOutputStream
++import java.io.File
++import java.net.ServerSocket
++import java.nio.file.Files
++import java.security.KeyStore
++import javax.net.ssl.SSLContext
++import javax.net.ssl.TrustManagerFactory
++
++class FtpsServerTest {
++    private lateinit var server: FtpServer
++    private lateinit var users: SessionUserManager
++    private lateinit var directory: File
++    private var port = 0
++    private val clients = mutableListOf<FTPClient>()
++
++    companion object {
++        private const val PASSWORD = "test-secret-123"
++        private lateinit var tls: SSLContext
++        private lateinit var trustedClientTls: SSLContext
++        @JvmStatic @BeforeClass fun identity() {
++            val dir = Files.createTempDirectory("bonobo-test-cert").toFile()
++            try {
++                val file = File(dir, "test.p12")
++                val process = ProcessBuilder(File(System.getProperty("java.home"), "bin/keytool").absolutePath,
++                    "-genkeypair", "-alias", "test", "-keyalg", "EC", "-groupname", "secp256r1",
++                    "-dname", "CN=localhost", "-ext", "SAN=ip:127.0.0.1,dns:localhost",
++                    "-validity", "2", "-storetype", "PKCS12", "-keystore", file.absolutePath,
++                    "-storepass", PASSWORD, "-keypass", PASSWORD, "-noprompt")
++                    .redirectErrorStream(true).start()
++                val output = process.inputStream.bufferedReader().readText()
++                assertEquals(output, 0, process.waitFor())
++                val store = KeyStore.getInstance("PKCS12").apply { file.inputStream().use { load(it, PASSWORD.toCharArray()) } }
++                val keys = CertificateKeyManager("test", store.getKey("test", PASSWORD.toCharArray()) as java.security.PrivateKey,
++                    store.getCertificateChain("test").map { it as java.security.cert.X509Certificate }.toTypedArray())
++                tls = SSLContext.getInstance("TLS").apply { init(arrayOf(keys), null, null) }
++                val trust = KeyStore.getInstance(KeyStore.getDefaultType()).apply {
++                    load(null); setCertificateEntry("test", store.getCertificate("test"))
++                }
++                val managers = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply { init(trust) }
++                trustedClientTls = SSLContext.getInstance("TLS").apply { init(null, managers.trustManagers, null) }
++            } finally { dir.deleteRecursively() }
++        }
++    }
++
++    @Before fun start() {
++        directory = Files.createTempDirectory("bonobo-ftps").toFile()
++        users = SessionUserManager(FtpsConfiguration.user(directory), PASSWORD)
++        port = ServerSocket(0).use { it.localPort }
++        server = FtpsConfiguration.factory(users, ContextSslConfiguration(tls), port).createServer()
++        server.start()
++    }
++    @After fun stop() {
++        clients.forEach { runCatching { it.disconnect() } }
++        server.stop(); users.clear(); directory.deleteRecursively()
++    }
++    private fun secure(): FTPSClient = FTPSClient(false, trustedClientTls).apply {
++        clients.add(this)
++        defaultTimeout = 4000; connectTimeout = 4000
++        setDataTimeout(java.time.Duration.ofSeconds(4))
++        isEndpointCheckingEnabled = true
++        setEnabledProtocols(arrayOf("TLSv1.2"))
++        connect("127.0.0.1", port); soTimeout = 4000
++    }
++
++    @Test fun missingPermissionExplains421AndConfiguredUserCanLogin() {
++        val request = ConcurrentLoginRequest(1, 1)
++        assertNull(BaseUser().authorize(request))
++        assertNotNull(FtpsConfiguration.user(directory).authorize(request))
++        val a = secure(); val b = secure()
++        assertTrue(a.replyString, a.login("bonobo", PASSWORD))
++        assertTrue(b.replyString, b.login("bonobo", PASSWORD))
++    }
++    @Test fun clearLoginIsRejected() {
++        val client = FTPClient().apply { clients.add(this); connect("127.0.0.1", port); soTimeout = 4000 }
++        assertEquals(534, client.sendCommand("USER", "bonobo"))
++        assertEquals(534, client.sendCommand("PASS", PASSWORD))
++        assertEquals(504, client.sendCommand("AUTH", "SSL"))
++    }
++    @Test fun badPasswordIsRejectedOverTls() {
++        val client = secure()
++        assertFalse(client.login("bonobo", "incorrect-password"))
++        assertEquals(530, client.replyCode)
++    }
++    @Test fun encryptedUploadListingAndDownload() {
++        val client = secure()
++        assertTrue(client.login("bonobo", PASSWORD))
++        client.execPBSZ(0); client.execPROT("P"); client.enterLocalPassiveMode()
++        client.setFileType(org.apache.commons.net.ftp.FTP.BINARY_FILE_TYPE)
++        val bytes = ByteArray(32 * 1024) { (it % 251).toByte() }
++        assertTrue(client.replyString, client.storeFile("essai.bin", ByteArrayInputStream(bytes)))
++        assertTrue(client.listNames().contains("essai.bin"))
++        val output = ByteArrayOutputStream()
++        assertTrue(client.replyString, client.retrieveFile("essai.bin", output))
++        assertArrayEquals(bytes, output.toByteArray())
++        assertTrue(client.logout())
++    }
++    @Test fun downgradeIsRejectedAndReconnectWorks() {
++        val client = secure(); assertTrue(client.login("bonobo", PASSWORD))
++        assertEquals(534, client.sendCommand("PROT", "C"))
++        assertThrows(javax.net.ssl.SSLException::class.java) { client.sendCommand("CCC") }
++        assertEquals(534, client.replyCode)
++        client.execPBSZ(0); client.execPROT("P")
++        assertTrue(client.logout()); client.disconnect()
++        val next = secure(); assertTrue(next.replyString, next.login("bonobo", PASSWORD))
++    }
++}

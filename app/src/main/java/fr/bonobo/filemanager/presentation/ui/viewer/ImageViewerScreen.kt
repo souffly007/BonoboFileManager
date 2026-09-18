@@ -14,9 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import fr.bonobo.filemanager.util.MimeTypeUtils
 import java.io.File
 
@@ -81,11 +79,10 @@ fun ImageViewerScreen(
                 pageSpacing = 16.dp
             ) { page ->
                 val file = imageFiles[page]
-                AsyncImage(
+                ZoomableImage(
                     model = file,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }

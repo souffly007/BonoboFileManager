@@ -43,7 +43,10 @@ object ConfigParser {
                                     typeStr.contains("SFTP") -> ConnectionType.SFTP
                                     typeStr.contains("SMB") -> ConnectionType.SMB
                                     typeStr.contains("DRIVE") -> ConnectionType.GOOGLE_DRIVE
-                                    else -> ConnectionType.FTP
+                                    // Les connexions FTP simples importées ne sont jamais utilisées en clair.
+                                    // Elles sont converties en FTPS et échoueront proprement si le serveur
+                                    // ne propose pas TLS.
+                                    else -> ConnectionType.FTPS
                                 }
                             }
                         }
@@ -73,7 +76,7 @@ object ConfigParser {
         var port: Int = 21
         var user: String = "anonymous"
         var pass: String = ""
-        var type: ConnectionType = ConnectionType.FTP
+        var type: ConnectionType = ConnectionType.FTPS
 
         fun toRemoteConnection() = RemoteConnection(
             name = name, 

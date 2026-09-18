@@ -26,7 +26,10 @@ class NetworkViewModel @Inject constructor(
     private val _isScanning = MutableStateFlow(false)
     
     val uiState: StateFlow<NetworkUiState> = combine(
-        repository.getAllConnections(),
+        repository.getAllConnections().catch {
+            _message.value = "Connexions indisponibles : ${it.message}"
+            emit(emptyList())
+        },
         _scannedIps,
         _isScanning,
         _message
@@ -52,20 +55,30 @@ class NetworkViewModel @Inject constructor(
 
     fun addConnection(connection: RemoteConnection) {
         viewModelScope.launch {
-            repository.saveConnection(connection)
+            runCatching { repository.saveConnection(connection) }
+                .onFailure { _message.value = "Enregistrement impossible : ${it.message}" }
+        }
+    }
+
+    fun updateConnection(connection: RemoteConnection) {
+        viewModelScope.launch {
+            runCatching { repository.updateConnection(connection) }
+                .onFailure { _message.value = "Modification impossible : ${it.message}" }
         }
     }
 
     fun addAllConnections(connections: List<RemoteConnection>) {
         viewModelScope.launch {
-            repository.saveAll(connections)
-            _message.value = "${connections.size} serveurs importés"
+            runCatching { repository.saveAll(connections) }
+                .onSuccess { _message.value = "${connections.size} serveurs importés" }
+                .onFailure { _message.value = "Importation impossible : ${it.message}" }
         }
     }
 
     fun removeConnection(connection: RemoteConnection) {
         viewModelScope.launch {
-            repository.deleteConnection(connection)
+            runCatching { repository.deleteConnection(connection) }
+                .onFailure { _message.value = "Suppression impossible : ${it.message}" }
         }
     }
 

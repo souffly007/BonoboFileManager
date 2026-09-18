@@ -1,0 +1,15 @@
+app/build.gradle.kts
+app/src/main/java/fr/bonobo/filemanager/domain/model/FavoriteFolders.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/components/FileItemCard.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/components/FileTypeIcon.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/components/ThumbnailPreset.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/dashboard/AboutScreen.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/dashboard/DashboardScreen.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/FileExplorerPanel.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/MainScreen.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/MainViewModel.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/navigation/AppNavigation.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/settings/SettingsScreen.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/theme/Theme.kt
+app/src/test/java/fr/bonobo/filemanager/FavoriteFoldersTest.kt
+app/src/test/java/fr/bonobo/filemanager/ThumbnailPresetTest.kt

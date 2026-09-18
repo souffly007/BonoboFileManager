@@ -1,0 +1,769 @@
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -9,6 +9,7 @@
+ 
+     <!-- Permissions Réseau & FTP -->
+     <uses-permission android:name="android.permission.INTERNET" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
+     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+@@ -41,6 +42,11 @@
+             android:exported="false" />
+ 
+         <service
++            android:name=".service.RemoteDownloadService"
++            android:exported="false"
++            android:foregroundServiceType="dataSync" />
++
++        <service
+             android:name=".service.FtpService"
+             android:exported="false"
+             android:foregroundServiceType="dataSync" />
+--- a/app/src/main/java/fr/bonobo/filemanager/data/repository/FtpClientRepository.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/repository/FtpClientRepository.kt
+@@ -28,7 +28,8 @@
+             }
+             
+             val files = client.listFiles(path)
+-            files.map { ftpFile ->
++            check(org.apache.commons.net.ftp.FTPReply.isPositiveCompletion(client.replyCode)) { "Lecture du dossier refusée (${client.replyCode})" }
++            files.filter { it.name != "." && it.name != ".." }.map { ftpFile ->
+                 FileItem(
+                     path = if (path.endsWith("/")) "$path${ftpFile.name}" else "$path/${ftpFile.name}",
+                     name = ftpFile.name,
+@@ -61,6 +62,36 @@
+         }
+     }
+ 
++    suspend fun download(connection: RemoteConnection, path: String, output: java.io.OutputStream,
++        expectedSize: Long, checkCancelled: () -> Unit, progress: (Long) -> Unit) = withContext(Dispatchers.IO) {
++        val client = createClient(connection)
++        try {
++            checkCancelled()
++            client.connect(connection.host, connection.port)
++            check(client.login(connection.user, connection.pass)) { "Identifiants FTP refusés" }
++            client.enterLocalPassiveMode()
++            if (client is FTPSClient) {
++                client.execPBSZ(0)
++                client.execPROT("P")
++            }
++            transfer(client, path, output, expectedSize, checkCancelled, progress)
++        } finally {
++            cleanup(client)
++        }
++    }
++
++    companion object {
++        // Shared with real FTPS integration tests. Never report success without the final FTP reply.
++        fun transfer(client: FTPClient, path: String, output: java.io.OutputStream, expectedSize: Long,
++            checkCancelled: () -> Unit = {}, progress: (Long) -> Unit = {}) {
++            check(client.setFileType(org.apache.commons.net.ftp.FTP.BINARY_FILE_TYPE)) { "Mode binaire FTP refusé" }
++            val input = client.retrieveFileStream(path) ?: error("Le serveur refuse le téléchargement (${client.replyCode})")
++            input.use { fr.bonobo.filemanager.util.DownloadStream.copy(it, output, expectedSize, checkCancelled, progress) }
++            checkCancelled()
++            check(client.completePendingCommand()) { "Le serveur n'a pas confirmé la fin du téléchargement (${client.replyCode})" }
++        }
++    }
++
+     private fun createClient(connection: RemoteConnection): FTPClient {
+         val client = if (connection.type == ConnectionType.FTPS) {
+             FTPSClient().apply {
+@@ -79,8 +110,7 @@
+     private fun cleanup(client: FTPClient) {
+         try {
+             if (client.isConnected) {
+-                client.logout()
+-                client.disconnect()
++                try { client.logout() } finally { client.disconnect() }
+             }
+         } catch (_: Exception) {}
+     }
+--- a/app/src/main/java/fr/bonobo/filemanager/data/repository/RemoteFileRepository.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/repository/RemoteFileRepository.kt
+@@ -32,5 +32,13 @@
+             else -> Result.failure(Exception("Ouverture directe non disponible pour ce type de connexion"))
+         }
+     }
++    suspend fun download(connection: RemoteConnection, path: String, output: java.io.OutputStream,
++        expectedSize: Long, checkCancelled: () -> Unit, progress: (Long) -> Unit) {
++        when (connection.type) {
++            ConnectionType.FTP, ConnectionType.FTPS -> ftpRepository.download(connection, path, output, expectedSize, checkCancelled, progress)
++            ConnectionType.SMB -> smbRepository.download(connection, path, output, expectedSize, checkCancelled, progress).getOrThrow()
++            else -> error("Téléchargement non disponible pour ce protocole")
++        }
++    }
+ 
+ }
+--- a/app/src/main/java/fr/bonobo/filemanager/data/repository/SmbClientRepository.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/data/repository/SmbClientRepository.kt
+@@ -126,6 +126,39 @@
+         }.also { client.close() }
+     }
+ 
++    suspend fun download(connection: RemoteConnection, path: String, output: java.io.OutputStream, expectedSize: Long, checkCancelled: () -> Unit, progress: (Long) -> Unit): Result<Unit> = withContext(Dispatchers.IO) {
++        val client = SMBClient()
++        runCatching {
++            val port = if (connection.port == 21 || connection.port == 0) 445 else connection.port
++            client.connect(connection.host, port).use { connectionInstance ->
++                val session = connectionInstance.authenticate(getAuthContext(connection))
++                val effectiveShare = connection.share ?: path.trim('/').split("/").firstOrNull()
++                    ?: throw Exception("Partage SMB introuvable")
++                val relativePath = getRelativePath(connection, path)
++                session.connectShare(effectiveShare).use { share ->
++                    if (share !is DiskShare) throw Exception("Le partage SMB n'est pas un disque")
++                    share.openFile(
++                        relativePath,
++                        EnumSet.of(AccessMask.FILE_READ_DATA),
++                        null,
++                        EnumSet.of(
++                            SMB2ShareAccess.FILE_SHARE_READ,
++                            SMB2ShareAccess.FILE_SHARE_WRITE,
++                            SMB2ShareAccess.FILE_SHARE_DELETE
++                        ),
++                        SMB2CreateDisposition.FILE_OPEN,
++                        EnumSet.of(SMB2CreateOptions.FILE_NON_DIRECTORY_FILE)
++                    ).use { remoteFile ->
++                        remoteFile.inputStream.use { input ->
++                            fr.bonobo.filemanager.util.DownloadStream.copy(input, output, expectedSize, checkCancelled, progress)
++                        }
++                    }
++                }
++            }
++            Unit
++        }.also { client.close() }
++    }
++
+     private fun getAuthContext(connection: RemoteConnection): AuthenticationContext {
+         return if (connection.user.isNotBlank() && connection.user != "anonymous") {
+             AuthenticationContext(connection.user, connection.pass.toCharArray(), null)
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt
+@@ -1,6 +1,9 @@
+ package fr.bonobo.filemanager.presentation.ui.network
+ 
+ import android.content.Intent
++import androidx.activity.compose.rememberLauncherForActivityResult
++import androidx.activity.result.contract.ActivityResultContracts
++import androidx.compose.foundation.clickable
+ import androidx.compose.foundation.layout.*
+ import androidx.compose.foundation.lazy.LazyColumn
+ import androidx.compose.foundation.lazy.items
+@@ -10,12 +13,16 @@
+ import androidx.compose.material3.*
+ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+ import androidx.compose.runtime.*
++import androidx.compose.runtime.saveable.rememberSaveable
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
++import androidx.compose.ui.text.style.TextOverflow
+ import androidx.compose.ui.unit.dp
+ import androidx.hilt.navigation.compose.hiltViewModel
+ import androidx.lifecycle.compose.collectAsStateWithLifecycle
+-import fr.bonobo.filemanager.presentation.components.FileItemCard
++import fr.bonobo.filemanager.presentation.components.FileTypeIcon
++import fr.bonobo.filemanager.service.RemoteDownloadService
++import fr.bonobo.filemanager.util.FileUtils
+ import fr.bonobo.filemanager.util.verticalScrollbar
+ 
+ @OptIn(ExperimentalMaterial3Api::class)
+@@ -26,113 +33,118 @@
+     onNavigateHome: () -> Unit
+ ) {
+     val state by viewModel.uiState.collectAsStateWithLifecycle()
++    val transfer by RemoteDownloadService.state.collectAsStateWithLifecycle()
+     val context = androidx.compose.ui.platform.LocalContext.current
+     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+-
++    var choosing by rememberSaveable { mutableStateOf(false) }
++    val picker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
++        choosing = false
++        if (uri == null) viewModel.dismissDownload()
++        else {
++            runCatching { context.contentResolver.takePersistableUriPermission(uri,
++                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }
++            viewModel.download(uri)
++        }
++    }
+     LaunchedEffect(state.openUri) {
+         state.openUri?.let { uri ->
+-            val intent = Intent(Intent.ACTION_VIEW).apply {
+-                setDataAndType(uri, state.openMimeType ?: "application/octet-stream")
+-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+-            }
+             try {
+-                context.startActivity(intent)
++                context.startActivity(Intent(Intent.ACTION_VIEW).apply {
++                    setDataAndType(uri, state.openMimeType ?: "application/octet-stream")
++                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
++                })
+             } catch (_: Exception) {
+-                // L'interface affichera l'erreur via le ViewModel si nécessaire.
+-            } finally {
+-                viewModel.consumeOpenUri()
+-            }
++                android.widget.Toast.makeText(context, "Aucune application ne peut ouvrir ce fichier", android.widget.Toast.LENGTH_LONG).show()
++            } finally { viewModel.consumeOpenUri() }
+         }
+     }
++    state.downloadFile?.takeIf { !choosing }?.let { item ->
++        AlertDialog(onDismissRequest = viewModel::dismissDownload,
++            title = { Text("Télécharger") },
++            text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
++                Text(item.name)
++                Text(FileUtils.formatSize(item.size))
++                Text("Destination par défaut : Téléchargements. Vous pouvez aussi choisir un autre dossier.")
++                Text("En cas d'interruption, relancez le téléchargement depuis le début.", style = MaterialTheme.typography.bodySmall)
++            } },
++            confirmButton = { TextButton(enabled = !transfer.active, onClick = { viewModel.download() }) { Text("Téléchargements") } },
++            dismissButton = { Column {
++                TextButton(enabled = !transfer.active, onClick = {
++                    choosing = true
++                    picker.launch(item.name)
++                }) { Text("Choisir ailleurs…") }
++                TextButton(onClick = viewModel::dismissDownload) { Text("Annuler") }
++            } })
++    }
+ 
+-    Scaffold(
+-        topBar = {
+-            CenterAlignedTopAppBar(
+-                title = { 
+-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+-                        Text(state.connection?.name ?: "Explorateur distant")
+-                        Text(state.currentPath, style = MaterialTheme.typography.bodySmall)
+-                    }
+-                },
+-                navigationIcon = {
+-                    IconButton(onClick = if (state.currentPath == "/") onNavigateBack else viewModel::navigateUp) {
+-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
+-                    }
+-                },
+-                actions = {
+-                    IconButton(onClick = onNavigateHome) {
+-                        Icon(Icons.Default.Home, contentDescription = "Accueil")
++    Scaffold(topBar = {
++        CenterAlignedTopAppBar(title = {
++            Column(horizontalAlignment = Alignment.CenterHorizontally) {
++                Text(state.connection?.name ?: "Explorateur distant", maxLines = 1, overflow = TextOverflow.Ellipsis)
++                Text(state.currentPath, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
++            }
++        }, navigationIcon = {
++            IconButton(onClick = if (state.currentPath == "/") onNavigateBack else viewModel::navigateUp) {
++                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Retour")
++            }
++        }, actions = { IconButton(onClick = onNavigateHome) { Icon(Icons.Default.Home, "Accueil") } })
++    }) { padding ->
++        PullToRefreshBox(isRefreshing = state.isLoading, onRefresh = viewModel::refresh,
++            modifier = Modifier.fillMaxSize().padding(padding)) {
++            Column(Modifier.fillMaxSize()) {
++                if (transfer.active || transfer.message != null) {
++                    Card(Modifier.fillMaxWidth().padding(12.dp)) {
++                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
++                            Text(transfer.name, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleSmall)
++                            if (transfer.active) {
++                                if (transfer.total > 0) LinearProgressIndicator(
++                                    progress = { (transfer.bytes.toDouble() / transfer.total).toFloat().coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())
++                                else LinearProgressIndicator(Modifier.fillMaxWidth())
++                                Text("${FileUtils.formatSize(transfer.bytes)} / ${FileUtils.formatSize(transfer.total.coerceAtLeast(0))}")
++                                TextButton(onClick = { RemoteDownloadService.cancel(context) }) { Text("Annuler le téléchargement") }
++                            }
++                            transfer.message?.let { Text(it, color = if (transfer.failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface) }
++                        }
+                     }
+                 }
+-            )
+-        }
+-    ) { paddingValues ->
+-        PullToRefreshBox(
+-            isRefreshing = state.isLoading,
+-            onRefresh = viewModel::refresh,
+-            modifier = Modifier
+-                .fillMaxSize()
+-                .padding(paddingValues)
+-        ) {
+-            Column(modifier = Modifier.fillMaxSize()) {
+-                if (state.isLoading) {
+-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+-                }
+-
+-                state.error?.let {
+-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+-                        Text(it, color = MaterialTheme.colorScheme.error)
+-                    }
+-                }
+-
+-                LazyColumn(
+-                    modifier = Modifier.fillMaxSize().verticalScrollbar(listState),
+-                    state = listState
+-                ) {
+-                    items(state.files) { item ->
+-                        var showDeleteDialog by remember { mutableStateOf(false) }
+-
+-                        if (showDeleteDialog) {
+-                            AlertDialog(
+-                                onDismissRequest = { showDeleteDialog = false },
+-                                title = { Text("Supprimer l'élément distant") },
+-                                text = { Text("Voulez-vous supprimer « ${item.name} » ? Cette action est irréversible (pas de corbeille sur les serveurs).") },
+-                                confirmButton = {
+-                                    Button(
+-                                        onClick = {
+-                                            viewModel.deleteFile(item)
+-                                            showDeleteDialog = false
+-                                        },
+-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+-                                    ) {
+-                                        Text("Supprimer")
+-                                    }
+-                                },
+-                                dismissButton = {
+-                                    TextButton(onClick = { showDeleteDialog = false }) {
+-                                        Text("Annuler")
++                state.error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp)) }
++                LazyColumn(Modifier.weight(1f).verticalScrollbar(listState), state = listState) {
++                    items(state.files, key = { it.path }) { item ->
++                        var menu by remember { mutableStateOf(false) }
++                        var deleting by remember { mutableStateOf(false) }
++                        if (deleting) AlertDialog(onDismissRequest = { deleting = false },
++                            title = { Text("Supprimer l'élément distant") },
++                            text = { Text("Supprimer « ${item.name} » du serveur ? Cette action est irréversible.") },
++                            confirmButton = { TextButton(onClick = { deleting = false; viewModel.deleteFile(item) }) { Text("Supprimer") } },
++                            dismissButton = { TextButton(onClick = { deleting = false }) { Text("Annuler") } })
++                        Card(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
++                            Row(Modifier.fillMaxWidth().clickable {
++                                if (item.isDirectory) viewModel.open(item) else if (!transfer.active) viewModel.requestDownload(item)
++                            }.padding(start = 12.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
++                                FileTypeIcon(item, size = 44.dp)
++                                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
++                                    Text(item.name, maxLines = 2, overflow = TextOverflow.Ellipsis)
++                                    if (!item.isDirectory) Text(FileUtils.formatSize(item.size), style = MaterialTheme.typography.bodySmall)
++                                }
++                                Box {
++                                    IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "Options de ${item.name}") }
++                                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
++                                        if (item.isDirectory) DropdownMenuItem(text = { Text("Ouvrir le dossier") },
++                                            onClick = { menu = false; viewModel.open(item) })
++                                        else {
++                                        if (state.connection?.type == fr.bonobo.filemanager.domain.model.ConnectionType.SMB)
++                                            DropdownMenuItem(text = { Text("Ouvrir") }, enabled = !transfer.active,
++                                                onClick = { menu = false; viewModel.open(item) })
++                                        DropdownMenuItem(text = { Text("Télécharger") },
++                                            leadingIcon = { Icon(Icons.Default.Download, null) }, enabled = !transfer.active,
++                                            onClick = { menu = false; viewModel.requestDownload(item) })
++                                        }
++                                        DropdownMenuItem(text = { Text("Supprimer du serveur") }, enabled = !transfer.active,
++                                            onClick = { menu = false; deleting = true })
+                                     }
+                                 }
+-                            )
++                            }
+                         }
+-
+-                        FileItemCard(
+-                            item = item,
+-                            onClick = { viewModel.open(item) },
+-                            onLongClick = { /* Multi-select not yet on FTP */ },
+-                            onFavorite = {}, // Not on FTP
+-                            onCopy = {},
+-                            onMove = {},
+-                            onRename = {},
+-                            onDelete = { showDeleteDialog = true },
+-                            onShare = {},
+-                            onCompress = {},
+-                            onExtract = {},
+-                            onRestore = {},
+-                            onEncrypt = {},
+-                            onDecrypt = {},
+-                            onTransfer = {}
+-                        )
+                     }
+                 }
+             }
+--- a/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteViewModel.kt
++++ b/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteViewModel.kt
+@@ -23,7 +23,8 @@
+     val isLoading: Boolean = false,
+     val error: String? = null,
+     val openUri: Uri? = null,
+-    val openMimeType: String? = null
++    val openMimeType: String? = null,
++    val downloadFile: FileItem? = null
+ )
+ 
+ @HiltViewModel
+@@ -98,6 +99,27 @@
+         }
+     }
+ 
++    fun requestDownload(item: FileItem) {
++        if (!item.isDirectory) _uiState.update { it.copy(downloadFile = item, error = null) }
++    }
++    fun dismissDownload() { _uiState.update { it.copy(downloadFile = null) } }
++    fun download(destination: Uri? = null) {
++        val current = _uiState.value
++        val connection = current.connection
++        val item = current.downloadFile
++        if (connection == null || item == null) {
++            if (destination != null) fr.bonobo.filemanager.service.RemoteDownloadTarget.deleteDocument(context, destination)
++            return
++        }
++        try {
++            fr.bonobo.filemanager.service.RemoteDownloadService.start(context, connection, item, destination)
++            dismissDownload()
++        } catch (e: Exception) {
++            if (destination != null) fr.bonobo.filemanager.service.RemoteDownloadTarget.deleteDocument(context, destination)
++            _uiState.update { it.copy(downloadFile = null, error = "Téléchargement impossible : ${e.message}") }
++        }
++    }
++
+     fun consumeOpenUri() {
+         _uiState.update { it.copy(openUri = null, openMimeType = null) }
+     }
+--- /dev/null
++++ b/app/src/main/java/fr/bonobo/filemanager/service/RemoteDownloadService.kt
+@@ -0,0 +1,147 @@
++package fr.bonobo.filemanager.service
++
++import android.app.*
++import android.content.Context
++import android.content.Intent
++import android.net.Uri
++import android.os.Build
++import android.os.IBinder
++import androidx.core.app.NotificationCompat
++import dagger.hilt.android.AndroidEntryPoint
++import fr.bonobo.filemanager.data.repository.RemoteFileRepository
++import fr.bonobo.filemanager.domain.model.*
++import kotlinx.coroutines.*
++import kotlinx.coroutines.flow.MutableStateFlow
++import kotlinx.coroutines.flow.asStateFlow
++import java.util.concurrent.atomic.AtomicBoolean
++import javax.inject.Inject
++
++data class RemoteDownloadState(val active: Boolean = false, val name: String = "", val bytes: Long = 0,
++    val total: Long = 0, val message: String? = null, val failed: Boolean = false)
++
++@AndroidEntryPoint
++class RemoteDownloadService : Service() {
++    @Inject lateinit var repository: RemoteFileRepository
++    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
++    private val cancelled = AtomicBoolean(false)
++    private var job: Job? = null
++
++    companion object {
++        private const val CHANNEL = "remote_downloads"
++        private const val ID = 1003
++        private val busy = AtomicBoolean(false)
++        private val mutableState = MutableStateFlow(RemoteDownloadState())
++        val state = mutableState.asStateFlow()
++        fun start(context: Context, connection: RemoteConnection, item: FileItem, destination: Uri?) {
++            check(busy.compareAndSet(false, true)) { "Un téléchargement est déjà en cours" }
++            val intent = Intent(context, RemoteDownloadService::class.java).apply {
++                putExtra("host", connection.host); putExtra("port", connection.port)
++                putExtra("user", connection.user); putExtra("password", connection.pass)
++                putExtra("type", connection.type.name); putExtra("share", connection.share)
++                putExtra("path", item.path); putExtra("name", item.name); putExtra("size", item.size)
++                putExtra("mime", item.mimeType); putExtra("destination", destination?.toString())
++            }
++            mutableState.value = RemoteDownloadState(active = true, name = item.name, total = item.size)
++            try { context.startForegroundService(intent) } catch (e: Exception) {
++                busy.set(false)
++                mutableState.value = RemoteDownloadState()
++                throw e
++            }
++        }
++        fun cancel(context: Context) {
++            context.startService(Intent(context, RemoteDownloadService::class.java).putExtra("cancel", true))
++        }
++    }
++
++    override fun onCreate() {
++        super.onCreate()
++        getSystemService(NotificationManager::class.java).createNotificationChannel(
++            NotificationChannel(CHANNEL, "Téléchargements distants", NotificationManager.IMPORTANCE_LOW))
++    }
++
++    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
++        if (intent?.getBooleanExtra("cancel", false) == true) {
++            cancelled.set(true)
++            if (mutableState.value.active) mutableState.value = mutableState.value.copy(message = "Annulation…")
++            else stopSelf(startId)
++            return START_NOT_STICKY
++        }
++        if (intent == null) { stopSelf(startId); return START_NOT_STICKY }
++        if (job?.isActive == true) return START_NOT_STICKY
++        val connection = RemoteConnection(name = "", host = intent.getStringExtra("host") ?: "",
++            port = intent.getIntExtra("port", 21), user = intent.getStringExtra("user") ?: "",
++            pass = intent.getStringExtra("password") ?: "",
++            type = ConnectionType.valueOf(intent.getStringExtra("type") ?: "FTP"), share = intent.getStringExtra("share"))
++        val name = intent.getStringExtra("name") ?: "fichier"
++        val path = intent.getStringExtra("path") ?: ""
++        val size = intent.getLongExtra("size", -1)
++        val mime = intent.getStringExtra("mime") ?: "application/octet-stream"
++        val destination = intent.getStringExtra("destination")?.let(Uri::parse)
++        intent.replaceExtras(android.os.Bundle())
++        cancelled.set(false)
++        mutableState.value = RemoteDownloadState(active = true, name = name, total = size)
++        startForeground(ID, notification())
++        job = scope.launch {
++            var target: RemoteDownloadTarget? = null
++            val wakeLock = getSystemService(android.os.PowerManager::class.java)
++                .newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "Bonobo:RemoteDownload")
++            try {
++                wakeLock.acquire(6 * 60 * 60 * 1000L)
++                target = RemoteDownloadTarget.create(this@RemoteDownloadService, name, mime, destination, size)
++                var lastUpdate = 0L
++                target.output.use { output ->
++                    repository.download(connection, path, output, size,
++                        checkCancelled = {
++                            ensureActive()
++                            if (cancelled.get()) throw CancellationException("Téléchargement annulé")
++                        }, progress = { bytes ->
++                            val now = android.os.SystemClock.elapsedRealtime()
++                            if (now - lastUpdate >= 300 || bytes == size) {
++                                lastUpdate = now
++                                mutableState.value = mutableState.value.copy(bytes = bytes)
++                                getSystemService(NotificationManager::class.java).notify(ID, notification())
++                            }
++                        })
++                }
++                if (cancelled.get()) throw CancellationException("Téléchargement annulé")
++                ensureActive()
++                val saved = target.commit()
++                mutableState.value = mutableState.value.copy(active = false, message = "Enregistré : $saved")
++            } catch (e: Exception) {
++                val cleaned = target?.abort() ?: destination?.let { RemoteDownloadTarget.deleteDocument(this@RemoteDownloadService, it) } ?: true
++                val wasCancelled = e is CancellationException || cancelled.get()
++                mutableState.value = mutableState.value.copy(active = false, failed = !wasCancelled || !cleaned,
++                    message = (if (wasCancelled) "Téléchargement annulé" else "Téléchargement échoué : ${e.message}") +
++                        if (!cleaned) ". Un fichier partiel reste à supprimer dans la destination." else "")
++            } finally {
++                if (wakeLock.isHeld) wakeLock.release()
++                stopForeground(STOP_FOREGROUND_REMOVE)
++                getSystemService(NotificationManager::class.java).notify(ID, notification())
++                stopSelf(startId)
++            }
++        }
++        job?.invokeOnCompletion { busy.set(false) }
++        return START_NOT_STICKY
++    }
++
++    private fun notification(): Notification {
++        val s = mutableState.value
++        val percent = if (s.total > 0) (s.bytes.toDouble() / s.total * 100).toInt().coerceIn(0, 100) else 0
++        val builder = NotificationCompat.Builder(this, CHANNEL)
++            .setSmallIcon(android.R.drawable.stat_sys_download)
++            .setContentTitle(s.name).setContentText(s.message ?: "Téléchargement : $percent %")
++            .setOnlyAlertOnce(true).setOngoing(s.active)
++        if (s.active) {
++            builder.setProgress(100, percent, s.total <= 0)
++            val cancel = PendingIntent.getService(this, ID, Intent(this, RemoteDownloadService::class.java).putExtra("cancel", true),
++                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
++            builder.addAction(0, "Annuler", cancel)
++        }
++        return builder.build()
++    }
++    override fun onDestroy() { cancelled.set(true); scope.cancel(); super.onDestroy() }
++    override fun onBind(intent: Intent?): IBinder? = null
++    override fun onTimeout(startId: Int, fgsType: Int) {
++        cancelled.set(true); scope.cancel(); stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/fr/bonobo/filemanager/service/RemoteDownloadTarget.kt
+@@ -0,0 +1,85 @@
++package fr.bonobo.filemanager.service
++
++import android.content.ContentValues
++import android.content.Context
++import android.content.Intent
++import android.net.Uri
++import android.os.Build
++import android.os.Environment
++import android.provider.DocumentsContract
++import android.provider.MediaStore
++import fr.bonobo.filemanager.util.SafeFiles
++import java.io.File
++import java.io.OutputStream
++import java.nio.file.Files
++import java.nio.file.StandardOpenOption
++
++/** Streams into the destination storage, without an additional 5 GB cache copy. */
++class RemoteDownloadTarget private constructor(val output: OutputStream,
++    private val finish: () -> String, private val discard: () -> Boolean) {
++    fun commit() = finish()
++    fun abort(): Boolean { runCatching { output.close() }; return discard() }
++
++    companion object {
++        fun create(context: Context, name: String, mime: String, chosen: Uri?, size: Long): RemoteDownloadTarget {
++            SafeFiles.child(context.filesDir, name) // Reject remote names that could escape a directory.
++            if (chosen != null) {
++                val output = context.contentResolver.openOutputStream(chosen, "w") ?: error("Destination inaccessible")
++                return RemoteDownloadTarget(output, {
++                    releaseGrant(context, chosen)
++                    "le dossier choisi ($name)"
++                }, { deleteDocument(context, chosen) })
++            }
++            if (Build.VERSION.SDK_INT >= 29) {
++                check(size <= 0 || Environment.getExternalStorageDirectory().usableSpace >= size) { "Espace libre insuffisant dans Téléchargements" }
++                val values = ContentValues().apply {
++                    put(MediaStore.Downloads.DISPLAY_NAME, name)
++                    put(MediaStore.Downloads.MIME_TYPE, mime)
++                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
++                    put(MediaStore.Downloads.IS_PENDING, 1)
++                }
++                val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
++                    ?: error("Impossible de créer le fichier dans Téléchargements")
++                try {
++                    val output = context.contentResolver.openOutputStream(uri, "w") ?: error("Destination inaccessible")
++                    return RemoteDownloadTarget(output, {
++                        check(context.contentResolver.update(uri, ContentValues().apply {
++                            put(MediaStore.Downloads.IS_PENDING, 0)
++                        }, null, null) == 1) { "Impossible de finaliser le téléchargement" }
++                        "Téléchargements/$name"
++                    }, { runCatching { context.contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) })
++                } catch (e: Exception) {
++                    context.contentResolver.delete(uri, null, null)
++                    throw e
++                }
++            }
++            val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
++            check(directory.isDirectory || directory.mkdirs()) { "Dossier Téléchargements inaccessible" }
++            check(size <= 0 || directory.usableSpace >= size) { "Espace libre insuffisant dans Téléchargements" }
++            var file = SafeFiles.child(directory, name)
++            val base = name.substringBeforeLast('.', name)
++            val suffix = name.substringAfterLast('.', "").let { if (it.isEmpty()) "" else ".$it" }
++            var index = 1
++            var output: OutputStream
++            while (true) {
++                try {
++                    output = Files.newOutputStream(file.toPath(), StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)
++                    break
++                } catch (_: java.nio.file.FileAlreadyExistsException) {
++                    file = SafeFiles.child(directory, "$base (${index++})$suffix")
++                }
++            }
++            val selected = file
++            return RemoteDownloadTarget(output, { "Téléchargements/${selected.name}" }, { selected.delete() })
++        }
++        fun deleteDocument(context: Context, uri: Uri): Boolean {
++            val result = runCatching { DocumentsContract.deleteDocument(context.contentResolver, uri) }.getOrDefault(false)
++            releaseGrant(context, uri)
++            return result
++        }
++        private fun releaseGrant(context: Context, uri: Uri) {
++            runCatching { context.contentResolver.releasePersistableUriPermission(uri,
++                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }
++        }
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/fr/bonobo/filemanager/util/DownloadStream.kt
+@@ -0,0 +1,27 @@
++package fr.bonobo.filemanager.util
++
++import java.io.InputStream
++import java.io.OutputStream
++
++/** Bounded memory, 64-bit counts, cancellation between reads and exact size validation. */
++object DownloadStream {
++    fun copy(input: InputStream, output: OutputStream, expectedSize: Long,
++             checkCancelled: () -> Unit = {}, progress: (Long) -> Unit = {}): Long {
++        val buffer = ByteArray(256 * 1024)
++        var total = 0L
++        while (true) {
++            checkCancelled()
++            val count = input.read(buffer)
++            checkCancelled()
++            if (count < 0) break
++            if (count == 0) continue
++            output.write(buffer, 0, count)
++            total += count.toLong()
++            check(expectedSize < 0 || total <= expectedSize) { "La taille du fichier distant a changé" }
++            progress(total)
++        }
++        check(expectedSize < 0 || total == expectedSize) { "Téléchargement incomplet : $total octets reçus sur $expectedSize" }
++        output.flush()
++        return total
++    }
++}
+--- /dev/null
++++ b/app/src/test/java/fr/bonobo/filemanager/DownloadStreamTest.kt
+@@ -0,0 +1,50 @@
++package fr.bonobo.filemanager
++
++import fr.bonobo.filemanager.util.DownloadStream
++import java.io.*
++import java.util.concurrent.CancellationException
++import org.junit.Assert.*
++import org.junit.Test
++
++class DownloadStreamTest {
++    @Test fun fiveGiBUsesLongCountersAndBoundedBuffers() {
++        val size = 5L * 1024 * 1024 * 1024 + 17
++        var remaining = size
++        var written = 0L
++        var reported = 0L
++        val input = object : InputStream() {
++            override fun read(): Int = error("Use a buffer")
++            override fun read(b: ByteArray, off: Int, len: Int): Int {
++                assertTrue(b.size <= 256 * 1024)
++                if (remaining == 0L) return -1
++                val n = minOf(remaining, len.toLong()).toInt()
++                remaining -= n
++                return n
++            }
++        }
++        val output = object : OutputStream() {
++            override fun write(value: Int) = error("Use a buffer")
++            override fun write(b: ByteArray, off: Int, len: Int) { written += len }
++        }
++        assertEquals(size, DownloadStream.copy(input, output, size, progress = { reported = it }))
++        assertEquals(size, written); assertEquals(size, reported)
++    }
++    @Test fun truncatedTransferIsNotSuccessful() {
++        assertThrows(IllegalStateException::class.java) {
++            DownloadStream.copy(ByteArrayInputStream(byteArrayOf(1, 2)), ByteArrayOutputStream(), 3)
++        }
++    }
++    @Test fun cancellationStopsBeforeAnotherChunk() {
++        var cancel = false
++        val output = ByteArrayOutputStream()
++        assertThrows(CancellationException::class.java) {
++            DownloadStream.copy(ByteArrayInputStream(ByteArray(1024 * 1024)), output, 1024 * 1024L,
++                checkCancelled = { if (cancel) throw CancellationException() }, progress = { cancel = true })
++        }
++        assertEquals(256 * 1024, output.size())
++    }
++    @Test fun storageFailurePropagates() {
++        val output = object : OutputStream() { override fun write(value: Int) { throw IOException("Disk full") } }
++        assertThrows(IOException::class.java) { DownloadStream.copy(ByteArrayInputStream(byteArrayOf(1)), output, 1) }
++    }
++}
+--- a/app/src/test/java/fr/bonobo/filemanager/FtpsServerTest.kt
++++ b/app/src/test/java/fr/bonobo/filemanager/FtpsServerTest.kt
+@@ -114,4 +114,24 @@
+         assertTrue(client.logout()); client.disconnect()
+         val next = secure(); assertTrue(next.replyString, next.login("bonobo", PASSWORD))
+     }
++    @Test fun seedboxDownloadPathUsesBinaryTlsAndChecksCompletion() {
++        val bytes = ByteArray(600_000) { (it % 251).toByte() }
++        File(directory, "film.bin").writeBytes(bytes)
++        val client = secure(); assertTrue(client.login("bonobo", PASSWORD))
++        client.execPBSZ(0); client.execPROT("P"); client.enterLocalPassiveMode()
++        val output = ByteArrayOutputStream()
++        var count = 0L
++        fr.bonobo.filemanager.data.repository.FtpClientRepository.transfer(client, "/film.bin", output,
++            bytes.size.toLong(), progress = { count = it })
++        assertArrayEquals(bytes, output.toByteArray()); assertEquals(bytes.size.toLong(), count)
++        assertEquals(226, client.replyCode)
++    }
++    @Test fun missingRemoteFileIsNotAnEmptySuccessfulDownload() {
++        val client = secure(); assertTrue(client.login("bonobo", PASSWORD))
++        client.execPBSZ(0); client.execPROT("P"); client.enterLocalPassiveMode()
++        assertThrows(IllegalStateException::class.java) {
++            fr.bonobo.filemanager.data.repository.FtpClientRepository.transfer(client, "/absent.bin", ByteArrayOutputStream(), 10)
++        }
++    }
++
+ }

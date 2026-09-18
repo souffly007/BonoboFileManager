@@ -38,6 +38,10 @@ class AppRepositoryImpl @Inject constructor(
 
     override suspend fun backupApp(app: AppItem, destinationPath: String?): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
+            val info = context.packageManager.getApplicationInfo(app.packageName, 0)
+            require(info.splitSourceDirs.isNullOrEmpty()) {
+                "Application multi-APK : la sauvegarde complète n'est pas encore prise en charge"
+            }
             val source = File(app.apkPath)
             val backupDir = if (destinationPath != null) {
                 File(destinationPath)
@@ -47,8 +51,12 @@ class AppRepositoryImpl @Inject constructor(
             
             if (!backupDir.exists()) backupDir.mkdirs()
             
-            val destination = File(backupDir, "${app.name}_${app.versionName}.apk")
-            source.copyTo(destination, overwrite = true)
+            val version = app.versionName.replace(Regex("[^A-Za-z0-9._-]"), "_").take(40)
+            val destination = fr.bonobo.filemanager.util.SafeFiles.child(backupDir,
+                "${app.packageName.take(100)}_$version.apk")
+            fr.bonobo.filemanager.util.SafeFiles.writeNew(destination) { output ->
+                source.inputStream().use { it.copyTo(output) }
+            }
             destination.absolutePath
         }
     }

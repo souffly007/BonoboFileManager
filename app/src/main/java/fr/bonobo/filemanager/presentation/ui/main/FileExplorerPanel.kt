@@ -47,7 +47,7 @@ fun FileExplorerPanel(
 
         if (state.isGridView) {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(120.dp),
+                columns = GridCells.Adaptive(fr.bonobo.filemanager.presentation.components.ThumbnailPreset.fromKey(state.thumbnailSize).gridWidth.dp),
                 modifier = Modifier.fillMaxSize().verticalGridScrollbar(gridState),
                 state = gridState,
                 contentPadding = PaddingValues(8.dp),
@@ -73,7 +73,9 @@ fun FileExplorerPanel(
                         onEncrypt = { onItemOption(item, "ENCRYPT") },
                         onDecrypt = { onItemOption(item, "DECRYPT") },
                         onTransfer = { onItemOption(item, "TRANSFER") },
-                        thumbnailSize = state.thumbnailSize
+                        onProperties = { onItemOption(item, "PROPERTIES") },
+                        thumbnailSize = state.thumbnailSize,
+                        isGrid = state.isGridView
                     )
                 }
             }
@@ -101,7 +103,9 @@ fun FileExplorerPanel(
                         onEncrypt = { onItemOption(item, "ENCRYPT") },
                         onDecrypt = { onItemOption(item, "DECRYPT") },
                         onTransfer = { onItemOption(item, "TRANSFER") },
-                        thumbnailSize = state.thumbnailSize
+                        onProperties = { onItemOption(item, "PROPERTIES") },
+                        thumbnailSize = state.thumbnailSize,
+                        isGrid = state.isGridView
                     )
                 }
             }

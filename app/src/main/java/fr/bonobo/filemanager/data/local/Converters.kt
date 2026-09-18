@@ -11,6 +11,12 @@ class Converters {
 
     @TypeConverter
     fun toConnectionType(value: String): ConnectionType {
-        return ConnectionType.valueOf(value)
+        // Les anciennes connexions FTP sont relues en FTPS afin qu'aucun
+        // enregistrement existant ne puisse réactiver une connexion en clair.
+        return if (value.equals("FTP", ignoreCase = true)) {
+            ConnectionType.FTPS
+        } else {
+            ConnectionType.valueOf(value)
+        }
     }
 }

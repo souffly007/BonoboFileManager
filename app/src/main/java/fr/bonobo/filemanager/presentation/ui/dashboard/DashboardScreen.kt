@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.outlined.*
+import fr.bonobo.filemanager.presentation.components.IconTile
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Apps
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lan
@@ -55,6 +58,7 @@ fun DashboardScreen(
     viewModel: MainViewModel = hiltViewModel(),
     settingsViewModel: fr.bonobo.filemanager.presentation.ui.settings.SettingsViewModel = hiltViewModel(),
     onNavigateToExplorer: () -> Unit,
+    onNavigateToPath: (String) -> Unit,
     onNavigateToCategory: (String) -> Unit,
     onNavigateToNetwork: () -> Unit,
     onNavigateToApps: () -> Unit,
@@ -66,22 +70,7 @@ fun DashboardScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val rootAccess by settingsViewModel.rootAccess.collectAsStateWithLifecycle()
     val bookmarks by viewModel.bookmarks.collectAsStateWithLifecycle()
-    val vaultPassword by settingsViewModel.vaultPassword.collectAsStateWithLifecycle()
-
-    var showVaultAccess by remember { mutableStateOf(false) }
-
-    if (showVaultAccess) {
-        fr.bonobo.filemanager.presentation.ui.operations.VaultAccessDialog(
-            storedPassword = vaultPassword,
-            onDismiss = { showVaultAccess = false },
-            onSetPassword = { settingsViewModel.setVaultPassword(it) },
-            onSuccess = {
-                showVaultAccess = false
-                onNavigateToCategory("Coffre-fort")
-            }
-        )
-    }
-
+    val favorites by viewModel.favorites.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -134,33 +123,34 @@ fun DashboardScreen(
             )
 
             val categories = mutableListOf(
-                CategoryItem("Explorateur", Icons.Default.Folder, CategoryFolder),
-                CategoryItem("Téléchargements", Icons.Default.Download, CategoryDownload),
-                CategoryItem("Gros fichiers", Icons.Default.Storage, CategoryLargeFiles),
-                CategoryItem("Images", Icons.Default.Image, CategoryImages),
-                CategoryItem("Vidéos", Icons.Default.VideoFile, CategoryVideos),
-                CategoryItem("Musique", Icons.Default.AudioFile, CategoryMusic),
-                CategoryItem("Documents", Icons.Default.Description, CategoryDocs),
-                CategoryItem("Corbeille", Icons.Default.Delete, CategoryTrash),
-                CategoryItem("Coffre-fort", Icons.Default.Lock, CategoryVault),
-                CategoryItem("Réseau", Icons.Default.Lan, CategoryFolder),
-                CategoryItem("Applications", Icons.Default.Apps, CategoryDocs)
+                CategoryItem("Explorateur", Icons.Outlined.Folder, CategoryFolder),
+                CategoryItem("Favoris", Icons.Outlined.Favorite, Color(0xFFE53935)),
+                CategoryItem("Téléchargements", Icons.Outlined.Download, CategoryDownload),
+                CategoryItem("Gros fichiers", Icons.Outlined.Storage, CategoryLargeFiles),
+                CategoryItem("Images", Icons.Outlined.Image, CategoryImages),
+                CategoryItem("Vidéos", Icons.Outlined.VideoFile, CategoryVideos),
+                CategoryItem("Musique", Icons.Outlined.AudioFile, CategoryMusic),
+                CategoryItem("Documents", Icons.Outlined.Description, CategoryDocs),
+                CategoryItem("Corbeille", Icons.Outlined.Delete, CategoryTrash),
+                CategoryItem("Coffre-fort", Icons.Outlined.Lock, CategoryVault),
+                CategoryItem("Réseau", Icons.Outlined.Lan, CategoryFolder),
+                CategoryItem("Applications", Icons.Outlined.Apps, CategoryDocs)
             )
 
             if (rootAccess) {
-                categories.add(CategoryItem("Système Root", Icons.Default.Lock, CategoryLargeFiles))
+                categories.add(CategoryItem("Système Root", Icons.Outlined.Lock, CategoryLargeFiles))
             }
 
             // Ajouter les marque-pages
             bookmarks.forEach { bookmark ->
-                categories.add(CategoryItem(bookmark.name, Icons.Default.Bookmark, Color(0xFFFFEB3B)))
+                categories.add(CategoryItem(bookmark.name, Icons.Outlined.Bookmark, Color(0xFFFFEB3B)))
             }
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(categories) { category ->
                     var showDeleteBookmark by remember { mutableStateOf(false) }
@@ -214,20 +204,19 @@ fun DashboardScreen(
                             onClick = {
                                 when (category.title) {
                                     "Explorateur" -> onNavigateToExplorer()
+                                    "Favoris" -> onNavigateToCategory("Favoris")
                                     "Réseau" -> onNavigateToNetwork()
                                     "Applications" -> onNavigateToApps()
                                     "Nettoyeur" -> onNavigateToCleaner()
-                                    "Coffre-fort" -> showVaultAccess = true
+                                    "Coffre-fort" -> onNavigateToCategory("Coffre-fort")
                                     "Système Root" -> {
-                                        viewModel.loadFiles("/")
-                                        onNavigateToExplorer()
+                                        onNavigateToPath("/")
                                     }
                                     else -> {
                                         // Vérifier si c'est un marque-page
                                         val bookmark = bookmarks.find { it.name == category.title }
                                         if (bookmark != null) {
-                                            viewModel.loadFiles(bookmark.path)
-                                            onNavigateToExplorer()
+                                            onNavigateToPath(bookmark.path)
                                         } else {
                                             onNavigateToCategory(category.title)
                                         }
@@ -283,12 +272,12 @@ fun CategoryCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = category.icon,
-                contentDescription = null,
-                tint = category.color,
-                modifier = Modifier.size(32.dp)
-            )
+            val tone = when (category.title) {
+                "Images", "Vidéos", "Musique" -> 2
+                "Documents", "Applications", "Gros fichiers" -> 1
+                else -> 0
+            }
+            IconTile(category.icon, size = 44.dp, tone = tone)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = category.title,

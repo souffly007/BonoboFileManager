@@ -56,6 +56,8 @@ fun VideoPlayerScreen(
                 PlayerView(ctx).apply {
                     player = exoPlayer
                     useController = true
+                    // Empêche la mise en veille tant que le lecteur vidéo est affiché.
+                    keepScreenOn = true
                 }
             },
             modifier = Modifier.fillMaxSize()

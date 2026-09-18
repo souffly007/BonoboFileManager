@@ -1,0 +1,7 @@
+Compilation ciblee terminee avec code 0.
+review125/BonoboFileManager-master/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:33: warning: 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+    val ipAddress = wifiManager.connectionInfo.ipAddress
+                                ^^^^^^^^^^^^^^
+review125/BonoboFileManager-master/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:48: warning: 'val ipAddress: Int' is deprecated. Deprecated in Java.
+    val ipAddress = wifiManager.connectionInfo.ipAddress
+                                               ^^^^^^^^^

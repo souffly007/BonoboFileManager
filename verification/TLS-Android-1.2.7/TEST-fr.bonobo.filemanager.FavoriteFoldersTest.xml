@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.FavoriteFoldersTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-08T16:08:59" hostname="localhost" time="0.019">
+  <properties/>
+  <testcase name="removedFavoriteAndDuplicates" classname="fr.bonobo.filemanager.FavoriteFoldersTest" time="0.017"/>
+  <testcase name="searchStaysInsideFavoriteFolders" classname="fr.bonobo.filemanager.FavoriteFoldersTest" time="0.0"/>
+  <testcase name="onlyStarredFoldersAppear" classname="fr.bonobo.filemanager.FavoriteFoldersTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

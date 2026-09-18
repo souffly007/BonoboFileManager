@@ -1,6 +1,8 @@
 package fr.bonobo.filemanager.data.repository
 
 import android.os.Environment
+import android.net.Uri
+import android.provider.OpenableColumns
 import fr.bonobo.filemanager.data.local.SettingsKeys
 import fr.bonobo.filemanager.data.local.dao.*
 import fr.bonobo.filemanager.data.local.entity.*
@@ -8,6 +10,7 @@ import fr.bonobo.filemanager.data.local.settingsDataStore
 import fr.bonobo.filemanager.domain.model.FileItem
 import fr.bonobo.filemanager.domain.repository.IFileRepository
 import fr.bonobo.filemanager.util.FileUtils
+import fr.bonobo.filemanager.util.SafeFiles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -38,11 +41,12 @@ class FileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getFiles(path: String): List<FileItem> = withContext(Dispatchers.IO) {
+        val showHidden = context.settingsDataStore.data.first()[SettingsKeys.SHOW_HIDDEN_FILES] ?: false
         if (isRootEnabled() && hasRootAccess()) {
-            return@withContext getFilesRoot(path)
+            return@withContext getFilesRoot(path, showHidden)
         }
 
-        val files = FileUtils.listFiles(directory = File(path))
+        val files = FileUtils.listFiles(directory = File(path), showHidden = showHidden)
 
         fileDao.insertAll(
             files.map { item ->
@@ -62,47 +66,34 @@ class FileRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun hasRootAccess(): Boolean {
-        return try {
-            val process = Runtime.getRuntime().exec("su -c id")
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
-            val line = reader.readLine()
-            line?.contains("uid=0") ?: false
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    private fun getFilesRoot(path: String): List<FileItem> {
-        val result = mutableListOf<FileItem>()
+    private fun hasRootAccess(): Boolean = try {
+        val process = ProcessBuilder("su", "-c", "id").start()
         try {
-            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "ls -ld $path/*"))
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
-            var line: String? = reader.readLine()
-            
-            while (line != null) {
-                val parts = line.split(Regex("\\s+"))
-                if (parts.size >= 8) {
-                    val fullPath = parts.last()
-                    val name = fullPath.substringAfterLast("/")
-                    val isDir = line.startsWith("d")
-                    
-                    result.add(FileItem(
-                        path = fullPath,
-                        name = name,
-                        size = 0,
-                        lastModified = Date(),
-                        isDirectory = isDir,
-                        mimeType = if (isDir) null else "application/octet-stream"
-                    ))
-                }
-                line = reader.readLine()
+            if (!process.waitFor(30, java.util.concurrent.TimeUnit.SECONDS)) false
+            else process.inputStream.bufferedReader().use { it.readLine()?.contains("uid=0") == true }
+        } finally { process.destroy() }
+    } catch (_: Exception) { false }
+
+    private fun getFilesRoot(path: String, showHidden: Boolean): List<FileItem> {
+        val quoted = SafeFiles.shellQuote(File(path).absolutePath)
+        val patterns = if (showHidden) "$quoted/* $quoted/.[!.]* $quoted/..?*" else "$quoted/*"
+        val command = """for entry in $patterns; do
+            [ -e "${'$'}entry" ] || [ -L "${'$'}entry" ] || continue
+            if [ -d "${'$'}entry" ]; then printf 'd\0%s\0' "${'$'}entry";
+            else printf 'f\0%s\0' "${'$'}entry"; fi
+            done"""
+        val process = ProcessBuilder("su", "-c", command).redirectError(java.lang.ProcessBuilder.Redirect.INHERIT).start()
+        return try {
+            val fields = process.inputStream.use { it.readBytes().toString(Charsets.UTF_8).split('\u0000') }
+            check(process.waitFor() == 0) { "Lecture root impossible" }
+            fields.dropLastWhile { it.isEmpty() }.chunked(2).map { pair ->
+                require(pair.size == 2) { "Réponse root invalide" }
+                val file = File(pair[1])
+                FileItem(path = file.absolutePath, name = file.name, size = file.length(),
+                    lastModified = Date(file.lastModified()), isDirectory = pair[0] == "d",
+                    mimeType = if (pair[0] == "d") null else "application/octet-stream")
             }
-            process.waitFor()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return result
+        } finally { process.destroy() }
     }
 
     override suspend fun getFilesByType(mimeTypePrefix: String): List<FileItem> = withContext(Dispatchers.IO) {
@@ -145,9 +136,10 @@ class FileRepositoryImpl @Inject constructor(
             val source = File(path)
             require(source.exists()) { "Le fichier n'existe pas" }
             val parent = source.parentFile ?: error("Dossier parent introuvable")
-            val destination = File(parent, newName.trim())
+            val destination = SafeFiles.child(parent, newName.trim())
             require(!destination.exists()) { "Un fichier portant ce nom existe déjà" }
-            check(source.renameTo(destination)) { "Impossible de renommer le fichier" }
+            java.nio.file.Files.move(source.toPath(), destination.toPath())
+            Unit
         }
     }
 
@@ -170,7 +162,7 @@ class FileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteFiles(paths: List<String>): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching { paths.forEach { path -> FileUtils.deleteRecursively(File(path)) } }
+        runCatching { paths.forEach { path -> check(FileUtils.deleteRecursively(File(path))) { "Suppression impossible : $path" } } }
     }
 
     private val trashDir = File(Environment.getExternalStorageDirectory(), ".bonobo_trash")
@@ -183,8 +175,13 @@ class FileRepositoryImpl @Inject constructor(
                 source.absolutePath.toByteArray(),
                 android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP
             )
-            val destination = File(trashDir, "trash_${encodedPath}_#_${source.name}")
-            check(source.renameTo(destination)) { "Échec du déplacement vers la corbeille" }
+            var destination = File(trashDir, "trash_${encodedPath}_#_${source.name}")
+            var duplicate = 1
+            while (SafeFiles.exists(destination)) {
+                destination = File(trashDir, "trash_${encodedPath}_#_${source.name} (${duplicate++})")
+            }
+            java.nio.file.Files.move(source.toPath(), destination.toPath())
+            Unit
         }
     }
 
@@ -207,6 +204,7 @@ class FileRepositoryImpl @Inject constructor(
     override suspend fun restoreFromTrash(item: FileItem): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val fileInTrash = File(item.path)
+            require(fileInTrash.canonicalFile.parentFile == trashDir.canonicalFile) { "Entrée de corbeille invalide" }
             val fileName = fileInTrash.name
             val encodedPath = when {
                 fileName.contains("_#_") -> fileName.substringAfter("trash_").substringBefore("_#_")
@@ -214,9 +212,14 @@ class FileRepositoryImpl @Inject constructor(
                 else -> error("Format de fichier inconnu")
             }
             val originalPath = String(android.util.Base64.decode(encodedPath, android.util.Base64.URL_SAFE))
-            val destination = File(originalPath)
+            val destination = File(originalPath).canonicalFile
+            val storage = Environment.getExternalStorageDirectory().canonicalFile.toPath()
+            require(destination.toPath().startsWith(storage) && destination.toPath() != storage &&
+                !destination.toPath().startsWith(trashDir.canonicalFile.toPath())) { "Chemin de restauration invalide" }
+            require(!SafeFiles.exists(destination)) { "La destination existe déjà : restauration annulée" }
             destination.parentFile?.mkdirs()
-            check(fileInTrash.renameTo(destination)) { "Échec de la restauration" }
+            java.nio.file.Files.move(fileInTrash.toPath(), destination.toPath())
+            Unit
         }
     }
 
@@ -303,10 +306,9 @@ class FileRepositoryImpl @Inject constructor(
         bookmarkDao.deleteByPath(path)
     }
 
-    private val vaultDir = File(Environment.getExternalStorageDirectory(), ".bonobo_vault")
+    override suspend fun getVaultFiles(): List<FileItem> =
+        error("Ouvrez le coffre-fort depuis l'accueil pour vous authentifier")
 
-    override suspend fun getVaultFiles(): List<FileItem> = withContext(Dispatchers.IO) {
-        if (!vaultDir.exists()) vaultDir.mkdirs()
-        FileUtils.listFiles(vaultDir, showHidden = true)
-    }
+    override suspend fun importFileToVault(uri: String): Result<String> =
+        Result.failure(IllegalStateException("Utilisez l'importation du coffre-fort sécurisé"))
 }

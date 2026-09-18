@@ -39,4 +39,5 @@ interface IFileRepository {
     
     // Coffre-fort
     suspend fun getVaultFiles(): List<FileItem>
+    suspend fun importFileToVault(uri: String): Result<String>
 }

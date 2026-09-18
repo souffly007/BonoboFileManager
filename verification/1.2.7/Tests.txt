@@ -1,0 +1,13 @@
+fr.bonobo.filemanager.ArchiveSecurityTest : 1 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.ExampleUnitTest : 1 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.FavoriteFoldersTest : 3 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.FileCopySecurityTest : 1 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.FileUtilsTest : 1 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.SecurityRegressionTest : 7 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.SecurityUtilsTest : 2 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.SessionUserManagerTest : 1 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.ThumbnailPresetTest : 1 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.TransferSecurityTest : 4 tests, 0 échecs, 0 erreurs
+fr.bonobo.filemanager.UseCaseTest : 1 tests, 0 échecs, 0 erreurs
+
+{'tests': 23, 'failures': 0, 'errors': 0, 'skipped': 0}

@@ -164,11 +164,12 @@ object FileUtils {
         source: File,
         destination: File
     ) {
+        require(!java.nio.file.Files.isSymbolicLink(source.toPath())) { "Copie de lien symbolique non prise en charge" }
         require(source.exists()) {
             "Le fichier source n'existe pas"
         }
 
-        if (source.absolutePath == destination.absolutePath) {
+        if (source.canonicalPath == destination.canonicalPath) {
             error("La source et la destination sont identiques")
         }
 
@@ -179,10 +180,7 @@ object FileUtils {
             )
         } else {
             destination.parentFile?.mkdirs()
-            source.copyTo(
-                target = destination,
-                overwrite = true
-            )
+            SafeFiles.writeNew(destination) { output -> source.inputStream().use { it.copyTo(output) } }
         }
     }
 
@@ -191,16 +189,17 @@ object FileUtils {
         destination: File
     ) {
         require(
-            !destination.absolutePath.startsWith(
-                source.absolutePath + File.separator
+            !destination.canonicalPath.startsWith(
+                source.canonicalPath + File.separator
             )
         ) {
             "Impossible de copier un dossier dans lui-même"
         }
 
-        destination.mkdirs()
-
-        source.listFiles()?.forEach { child ->
+        require(!SafeFiles.exists(destination)) { "La destination existe déjà" }
+        check(destination.mkdirs()) { "Impossible de créer le dossier de destination" }
+        val children = source.listFiles() ?: error("Impossible de lire le dossier source")
+        children.forEach { child ->
             copy(
                 source = child,
                 destination = File(
@@ -222,12 +221,12 @@ object FileUtils {
     }
 
     fun createDirectory(parent: File, name: String): Boolean {
-        val dir = File(parent, name)
+        val dir = SafeFiles.child(parent, name)
         return if (dir.exists()) false else dir.mkdirs()
     }
 
     fun createEmptyFile(parent: File, name: String): Boolean {
-        val file = File(parent, name)
+        val file = SafeFiles.child(parent, name)
         return if (file.exists()) false else file.createNewFile()
     }
 

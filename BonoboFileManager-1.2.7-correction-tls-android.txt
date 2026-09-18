@@ -1,0 +1,117 @@
+BONOBO 1.2.7 — CORRECTION DE LA NÉGOCIATION TLS SUR ANDROID
+
+Version : toujours 1.2.7, versionCode 8.
+APK d’essai : toujours 1.2.7-preview, Bonobo Aperçu.
+
+CE QUE MONTRE TON JOURNAL
+
+AUTH TLS reçoit maintenant la réponse 234, mais la négociation TLS est
+interrompue avant l’authentification FTP. Ce problème intervient donc avant
+la vérification du mot de passe.
+L’erreur GnuTLS -110 indique une fermeture anormale de TLS ; à elle seule,
+elle ne donne pas la cause interne du serveur Android.
+
+ERREUR TROUVÉE DANS MON CORRECTIF PRÉCÉDENT
+
+La clé EC créée dans AndroidKeyStore autorisait SHA-256, SHA-384 et SHA-512,
+mais pas DIGEST_NONE. Or la pile TLS Android calcule elle-même le condensat
+à signer puis utilise une signature NONEwithECDSA sur ce condensat.
+Android peut donc refuser l’utilisation de cette clé pendant la négociation.
+
+Cette exigence est explicitement documentée par Android pour les clés TLS.
+Le défaut est confirmé dans le code précédent et correspond au stade de
+l’échec observé. Sans journal interne du téléphone, il n’est pas possible
+d’affirmer que c’est l’unique cause de sa déconnexion.
+Les essais sur JVM avec une clé de test classique n’appliquaient pas les
+restrictions AndroidKeyStore, et n’avaient donc pas détecté cet oubli.
+
+CORRECTIONS APPORTÉES
+
+1. Ajout de DIGEST_NONE aux usages autorisés de la clé TLS.
+   Cela ne désactive aucun chiffrement ni le hachage TLS : TLS fournit déjà
+   le condensat. Les identifiants et les transferts restent protégés par TLS.
+
+2. Nouvelle identité TLS sous l’alias bonobo_ftps_identity_v2.
+   Modifier seulement le générateur ne corrigerait pas une clé déjà créée.
+   Le nouvel alias assure une migration automatique lors du démarrage du
+   serveur, puis la nouvelle clé est réutilisée aux démarrages suivants.
+   L’ancienne entrée TLS est conservée mais n’est plus utilisée par ce code.
+   La clé privée reste dans AndroidKeyStore ; elle n’est pas exportée.
+
+3. Vérification cryptographique avant ouverture du serveur.
+   Sur le téléphone, Bonobo signe un condensat SHA-256 avec NONEwithECDSA
+   et vérifie cette signature avec la clé publique du certificat.
+   Si cette opération échoue, le serveur ne démarre pas et l’écran FTP
+   affiche un message explicite, au lieu d’annoncer un serveur prêt.
+
+4. Deux tests JVM ajoutés : signature d’un condensat sans double hachage,
+   et rejet d’un certificat ne correspondant pas à la clé privée.
+
+INSTALLATION ET NOUVEL ESSAI
+
+- Arrêter le serveur FTP.
+- Mettre à jour Bonobo Aperçu avec l’APK joint si c’est cette application
+  que tu utilises. Il possède la même signature que les aperçus précédents.
+- Si tu utilises ton application habituelle, compiler les sources et signer
+  avec ta clé habituelle, comme précédemment.
+- Ne pas désinstaller l’application et ne pas effacer ses données.
+- Redémarrer le serveur avec le mot de passe choisi.
+- Vérifier qu’il affiche « ACTIF » plutôt qu’une erreur de clé.
+
+Dans FileZilla :
+  Hôte : 192.168.1.145, ou l’adresse actuellement affichée par Bonobo
+  Port : 2121
+  Protocole : FTP
+  Chiffrement : Exiger une connexion FTP explicite sur TLS
+  Mode : Passif
+  Utilisateur : bonobo
+  Mot de passe : celui choisi dans l’application
+
+Le certificat CHANGE une fois avec ce correctif. Si FileZilla présente
+un nouveau certificat, comparer son empreinte SHA-256 avec la nouvelle
+empreinte affichée dans Bonobo avant de l’accepter.
+
+Si l’erreur persiste, fournir le nouveau journal FileZilla et le message
+affiché sur l’écran FTP de Bonobo. Les journaux Android du processus au
+moment de AUTH TLS permettront ensuite de distinguer un autre problème
+de fournisseur TLS ou de connexion. Ne jamais transmettre le mot de passe.
+
+VALIDATION ET LIMITES
+
+- testDebugUnitTest + assembleDebug : BUILD SUCCESSFUL.
+- 30 tests JVM : aucun échec, aucune erreur, aucun test ignoré.
+- Les cinq tests de connexions/transferts FTPS locaux sont toujours exécutés.
+- Signature APK vérifiée, identique à l’aperçu précédent.
+- Version 1.2.7-preview et versionCode 8 vérifiés dans l’APK.
+- Intégrité du ZIP et présence de l’APK contrôlées.
+
+Aucun appareil Android ni émulateur n’était disponible pour reproduire
+la négociation AndroidKeyStore/FileZilla ici. Les tests JVM ne valent donc
+pas validation sur téléphone. La vérification de signature au démarrage
+sera exécutée par ton téléphone lors de l’essai.
+La variante release n’a pas été compilée ni signée ici.
+
+CONTENU
+
+ZIP complet : sources, wrapper Gradle, tests, historique des corrections,
+APK dans le dossier APK, et ce TXT.
+Preuves actuelles : verification/TLS-Android-1.2.7.
+Correctif détaillé : Correction-TLS-Android.patch dans ce dossier.
+Prérequis de compilation : JDK 17, SDK Android 35, Build Tools 35.0.0.
+Commande : ./gradlew testDebugUnitTest assembleDebug
+Sous Windows : gradlew.bat testDebugUnitTest assembleDebug
+
+RÉFÉRENCES
+
+Android — setDigests, exigence DIGEST_NONE pour les clés TLS :
+https://developer.android.com/reference/android/security/keystore/KeyGenParameterSpec.Builder#setDigests(java.lang.String...)
+Conscrypt — signature de condensats via NONEwithECDSA :
+https://android.googlesource.com/platform/external/conscrypt/+/c061be0/src/main/java/org/conscrypt/CryptoUpcalls.java
+
+FICHIERS DE CODE MODIFIÉS OU AJOUTÉS
+app/src/main/java/fr/bonobo/filemanager/service/FtpsIdentity.kt
+app/src/main/java/fr/bonobo/filemanager/service/TlsSigningCheck.kt
+app/src/test/java/fr/bonobo/filemanager/TlsSigningCheckTest.kt
+
+SHA-256 de l’APK
+94a8a380ad97a86eed10f947bd9d88b22ec223f2359eacf8e7048c5837ab272d

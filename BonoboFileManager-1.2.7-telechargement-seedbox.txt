@@ -1,0 +1,134 @@
+BONOBO 1.2.7 — TÉLÉCHARGEMENT DEPUIS UNE SEEDBOX
+
+Version conservée : 1.2.7 ; versionCode : 8.
+APK d’aperçu : 1.2.7-preview, même identifiant et même signature qu’auparavant.
+
+PROBLÈME CONSTATÉ DANS LE CODE
+
+L’explorateur distant réutilisait la carte des fichiers locaux. Le menu
+présentait des actions locales dont plusieurs callbacks étaient vides.
+Il ne contenait aucune action Télécharger.
+Le dépôt distant n’avait pas non plus de parcours de téléchargement FTP/FTPS
+vers un fichier choisi : son ouverture temporaire concernait seulement SMB.
+
+CORRECTION DU MENU
+
+Chaque fichier distant dispose maintenant, dans son menu ⋮, de :
+- Télécharger ;
+- Supprimer du serveur, avec confirmation explicite.
+Pour SMB, l’ouverture temporaire existante reste accessible par « Ouvrir ».
+Pour un dossier, le menu propose l’ouverture et la suppression confirmée.
+Le téléchargement récursif d’un dossier n’est pas ajouté dans ce correctif.
+
+Toucher directement un fichier propose également son téléchargement.
+Les icônes restent adaptées au thème actif.
+
+CHOIX DE LA DESTINATION
+
+Après ⋮ > Télécharger :
+- « Téléchargements » enregistre dans le dossier Téléchargements du téléphone.
+- « Choisir ailleurs… » ouvre le sélecteur Android pour créer le fichier
+  dans un autre dossier et éventuellement ajuster son nom.
+- « Annuler » ferme le choix sans lancer de transfert.
+
+Android 10 et versions suivantes : Téléchargements utilise MediaStore avec
+un fichier en attente de publication jusqu’à la réussite complète. MediaStore
+alloue un nouveau fichier, sans remplacer un fichier existant.
+Android 8/9 : création exclusive dans Téléchargements et suffixe numéroté si
+le nom existe déjà. L’accès au stockage doit être autorisé.
+Le sélecteur « Choisir ailleurs » crée un document via Android ; les possibilités
+dépendent du fournisseur de fichiers sélectionné.
+
+TÉLÉCHARGEMENT
+
+- FTP et FTPS : connexion passive, transfert binaire.
+- FTPS : contrôle du certificat et du nom d’hôte, canal de données PROT P.
+- SMB : copie en flux également reliée au nouveau parcours de téléchargement.
+- Tampon fixe de 256 Kio, sans chargement complet du film en mémoire.
+- Compteurs en Long pour ne pas dépasser la limite des entiers 32 bits.
+- Écriture directe vers la destination, sans copie intermédiaire de 5 Go
+  dans le cache privé de l’application.
+- Vérification du nombre d’octets par rapport à la taille annoncée.
+- Pour FTP/FTPS, vérification de la réponse finale du serveur avant réussite.
+  Le contrôle de taille ne remplace pas une comparaison de sommes de contrôle.
+- Un téléchargement à la fois.
+
+Le transfert utilise un service de premier plan, avec progression dans
+l’explorateur et notification Android lorsque leur affichage est autorisé.
+Il peut continuer pendant la navigation hors de l’explorateur. Un verrou CPU
+est maintenu pendant l’opération, avec une durée maximale de six heures.
+Le service tient compte du délai système des services dataSync d’Android 15.
+
+Un bouton Annuler est disponible. L’annulation est vérifiée entre les lectures ;
+si une lecture réseau est bloquée, elle peut attendre son délai d’expiration
+avant que le nettoyage soit terminé. Elle n’est pas nécessairement instantanée.
+
+ANNULATION, COUPURE ET REPRISE
+
+Sur erreur ou annulation traitée par le service, la copie partielle est supprimée.
+Si le fournisseur refuse la suppression, le message indique qu’un fichier
+partiel reste à supprimer dans la destination. Le fichier distant n’est pas
+supprimé par un téléchargement ou son annulation.
+
+La reprise d’un téléchargement interrompu N’EST PAS implémentée.
+Il faut relancer depuis le début. Il n’y a pas de reprise après redémarrage.
+Un arrêt forcé, la mort du processus ou l’extinction du téléphone peuvent
+empêcher le nettoyage : une copie partielle peut rester, notamment dans une
+destination choisie via le sélecteur. Vérifier cette destination avant de relancer.
+Dans une destination choisie, ou sur Android 8/9, le fichier peut être visible
+pendant son écriture : attendre la confirmation de fin avant de l’ouvrir.
+
+ESSAI SUR TA SEEDBOX
+
+1. Installer la mise à jour de Bonobo Aperçu sans désinstaller l’aperçu précédent,
+   ou compiler les sources avec ta signature habituelle pour ton application.
+2. Dans Bonobo, sélectionner une connexion de type FTPS, port 21, avec l’hôte
+   bouncer.ams.nl.seedbox.io et tes identifiants personnels. Utiliser le nom
+   d’hôte pour permettre la vérification du certificat.
+3. Ouvrir le dossier contenant le film.
+4. Menu ⋮ du fichier > Télécharger > Téléchargements, ou Choisir ailleurs.
+5. Vérifier d’abord avec un petit fichier, puis essayer le film de 5 Go avec
+   suffisamment d’espace libre et une destination acceptant cette taille.
+6. Attendre « Enregistré », puis ouvrir le fichier dans la destination.
+
+Le journal FileZilla que tu as transmis confirme sa connexion TLS, mais ne
+constitue pas à lui seul un test du client intégré à Bonobo. Aucun accès à ta
+seedbox ni utilisation de tes identifiants n’a été effectué ici.
+
+VÉRIFICATIONS EFFECTUÉES
+
+Compilation propre : clean + testDebugUnitTest + assembleDebug — BUILD SUCCESSFUL.
+36 tests JVM : aucun échec, aucune erreur, aucun test ignoré.
+Les six nouveaux tests vérifient :
+- un flux simulé de plus de 5 Gio, avec compteurs 64 bits et tampon borné ;
+- le refus d’un transfert tronqué ;
+- l’arrêt après annulation ;
+- la propagation d’une erreur d’écriture ;
+- un téléchargement binaire FTPS réel en boucle locale, avec comparaison
+  des octets et contrôle de la réponse finale 226 ;
+- le refus de présenter un fichier distant absent comme un téléchargement vide réussi.
+
+Le test de plus de 5 Gio est simulé : aucun film de cette taille n’a été
+transféré sur un vrai téléphone ou sur ta seedbox ici.
+L’interface, MediaStore, le sélecteur Android, le service en arrière-plan et
+SMB restent à vérifier sur appareil. Les tests JVM ne les valident pas.
+
+Signature APK et version vérifiées. L’APK met à jour Bonobo Aperçu ; il ne
+remplace pas l’application fr.bonobo.filemanager signée avec ta propre clé.
+La variante release n’a pas été compilée ni signée ici.
+Intégrité ZIP vérifiée. Preuves : verification/Telechargement-1.2.7.
+
+CONTENU DU ZIP
+
+Projet complet, wrapper Gradle, sources, tests, historique des corrections,
+ce document et APK dans le dossier APK.
+Les clés privées, SDK/JDK et caches de compilation ne sont pas inclus.
+Les anciennes corrections du coffre, du serveur FTPS et de l’interface sont
+incluses ; ce correctif concerne le client de téléchargement distant.
+
+Compilation : JDK 17, SDK Android 35, Build Tools 35.0.0.
+  Linux/macOS : ./gradlew testDebugUnitTest assembleDebug
+  Windows : gradlew.bat testDebugUnitTest assembleDebug
+
+SHA-256 de l’APK
+1c92ebfe5516e7bc04860e4366c98379f72e8c746667dc612ec31809f27fe2ed

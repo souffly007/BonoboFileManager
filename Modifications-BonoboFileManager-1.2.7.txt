@@ -1,0 +1,130 @@
+BONOBO FILE MANAGER — MODIFICATIONS 1.2.7
+Date : 8 septembre 2026
+Base : sources corrigées 1.2.6, avec conservation des corrections précédentes.
+
+1. MINIATURES ET EXPLORATEUR
+
+Le réglage est maintenant dans Paramètres > Miniatures : un curseur compact
+remplace les gros boutons. Il comporte six positions : Compact, Confort,
+Grand, Très grand, XL et XXL. Un aperçu accompagne le réglage.
+Les choix enregistrés dans les versions précédentes restent reconnus.
+
+En liste, les aperçus photo/vidéo peuvent aller de 48 à 160 dp ; leur largeur
+est limitée à 34 % du panneau pour laisser les noms et les commandes lisibles.
+En grille, la largeur minimale des cartes varie de 112 à 248 dp : Android
+adapte le nombre de colonnes à l'écran. Les photos occupent un carré, avec
+leur nom en dessous sur deux lignes au maximum. Le menu ne rogne plus le nom.
+Les aperçus sont recadrés dans les cartes ; les fichiers ne sont pas modifiés.
+Les dossiers et documents conservent des pictogrammes compacts.
+
+Pour agrandir réellement les photos : choisir Grand, XL ou XXL, revenir dans
+l'explorateur puis activer la vue grille avec le bouton de la barre supérieure.
+
+2. ICÔNES ET THÈMES
+
+Nouvelle présentation commune : pictogrammes Material Outlined dans des fonds
+arrondis, avec couleurs provenant du thème actif.
+Les icônes de l'accueil, des types de fichiers et des paramètres sont harmonisées.
+Les dossiers, images, vidéos, musiques, PDF, APK, archives et fichiers chiffrés
+ont des pictogrammes distincts. Un pictogramme reste présent si l'aperçu échoue.
+
+Les thèmes Clair et Sombre utilisent leurs couleurs respectives. La palette
+CyanogenMOD est complétée pour éviter les couleurs de conteneurs Material par
+défaut qui ne s'accordaient pas avec son vert. Le mode Automatique est conservé.
+La sélection reste visible sur les miniatures et le cœur favori est plus discret.
+L'icône de lancement de l'application n'a pas été remplacée.
+
+3. À PROPOS ET PARAMÈTRES
+
+À propos est allégé : en-tête compact, informations du créateur et licence
+regroupées, suppression de l'animation et des éléments disproportionnés.
+La version affichée vient désormais de BuildConfig, au lieu d'un texte fixe.
+Les écrans restent défilants et les textes peuvent revenir à la ligne.
+Le choix du thème se fait dans des lignes compactes avec boutons radio.
+Un bouton Retour est disponible dans Paramètres.
+
+4. FAVORIS
+
+Cause corrigée : le bouton Favoris chargeait la catégorie puis lançait une
+navigation qui réinitialisait l'explorateur sur tous les dossiers.
+Il ouvre maintenant directement la catégorie Favoris.
+
+Cette catégorie et le compteur d'accueil ne retiennent que les dossiers
+existants marqués comme favoris. Les anciens favoris de type fichier ne sont
+pas effacés de la base, mais ils ne sont plus affichés dans cette liste.
+La recherche dans Favoris reste limitée aux noms des dossiers favoris.
+Retirer un favori actualise la liste. Un message explique quoi faire si elle
+est vide. Le double panneau est désactivé dans cette catégorie.
+
+Toucher un dossier favori ouvre normalement son contenu. À sa racine, Retour
+permet de retrouver les favoris. Les chargements devenus obsolètes sont ignorés
+pour éviter qu'un ancien résultat de dossier ou de recherche remplace la liste.
+Les raccourcis de dossiers épinglés et de la racine système ouvrent également
+le chemin demandé, sans réinitialisation vers le stockage principal.
+
+5. APK FOURNI ET INSTALLATION
+
+Fichier : BonoboFileManager-1.2.7-apercu.apk
+Nom Android : Bonobo Aperçu
+Identifiant : fr.bonobo.filemanager.preview
+Version : 1.2.7-preview ; code de version : 8
+Android minimum : 8.0 / API 26 ; cible : Android 15 / API 35.
+
+Il s'agit d'un APK debug signé pour essayer cette interface. Son identifiant
+est distinct afin de pouvoir l'installer à côté de l'application habituelle.
+Il possède ses propres autorisations, paramètres, favoris et coffre privé.
+Il ne récupère donc pas automatiquement les favoris ou le coffre de l'autre
+application. Le stockage partagé reste celui du téléphone : les opérations
+sur ces fichiers ont bien un effet réel.
+
+Installer cet APK, autoriser son accès aux fichiers, puis choisir le thème et
+la taille souhaités. Il n'est pas nécessaire de désinstaller l'application
+habituelle pour cet essai. La désinstallation efface le coffre privé de
+l'application désinstallée.
+
+Pour distribuer une vraie mise à jour conservant les données de l'application
+habituelle, ouvrir les sources dans Android Studio, compiler la variante release
+et signer avec votre clé habituelle. La variante release conserve l'identifiant
+fr.bonobo.filemanager et la version 1.2.7. Aucune clé privée n'est incluse.
+L'APK fourni ne constitue pas une version release destinée à la publication.
+
+6. VÉRIFICATIONS EFFECTUÉES
+
+- Compilation Gradle testDebugUnitTest + assembleDebug : BUILD SUCCESSFUL.
+- 23 tests JVM exécutés : 0 échec, 0 erreur, 0 test ignoré.
+- Parmi eux, 4 nouveaux tests couvrent le filtrage/recherche/retrait des favoris
+  et la compatibilité/progression des tailles de miniatures.
+- Les 19 tests précédents font aussi partie de cette exécution.
+- Signature APK vérifiée par apksigner : valide, schéma v2.
+- Identifiant, version et versions Android de l'APK contrôlés avec aapt.
+- Intégrité ZIP vérifiée avant livraison.
+
+Les preuves de cette version se trouvent dans verification/1.2.7.
+Les anciens documents de vérification à la racine de verification décrivent
+la 1.2.6 ; ils sont conservés comme historique.
+
+Limite : pas de test sur téléphone ni de test visuel instrumenté réalisé ici.
+Les tests JVM ne valident pas le rendu Compose, les gestes ni l'installation
+sur votre modèle de téléphone. À vérifier en essai : les trois thèmes, une
+photo en liste/grille, les grandes polices et le parcours Ajouter/Retirer/Retour
+dans Favoris. La variante release n'a pas été compilée ni signée ici.
+
+7. CONTENU DU ZIP ET RECOMPILATION
+
+Le ZIP contient le projet complet BonoboFileManager, son wrapper Gradle,
+les sources et tests, ce document, les preuves et l'APK dans le dossier APK.
+Les caches de compilation, SDK/JDK locaux et clés de signature sont exclus.
+Le détail du code modifié est dans verification/1.2.7/Interface-1.2.7.patch.
+
+Prérequis : JDK 17, Android SDK 35, Build Tools 35.0.0.
+Depuis le dossier du projet :
+  Linux/macOS : ./gradlew testDebugUnitTest assembleDebug
+  Windows : gradlew.bat testDebugUnitTest assembleDebug
+Sortie : app/build/outputs/apk/debug/app-debug.apk
+
+Les corrections de sécurité de la 1.2.6 restent documentées dans
+Corrections-BonoboFileManager-1.2.6.txt. Cette livraison se concentre sur
+l'interface et les favoris ; elle ne constitue pas une certification sécurité.
+
+SHA-256 de l’APK fourni :
+878919e96b3681abca97dca731681a27b90876398d6e63c4b150c9341ddee8c1

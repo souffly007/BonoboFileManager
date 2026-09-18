@@ -1,0 +1,141 @@
+BONOBO FILE MANAGER 1.2.7 — CORRECTION FTP ET AJOUT FTPS
+
+Version conservée : 1.2.7 ; versionCode conservé : 8.
+La variante d’essai reste 1.2.7-preview, comme l’APK précédent.
+
+DIAGNOSTIC DU JOURNAL FILEZILLA
+
+Le message « 421 Maximum login limit has been reached » était causé par
+l’absence de ConcurrentLoginPermission dans les autorisations du compte
+bonobo. Apache FtpServer vérifie cette autorisation dès USER ; sans elle,
+il refuse même une première connexion. Ce refus ne prouvait donc pas que
+d’autres utilisateurs étaient déjà connectés.
+
+Les réponses 431 à AUTH TLS et AUTH SSL venaient de l’absence de configuration
+TLS dans le serveur précédent. Il s’agissait de deux problèmes distincts.
+
+CORRECTIONS APPORTÉES
+
+1. Connexion
+- Ajout de ConcurrentLoginPermission : 10 sessions au total, 5 par adresse IP.
+- Ajout explicite des autorisations de transfert et de l’écriture.
+- Compte bonobo, mot de passe choisi et confirmé, minimum 8 caractères.
+- Mot de passe toujours conservé seulement en mémoire pendant le service.
+
+2. Chiffrement
+- FTPS explicite sur le port 2121, avec AUTH TLS.
+- TLS 1.2 activé pour compatibilité avec Android 8 et versions suivantes.
+- USER et PASS refusés sur une connexion non chiffrée.
+- Canal de données chiffré par défaut, y compris sans demande PROT du client.
+- PROT C et CCC refusés : aucun retour au transfert ou contrôle en clair.
+- Mode passif ; contrôle de l’adresse IP de la connexion de données.
+- Le répertoire partagé reste Téléchargements/Bonobo-Partage.
+
+3. Certificat
+- Certificat local propre à chaque installation, conservé entre les démarrages.
+- Clé EC P-256 créée dans AndroidKeyStore, non exportée vers un fichier.
+- Empreinte SHA-256 affichée dans l’application et sélectionnable pour copie.
+- Le certificat n’est pas signé par une autorité publique : FileZilla demandera
+  de lui faire confiance. La comparaison de l’empreinte est nécessaire pour
+  authentifier le téléphone, et pas seulement chiffrer la connexion.
+- Un avertissement concernant le nom du certificat et l’adresse IP est attendu.
+  Ne l’accepter que si l’empreinte correspond exactement à celle du téléphone.
+- Une réinstallation avec effacement des données produit une nouvelle identité.
+
+4. Service et écran FTP
+- Démarrage du serveur et génération de la clé hors du thread de l’interface.
+- État « Démarrage sécurisé… » et message explicite si le démarrage échoue.
+- Arrêt nettoyant les sessions et les informations temporaires affichées.
+- Instructions FileZilla et empreinte ajoutées à l’écran FTP, rendu défilant.
+- La page À propos et les arrangements validés précédemment sont conservés.
+
+CONFIGURATION FILEZILLA POUR TON ESSAI
+
+Ouvrir le Gestionnaire de sites et créer ou modifier le site :
+
+  Protocole : FTP — Protocole de Transfert de Fichiers
+  Hôte : 192.168.1.145 (ou l’adresse actuellement affichée par Bonobo)
+  Port : 2121
+  Chiffrement : Exiger une connexion FTP explicite sur TLS
+  Type d’authentification : Demander le mot de passe
+  Identifiant : bonobo
+  Mot de passe : celui saisi dans Bonobo au démarrage du serveur
+  Paramètres de transfert : mode Passif
+
+Arrêter l’ancien serveur, installer cette correction et redémarrer le serveur
+avec un mot de passe confirmé. Le téléphone et le PC doivent être joignables
+sur le réseau local. À la première connexion, comparer dans FileZilla
+l’empreinte SHA-256 du certificat avec celle affichée par Bonobo.
+
+Pour l’essai : afficher le dossier, envoyer un petit fichier, le télécharger,
+puis fermer et rouvrir la connexion. Si un nouveau problème survient, transmettre
+le journal FileZilla et le message éventuel dans Bonobo, sans le mot de passe.
+
+FICHIERS LIVRÉS
+
+- BonoboFileManager-1.2.7-complet-ftps.zip : projet complet, wrapper Gradle,
+  tests, preuves, ce TXT et APK dans le dossier APK.
+- BonoboFileManager-1.2.7-ftps-apercu.apk : APK debug « Bonobo Aperçu ».
+- Ce document explicatif.
+
+L’APK a le même identifiant fr.bonobo.filemanager.preview et la même signature
+que l’APK Bonobo Aperçu livré précédemment. Il peut le mettre à jour sans
+le désinstaller. Il conserve le même numéro de version, conformément à la demande.
+
+Pour mettre à jour ton application habituelle fr.bonobo.filemanager, compiler
+les sources en release et signer avec ta clé habituelle. Ne pas désinstaller
+l’application habituelle pour installer l’aperçu : ce sont deux applications
+avec des paramètres, des favoris et des coffres privés distincts.
+Aucune clé de signature ni clé TLS privée n’est incluse dans le ZIP.
+
+VÉRIFICATIONS
+
+Compilation testDebugUnitTest + assembleDebug : BUILD SUCCESSFUL.
+28 tests réussis, aucun échec, aucune erreur, aucun test ignoré.
+
+Les 5 nouveaux tests utilisent un véritable serveur Apache FtpServer et des
+connexions TCP/TLS sur la boucle locale, avec la configuration et le gestionnaire
+de clé utilisés par le service :
+- Reproduction de l’autorisation absente et connexion de deux clients simultanés.
+- Refus de USER/PASS en clair et d’AUTH SSL.
+- Refus d’un mauvais mot de passe après négociation TLS.
+- Envoi, liste et récupération chiffrés ; contenu binaire vérifié à l’identique.
+- Refus de PROT C et CCC, déconnexion puis reconnexion réussie.
+L’arrêt du serveur est également exécuté à la fin de chaque scénario.
+
+Ces tests ont permis de corriger une exception à l’arrêt liée à une collection
+non modifiable dans la nouvelle configuration des filtres FTP.
+
+Signature APK vérifiée avec apksigner ; identifiant et version vérifiés avec
+aapt. Signature identique à l’APK d’aperçu précédent. Intégrité ZIP vérifiée.
+Détails et correctif : verification/FTPS-1.2.7.
+Les autres rapports du ZIP correspondent aux étapes précédentes.
+
+LIMITES DE CETTE VALIDATION
+
+Les tests FTPS sont effectués sur JVM avec un certificat de test généré à
+l’exécution. Ils ne remplacent pas un essai FileZilla sur ton téléphone :
+AndroidKeyStore, son fournisseur TLS et ton réseau local restent à valider
+sur appareil. Aucun test sur téléphone ni émulateur n’a été réalisé ici.
+La variante release n’a pas été compilée ni signée dans cet environnement.
+Cette modification sécurise le serveur FTP ; le transfert direct HTTP constitue
+un autre service et n’est pas converti en HTTPS par ce correctif.
+
+RECOMPILATION
+
+JDK 17, Android SDK 35, Build Tools 35.0.0, Gradle 8.9 fourni par le wrapper.
+Depuis le dossier BonoboFileManager :
+  Linux/macOS : ./gradlew testDebugUnitTest assembleDebug
+  Windows : gradlew.bat testDebugUnitTest assembleDebug
+
+RÉFÉRENCES TECHNIQUES CONSULTÉES
+
+API Apache SslConfiguration :
+https://nightlies.apache.org/mina/ftpserver/1.2.0/apidocs/org/apache/ftpserver/ssl/SslConfiguration.html
+Explication Apache des canaux explicites et des connexions de données TLS :
+https://svn.apache.org/repos/infra/websites/production/mina/content/ftpserver-project/configuration_ssltls_support.html
+Sources de la dépendance Apache FtpServer 1.2.0, notamment USER et PROT :
+https://repo.maven.apache.org/maven2/org/apache/ftpserver/ftpserver-core/1.2.0/ftpserver-core-1.2.0-sources.jar
+
+SHA-256 de l’APK :
+71b7f875988a6b3fcee1e51474395b9dc8b6c69e783062a6083faffab8fa5fab

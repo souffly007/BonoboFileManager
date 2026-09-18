@@ -1,0 +1,311 @@
+BONOBO FILEMANAGER — COMPTE RENDU DES CORRECTIONS
+Version de départ : BonoboFileManager-1.2.5-corrige-sources.zip
+Version préparée : 1.2.6 — versionCode 7
+Date : 8 septembre 2026
+
+1. BASE DE TRAVAIL
+
+J'ai travaillé sur le ZIP fourni, et non sur l'ancienne branche GitHub examinée
+précédemment. La 1.2.5 contient bien AES-GCM, le hachage du mot de passe du coffre,
+les mots de passe FTP et transfert direct saisis par l'utilisateur, le sélecteur
+Android pour importer un fichier et les modifications de désinstallation.
+
+Les sources corrigées sont fournies intégralement. Aucun changement n'a été
+publié sur GitHub. Aucun APK signé avec ta clé de publication n'est fourni.
+L'ancien APK présent dans app/release a été écarté du ZIP de sources corrigées
+pour éviter de le confondre avec un APK construit à partir de la 1.2.6.
+
+SHA-256 du ZIP reçu :
+4cb4fae3352a724c1a945bec5f2969d57cab61a1c0f3b270bfedd0c955316bfa
+
+2. COFFRE-FORT : CORRECTION DU PROBLÈME PRINCIPAL
+
+Problème confirmé : la 1.2.5 hachait le mot de passe d'accès, mais copiait encore
+les documents importés EN CLAIR dans .bonobo_vault, sur le stockage partagé.
+L'outil AES-GCM distinct ne chiffrait pas automatiquement ces importations.
+
+Corrections :
+- Nouvel écran de coffre dédié, avec un ViewModel dédié.
+- Chiffrement AES-GCM dès l'importation, avec le mot de passe maître.
+- Conservation des fichiers chiffrés dans le répertoire privé noBackupFilesDir.
+- Aucun passage par un fichier temporaire en clair lors de l'importation.
+- Mot de passe obligatoire pour déverrouiller ; minimum 8 caractères et
+  confirmation pour une nouvelle configuration.
+- Lecture effective des paramètres avant d'autoriser une première configuration :
+  une valeur initiale non chargée n'est plus assimilée à une absence de mot de passe.
+- Hachage et vérification exécutés hors du thread d'interface.
+- Conservation du mécanisme de migration des anciens mots de passe en clair,
+  après vérification du mot de passe fourni.
+- Verrouillage lorsque l'écran est arrêté ou quitté, avec retrait du secret
+  de session et des fichiers affichés. Une opération déjà autorisée peut finir.
+- Protection de la fenêtre contre les captures d'écran ordinaires.
+- Les anciennes méthodes génériques d'accès au coffre refusent désormais l'accès.
+- Suppression de l'ancien dialogue de coffre et du setter de mot de passe devenu
+  inutile, pour éviter deux parcours d'authentification concurrents.
+
+Changement fonctionnel important :
+La biométrie seule n'ouvre plus le coffre. Elle ne fournissait pas la clé dérivée
+du mot de passe. La remettre correctement nécessitera un mécanisme explicite
+de protection/déverrouillage de clé, à tester séparément.
+
+Utilisation du nouveau coffre :
+- « Rechercher un fichier » : ouvre le sélecteur Android, tous types de fichiers.
+- Annuler le sélecteur ne lance aucune importation.
+- Les doublons reçoivent un autre nom.
+- Les originaux sont conservés à leur emplacement.
+- « Exporter une copie » : vérifie l'authenticité du fichier avant d'écrire une
+  copie déchiffrée à l'emplacement choisi dans le sélecteur Android.
+- L'exportation utilise un fichier temporaire privé, supprimé ensuite ; les
+  restes d'un export interrompu sont nettoyés à la prochaine ouverture du coffre.
+- « Supprimer » exige une confirmation et supprime définitivement la copie du coffre.
+- Le retour du sélecteur Android peut nécessiter un nouveau déverrouillage.
+  L'opération choisie est alors conservée en attente pendant la session.
+- Le nouveau parcours propose l'exportation explicite ; il ne réutilise pas les
+  anciens lecteurs et menus génériques pour ouvrir les documents du coffre.
+
+Récupération de l'ancien coffre :
+- Bouton « Récupérer l'ancien coffre », avec confirmation.
+- Copie puis chiffrement des fichiers de .bonobo_vault, sans supprimer les sources.
+- Les liens symboliques ne sont pas parcourus pendant cette récupération.
+- Les sous-dossiers sont parcourus et les fichiers regroupés dans le nouveau
+  coffre ; les collisions de noms sont renommées.
+- Relancer cette récupération crée de nouvelles copies : elle n'est pas une
+  synchronisation et ne déduplique pas le contenu.
+- En cas d'erreur, les copies déjà terminées peuvent rester ; les sources restent
+  disponibles pour une nouvelle tentative.
+
+IMPORTANT : les anciens originaux sont toujours en clair tant que tu ne les
+supprimes pas toi-même. Vérifie les copies et leur exportation avant de le faire.
+Le nouveau coffre privé est supprimé lors d'une désinstallation ou d'un effacement
+des données. Il n'est pas sauvegardé automatiquement. Conserve ton mot de passe
+et une copie de secours adaptée. Ne désinstalle pas pour installer la mise à jour.
+
+3. CHIFFREMENT INDÉPENDANT DES FICHIERS
+
+- Conservation du format BNB2 / AES-GCM existant de la 1.2.5.
+- Déchiffrement avec appel explicite à Cipher.doFinal : un échec d'authentification
+  doit remonter avant publication du fichier de destination.
+- Fichiers temporaires créés avec File.createTempFile.
+- Publication sans ouverture destructive d'un fichier déjà existant.
+- Nettoyage du temporaire après succès ou erreur.
+- Validation de la taille du sel et du hash lors de la vérification d'un mot de passe.
+- Pour un nouveau chiffrement manuel : 8 caractères minimum et confirmation.
+- Pour le déchiffrement : les anciens mots de passe plus courts restent acceptés.
+
+Les fichiers AES-CBC antérieurs à BNB2 restent refusés sans modification.
+Aucune conversion automatique de cet ancien format n'est implémentée.
+L'importation d'un ancien fichier .crypt dans le coffre le traite comme un
+fichier ordinaire ; elle ne remplace pas un outil de récupération AES-CBC.
+
+4. ARCHIVES ZIP, RAR ET 7Z
+
+Problème : les chemins des entrées étaient utilisés directement, sans vérifier
+qu'ils restaient dans le dossier d'extraction.
+
+Corrections :
+- Rejet des traversées « .. », chemins absolus et préfixes de lecteur Windows.
+- Normalisation des séparateurs et contrôle du chemin canonique.
+- Rejet des chemins passant par un lien symbolique ; rejet des liens ZIP explicites.
+- Refus d'écraser un fichier déjà présent.
+- Écriture temporaire et publication seulement après extraction de l'entrée.
+- Suppression du fichier temporaire si l'entrée échoue.
+- Limites par extraction : 10 000 entrées et 4 Gio de données décompressées.
+
+Ces limites ne constituent pas une protection universelle contre toute archive
+malveillante : le décodage et la mémoire utilisée par les bibliothèques restent
+à surveiller, notamment pour 7z/RAR. En cas d'échec, les entrées précédemment
+extraites et valides peuvent rester dans le dossier.
+
+5. TRANSFERT DIRECT HTTP
+
+- Mot de passe d'au moins 8 caractères imposé aussi dans TransferServer.
+- Authentification vérifiée côté serveur ; aucune donnée envoyée sans succès.
+- Échec de démarrage remonté à l'interface : pas de QR code actif si le port
+  est occupé ou si le fichier est inaccessible.
+- Fermeture des connexions clientes en cours lors de l'arrêt du serveur.
+- Arrêt et suppression des secrets d'interface en quittant l'écran/en arrière-plan.
+- En-têtes HTTP avec fins de ligne CRLF, nom de fichier nettoyé, no-store et nosniff.
+- Limitation des en-têtes : 16 Kio, 64 lignes, environ 2 Kio par ligne.
+- Délai global de 5 secondes pour recevoir les en-têtes, même si le client
+  envoie lentement quelques octets pour entretenir la connexion.
+- Maximum 4 clients simultanés ; durée maximale de 10 minutes par connexion.
+- Après 20 échecs d'authentification dans la fenêtre d'une minute, réponses 429.
+  La limitation est globale à la session : un client malveillant peut provoquer
+  une indisponibilité temporaire, mais pas télécharger sans le mot de passe.
+- Seul GET / est servi ; routes inconnues refusées.
+
+LIMITE CONSERVÉE : le transport reste HTTP, sans TLS. L'authentification Basic
+n'est pas du chiffrement. Le fichier et les identifiants ne sont pas protégés
+contre un adversaire capable d'observer le trafic. Un message le précise dans
+l'application. Utiliser un réseau de confiance ; HTTPS n'a pas été ajouté.
+
+6. SERVEUR FTP ET CLIENT FTPS
+
+Serveur FTP :
+- Gestionnaire d'utilisateur strictement en mémoire, sans fichier PropertiesUserManager.
+- Aucun mot de passe fixe pour l'authentification.
+  Le nom d'utilisateur reste « bonobo », comme dans la 1.2.5.
+- Mot de passe contrôlé dans le service, et non seulement dans le formulaire.
+- Retrait du mot de passe de l'Intent une fois lu.
+- Mot de passe affiché uniquement après le démarrage réussi ; nettoyage à l'arrêt.
+- Protection contre un deuxième démarrage alors que le serveur tourne déjà.
+- Dossier exposé limité à Téléchargements/Bonobo-Partage, avec lecture/écriture,
+  au lieu d'exposer toute la racine du stockage partagé.
+- Expiration des utilisateurs FTP inactifs après 120 secondes.
+
+Client FTPS :
+- Vérification de la chaîne de certificats avec les autorités système.
+- Vérification du nom d'hôte du certificat TLS.
+- Contrôle du succès de login : un refus n'est plus assimilé à une connexion valide.
+- Délais de connexion et de transfert configurés.
+
+LIMITE : le serveur local reste FTP, sans chiffrement du transport. Le client
+FTPS sécurisé est une fonctionnalité distincte. Un NAS avec un certificat
+non reconnu sera désormais refusé ; la vérification TLS ne doit pas être désactivée.
+
+7. MOTS DE PASSE DES CONNEXIONS DISTANTES ET BASE DE DONNÉES
+
+- Protection des mots de passe enregistrés par AES-GCM avec une clé Android Keystore.
+- Ajout du champ credentialsEncrypted pour distinguer explicitement les anciennes
+  valeurs en clair des valeurs chiffrées : pas de détection par simple préfixe.
+- Migration Room 3 vers 4 par ALTER TABLE, sans suppression des tables.
+- Migration progressive des anciens secrets lors du chargement des connexions.
+- Mise à jour conditionnelle pour éviter qu'une migration ancienne n'écrase une
+  connexion déjà modifiée ou protégée.
+- Suppression de la stratégie de migration destructive automatique.
+- Une clé indisponible est signalée dans le nom de la connexion ; aucun ancien
+  secret en clair n'est utilisé comme solution de repli.
+- Traitement des erreurs de lecture, d'enregistrement, d'import et de suppression
+  dans le ViewModel réseau.
+- Sauvegardes et transferts automatiques des données privées exclus pour éviter
+  la restauration de secrets sans leurs clés et la copie d'anciennes valeurs.
+
+La migration SQL ajoutée concerne la base version 3 du ZIP reçu. Une installation
+avec une base encore plus ancienne nécessite une migration dédiée : l'application
+ne doit pas effacer silencieusement les données pour contourner ce cas.
+Les copies/sauvegardes anciennes et les traces historiques éventuelles du stockage
+ne sont pas effacées de façon garantie par cette mise à jour.
+
+8. OPÉRATIONS LOCALES, ROOT, SMB ET SAUVEGARDES APK
+
+- Utilitaire SafeFiles partagé pour les noms, chemins et écritures sans écrasement.
+- Comparaison des chemins canoniques pour éviter une copie sur soi-même via « ./ ».
+- Refus de copier un dossier dans lui-même et refus des liens symboliques à la copie.
+- Refus d'écraser/fusionner silencieusement une destination existante.
+- Erreur explicite si un dossier source ne peut pas être listé.
+- Noms de création/renommage empêchant les sorties du dossier parent.
+- Corbeille : nouveau nom en cas de collision ; contrôle du chemin et refus
+  d'écrasement à la restauration. Déplacements via Files.move sans REPLACE_EXISTING.
+- Erreurs de suppression multiple remontées au lieu d'être ignorées.
+- Lecture de l'option « fichiers cachés » pour le chargement du dossier local.
+- Root : chemin correctement protégé pour le shell, lecture de noms délimités
+  par NUL pour conserver les espaces et retours à la ligne, fermeture du processus.
+- Fermeture du client SMB même après une opération réussie.
+- Sauvegarde APK : nom de destination dérivé du package/version et nettoyé ;
+  refus d'écraser une sauvegarde existante.
+- Sauvegardes d'applications multi-APK refusées avec un message explicite :
+  copier uniquement base.apk ne permettait pas une réinstallation complète.
+- Les favoris et le comportement de désinstallation apportés en 1.2.5 sont conservés.
+
+La copie finale sans écrasement réserve le nom de façon exclusive. Elle n'est
+pas une transaction globale résistante à une coupure électrique. Une interruption
+brutale du processus peut laisser un fichier incomplet ; les sources sont conservées
+par les parcours de chiffrement/importation.
+
+9. VÉRIFICATIONS EFFECTUÉES
+
+- 19 tests JVM exécutés : tous réussis (JUnit 4.13.2, Kotlin 2.0.20, Java 17).
+  Il s'agit d'une exécution JVM ciblée de tous les tests unitaires présents ;
+  la tâche Gradle testDebugUnitTest complète n'a pas terminé.
+- Compilation ciblée Kotlin/Compose contre le SDK Android 35 : réussie,
+  notamment coffre, chiffrement, Keystore, repositories, FTP, SMB, transfert et migration.
+- Contrôle du SQL de migration 3 -> 4 et de la mise à jour conditionnelle : réussi
+  dans une base SQLite locale, sans perte de la ligne de connexion témoin.
+- La tentative Gradle a franchi les ressources Android, kspDebugKotlin et
+  compileDebugKotlin (confirmés UP-TO-DATE lors de la dernière relance).
+- Assemblage Android complet NON VALIDÉ : compileDebugJavaWithJavac bloque
+  sur JdkImageTransform, car le JDK de l'environnement ne contient pas jlink :
+  « jlink executable /usr/lib/jvm/java-17-openjdk-amd64/bin/jlink does not exist ».
+- Aucun test sur téléphone/émulateur, aucune mesure de mémoire et aucun APK
+  signé de publication validé ici.
+
+Le contrôle SQL local ne remplace pas un test d'instrumentation Room sur Android.
+La compilation ciblée ne remplace pas le packaging et l'exécution réelle de
+l'application. La génération KSP/Hilt a été franchie par Gradle, mais le traitement
+Java final, l'assemblage et les tests sur appareil restent à valider.
+
+Scénarios couverts par les tests JVM :
+- Aller-retour AES-GCM, fichier vide et fichier de 100 000 octets.
+- Mauvais mot de passe, en-tête modifié, sel/IV modifiés, tag altéré, fichier tronqué.
+- Absence de résultat publié en cas d'échec, nettoyage des temporaires.
+- Préservation d'une destination existante et rejet d'un lien symbolique.
+- Import interrompu par une erreur de lecture.
+- Hachage salé, vérification et compatibilité des anciens mots de passe.
+- Chemins d'archives dangereux ; vraie extraction ZIP normale et refus d'écrasement.
+- Authentification HTTP correcte/incorrecte/absente, route inconnue et port occupé.
+- Arrêt d'un client en attente d'en-têtes.
+- Authentification FTP en mémoire, refus de l'anonyme et invalidation à la fermeture.
+- Copie normale, collision, alias canonique et copie d'un dossier dans lui-même.
+- Tests unitaires existants conservés ; double de test complété pour importFileToVault.
+
+10. À TESTER SUR TON TÉLÉPHONE AVANT DIFFUSION
+
+1) Compiler dans Android Studio, avec JDK 17, Gradle 8.9 et SDK 35.
+2) Mettre à jour avec le même identifiant d'application et la même clé de signature.
+   Ne pas désinstaller l'ancienne version pour contourner une erreur de signature.
+3) Vérifier que favoris et connexions ont été conservés après la migration Room.
+4) Déverrouiller le coffre avec l'ancien mot de passe ; récupérer l'ancien coffre.
+5) Importer/exporter plusieurs types de documents ; comparer le contenu des copies.
+6) Tester annulation du sélecteur, doublons, fichier inaccessible et manque d'espace.
+7) Quitter/revenir dans l'application, verrouiller l'écran, tourner le téléphone,
+   fermer le processus ; vérifier le verrouillage et la récupération des erreurs.
+8) Vérifier FTP depuis le PC : seuls les fichiers de Bonobo-Partage sont exposés.
+9) Tester transfert direct : mauvais mot de passe, bon mot de passe, arrêt pendant
+   un téléchargement et retour en arrière-plan.
+10) Tester FTPS et SMB avec ton NAS ; tester archives RAR/7z représentatives.
+11) Tester les gros fichiers sur le téléphone : la consommation mémoire du
+    fournisseur AES-GCM et des bibliothèques d'archives n'a pas été mesurée ici.
+12) Tester les options de désinstallation sur application utilisateur et système.
+
+Il s'agit d'une revue et d'un lot de corrections, pas d'une certification de
+sécurité exhaustive ni d'une validation de tous les modèles Android.
+
+11. FICHIERS MODIFIÉS
+
+MODIFICATION : README.md
+MODIFICATION : app/build.gradle.kts
+MODIFICATION : app/src/main/AndroidManifest.xml
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/data/local/AppDatabase.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/data/local/dao/RemoteConnectionDao.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/data/local/entity/RemoteConnectionEntity.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/data/repository/AppRepositoryImpl.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/data/repository/FileRepositoryImpl.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/data/repository/FtpClientRepository.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/data/repository/RemoteRepositoryImpl.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/data/repository/SmbClientRepository.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/di/DatabaseModule.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/presentation/ui/dashboard/DashboardScreen.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/presentation/ui/navigation/AppNavigation.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkViewModel.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/presentation/ui/operations/EncryptionDialog.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/presentation/ui/settings/SettingsViewModel.kt
+AJOUT : app/src/main/java/fr/bonobo/filemanager/presentation/ui/vault/VaultScreen.kt
+AJOUT : app/src/main/java/fr/bonobo/filemanager/presentation/ui/vault/VaultViewModel.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/service/FtpService.kt
+AJOUT : app/src/main/java/fr/bonobo/filemanager/service/SessionUserManager.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/service/TransferServer.kt
+AJOUT : app/src/main/java/fr/bonobo/filemanager/util/CredentialStore.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/util/FileUtils.kt
+AJOUT : app/src/main/java/fr/bonobo/filemanager/util/SafeFiles.kt
+MODIFICATION : app/src/main/java/fr/bonobo/filemanager/util/SecurityUtils.kt
+MODIFICATION : app/src/main/res/xml/backup_rules.xml
+MODIFICATION : app/src/main/res/xml/data_extraction_rules.xml
+AJOUT : app/src/test/java/fr/bonobo/filemanager/ArchiveSecurityTest.kt
+AJOUT : app/src/test/java/fr/bonobo/filemanager/FileCopySecurityTest.kt
+AJOUT : app/src/test/java/fr/bonobo/filemanager/SecurityRegressionTest.kt
+AJOUT : app/src/test/java/fr/bonobo/filemanager/SessionUserManagerTest.kt
+AJOUT : app/src/test/java/fr/bonobo/filemanager/TransferSecurityTest.kt
+MODIFICATION : app/src/test/java/fr/bonobo/filemanager/UseCaseTest.kt

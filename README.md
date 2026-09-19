@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/bonobo-files-interface.png" alt="Aperçu de l’interface de Bonobo Files Explorateur" width="900">
+</p>
+
 ## Téléchargement seedbox — version 1.2.7 conservée
 
 Menu distant ⋮ → **Télécharger** → **Téléchargements** ou **Choisir ailleurs…**.

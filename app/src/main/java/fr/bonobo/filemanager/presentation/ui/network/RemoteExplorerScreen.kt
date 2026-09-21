@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fr.bonobo.filemanager.presentation.components.FileTypeIcon
+import fr.bonobo.filemanager.domain.model.ConnectionType
 import fr.bonobo.filemanager.service.RemoteDownloadService
 import fr.bonobo.filemanager.util.FileUtils
 import fr.bonobo.filemanager.util.verticalScrollbar
@@ -119,7 +120,15 @@ fun RemoteExplorerScreen(
                             dismissButton = { TextButton(onClick = { deleting = false }) { Text("Annuler") } })
                         Card(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
                             Row(Modifier.fillMaxWidth().clickable {
-                                if (item.isDirectory) viewModel.open(item) else if (!transfer.active) viewModel.requestDownload(item)
+                                if (item.isDirectory) {
+                                    viewModel.open(item)
+                                } else if (!transfer.active) {
+                                    if (state.connection?.type == ConnectionType.SMB) {
+                                        viewModel.open(item)
+                                    } else {
+                                        viewModel.requestDownload(item)
+                                    }
+                                }
                             }.padding(start = 12.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 FileTypeIcon(item, size = 44.dp)
                                 Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {

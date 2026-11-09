@@ -1,0 +1,10 @@
+{
+  "versionCode": 27,
+  "versionName": "1.3.0-beta17",
+  "modified_sources": [],
+  "new_sources": [],
+  "apk_sha256": {
+    "bonobo-files-explorateur-1.3.0-beta17-debug.apk": "a75ed87f0c89f96e7489a978e48be6203889cfd72b1936dec765cb3666dbefb5",
+    "bonobo-files-explorateur-1.3.0-beta17-release-unsigned.apk": "b0a8c5a8d508ba87bf4dea477c2a0efffeda1cb0e20d1b5f7e340e7e5483b0a4"
+  }
+}

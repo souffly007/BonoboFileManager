@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-28T14:09:45" hostname="aurora" time="0.052">
+  <properties/>
+  <testcase name="rotationAndExportAreBoundedAndChronological" classname="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" time="0.008"/>
+  <testcase name="enableDisableAndClear" classname="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" time="0.001"/>
+  <testcase name="mismatchIsLoggedWithoutHashOrException" classname="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" time="0.003"/>
+  <testcase name="disabledNeverCreatesFiles" classname="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" time="0.001"/>
+  <testcase name="vocabularyHasNoSensitiveStringOrThrowableParameter" classname="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" time="0.001"/>
+  <testcase name="stalledExportAndFullQueueNeverBlockProducer" classname="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" time="0.027"/>
+  <testcase name="failingStorageDoesNotAffectCopyOrVerification" classname="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" time="0.008"/>
+  <testcase name="exportFailureIsReportedAndClearRemovesBothSegments" classname="fr.bonobo.filemanager.diagnostic.TechnicalJournalTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

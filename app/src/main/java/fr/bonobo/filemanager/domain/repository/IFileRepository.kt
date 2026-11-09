@@ -24,6 +24,7 @@ interface IFileRepository {
     suspend fun moveToTrash(path: String): Result<Unit>
     suspend fun getTrashFiles(): List<FileItem>
     suspend fun restoreFromTrash(item: FileItem): Result<Unit>
+    suspend fun restoreTrashTo(item: FileItem, parent: String): Result<Unit> = Result.failure(UnsupportedOperationException())
     suspend fun emptyTrash(): Result<Unit>
 
     fun observeFavorites(): Flow<List<FileItem>>

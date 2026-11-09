@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.Beta193SafReliabilityTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-10-21T11:47:22" hostname="aurora" time="3.738">
+  <properties/>
+  <testcase name="genericSafDirectoryCleanupIsRefusedEvenWhenCurrentlyEmpty" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.008"/>
+  <testcase name="cancelledStageNeverPublishesAndFailedVerificationNeverDeletesSource" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.007"/>
+  <testcase name="outputOpenFlushAndSyncFailuresCloseResources" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.005"/>
+  <testcase name="renameUsesAndConfirmsChangedUri" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.004"/>
+  <testcase name="partialFolderDeletionNeverReportsConfirmed" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.002"/>
+  <testcase name="creationConflictDoesNotOpenOrMutateExistingDocument" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.001"/>
+  <testcase name="renameRefusalAndLyingProviderCannotBecomeSuccess" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.002"/>
+  <testcase name="realCoroutineCancellationClosesStreamsAndRetainsRefusedCleanupReceipt" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.013"/>
+  <testcase name="creationThatThrowsAfterMutationKeepsUnconfirmedIntentWithoutDeletingByName" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.003"/>
+  <testcase name="publicationOrderAndRefusalAreExplicit" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.006"/>
+  <testcase name="cleanupCannotDeletePreexistingReplacementOrForeignChildren" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.002"/>
+  <testcase name="successfulCleanupDeletesOnlyTrackedChildrenThenEmptyParent" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.004"/>
+  <testcase name="usbMoveRetainsSourceAndDeletionFailureRetainsCopy" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.003"/>
+  <testcase name="syntheticStreamCrossesTwoGiBWithoutWholeFileAllocation" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="3.623"/>
+  <testcase name="actualCreationIsRecordedEvenIfConfirmationLosesPermission" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.002"/>
+  <testcase name="exactBytesMetadataAndShaAreAllRequired" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.005"/>
+  <testcase name="bothStreamsCloseAndCloseErrorsRemainObservable" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.011"/>
+  <testcase name="partialWriteKeepsPrimaryAndSuppressedClosureErrors" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.004"/>
+  <testcase name="deletionRequiresObservedAbsenceAndAccessibleParent" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.001"/>
+  <testcase name="cancelledCleanupFailureSurvivesRestartAndRequiresManualResolution" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.002"/>
+  <testcase name="materializedSyntheticCopyClosesThenReopensForVerification" classname="fr.bonobo.filemanager.Beta193SafReliabilityTest" time="0.027"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

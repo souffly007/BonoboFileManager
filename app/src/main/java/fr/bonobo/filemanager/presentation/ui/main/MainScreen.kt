@@ -1,5 +1,6 @@
 package fr.bonobo.filemanager.presentation.ui.main
 
+import androidx.lifecycle.lifecycleScope
 import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
@@ -15,6 +16,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -27,6 +30,7 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Difference
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.NoteAdd
@@ -42,6 +46,7 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +77,7 @@ import fr.bonobo.filemanager.presentation.ui.operations.MultiRenameDialog
 import fr.bonobo.filemanager.presentation.ui.operations.EncryptionDialog
 import fr.bonobo.filemanager.presentation.ui.operations.ExtractionPasswordDialog
 import fr.bonobo.filemanager.presentation.ui.operations.RenameDialog
+import fr.bonobo.filemanager.presentation.ui.network.RemoteViewModel
 import fr.bonobo.filemanager.util.ShareUtils
 import fr.bonobo.filemanager.util.verticalScrollbar
 import fr.bonobo.filemanager.util.verticalGridScrollbar
@@ -84,6 +90,7 @@ import java.util.Locale
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
+    remoteViewModel: RemoteViewModel? = null,
     onOpenSettings: () -> Unit = {},
     onNavigateHome: () -> Unit = {},
     onOpenImage: (String) -> Unit = {},
@@ -93,11 +100,43 @@ fun MainScreen(
     onOpenEpub: (String) -> Unit = {},
     onOpenArchive: (String) -> Unit = {},
     onOpenText: (String) -> Unit = {},
+    onOpenOfficeDocument: (String) -> Unit = {},
     onOpenTransfer: (String) -> Unit = {},
     onOpenDiff: (String, String) -> Unit = { _, _ -> }
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val managedTransfer by viewModel.transfers.collectAsStateWithLifecycle()
+    val remoteState = remoteViewModel?.uiState?.collectAsStateWithLifecycle()?.value
     val context = LocalContext.current
+    var showStorageRecovery by remember { mutableStateOf(false) }
+    if (showStorageRecovery) {
+        fr.bonobo.filemanager.presentation.components.UsbStoragePicker(
+            onOpen = { viewModel.openFolder(it, resetNavigationRoot = true) },
+            onDismiss = { showStorageRecovery = false }
+        )
+    }
+    androidx.compose.runtime.DisposableEffect(context, viewModel) {
+        val receiver = object : android.content.BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) { viewModel.refreshAfterResume() }
+        }
+        val filter = android.content.IntentFilter().apply {
+            addAction(Intent.ACTION_MEDIA_UNMOUNTED)
+            addAction(Intent.ACTION_MEDIA_REMOVED)
+            addAction(Intent.ACTION_MEDIA_BAD_REMOVAL)
+            addAction(Intent.ACTION_MEDIA_MOUNTED)
+            addDataScheme("file")
+        }
+        androidx.core.content.ContextCompat.registerReceiver(context, receiver, filter, androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED)
+        onDispose { context.unregisterReceiver(receiver) }
+    }
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner, viewModel) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) viewModel.refreshAfterResume()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val vaultFilePicker = rememberLauncherForActivityResult(
@@ -123,6 +162,7 @@ fun MainScreen(
     var itemToDecrypt by remember { mutableStateOf<FileItem?>(null) }
     var showMultiDeleteDialog by remember { mutableStateOf(false) }
     var showMultiRenameDialog by remember { mutableStateOf(false) }
+    var moreMenuExpanded by remember { mutableStateOf(false) }
     var sortMenuExpanded by remember { mutableStateOf(value = false) }
     var createMenuExpanded by remember { mutableStateOf(false) }
     var showCreateFolderDialog by remember { mutableStateOf(false) }
@@ -131,7 +171,7 @@ fun MainScreen(
     var showExtractionPassword by remember { mutableStateOf(false) }
 
     val isSelectionMode = state.selectedPaths.isNotEmpty()
-    val isTrashView = state.categoryName == "Corbeille"
+    val isTrashView = state.activePanel == 1 && state.categoryName == "Corbeille"
 
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
@@ -144,16 +184,21 @@ fun MainScreen(
         }
     }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     fun handleOption(option: String, item: FileItem) {
         when (option) {
             "FAVORITE" -> viewModel.toggleFavorite(item)
             "COPY" -> viewModel.setClipboard(item, isMove = false)
+            "COPY_OTHER" -> {
+                viewModel.setClipboard(item, isMove = false)
+                viewModel.setActivePanel(if (viewModel.uiState.value.activePanel == 1) 2 else 1)
+                viewModel.pasteClipboard()
+            }
             "MOVE" -> viewModel.setClipboard(item, isMove = true)
             "RENAME" -> itemToRename = item
             "DELETE" -> itemToDelete = item
-            "SHARE" -> ShareUtils.shareFile(context, File(item.path), item.mimeType)
+            "SHARE" -> ShareUtils.sharePath(context, item.path, item.mimeType)
             "COMPRESS" -> itemToCompress = item
             "EXTRACT" -> viewModel.setPendingExtraction(item)
             "RESTORE" -> viewModel.restoreFromTrash(item)
@@ -163,6 +208,34 @@ fun MainScreen(
             "PROPERTIES" -> itemProperties = item
         }
     }
+
+    val panelStateHolder = rememberSaveableStateHolder()
+
+    state.operationNotice?.let { notice ->
+        AlertDialog(onDismissRequest = viewModel::dismissNotice,
+            title = { Text("Résultat de l’opération") }, text = { Text(notice) },
+            confirmButton = { TextButton(onClick = viewModel::dismissNotice) { Text("OK") } })
+    }
+    val restorePicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            runCatching { context.contentResolver.takePersistableUriPermission(uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }
+            viewModel.restoreTrashTo(fr.bonobo.filemanager.util.SafFiles.root(uri.toString()))
+        }
+    }
+    state.pendingRestore?.let {
+        AlertDialog(onDismissRequest = viewModel::dismissRestore,
+            title = { Text("Restaurer vers un autre dossier") },
+            text = { Text("${state.pendingRestores.size} élément(s). ${state.error.orEmpty()}\nL’élément reste dans la corbeille tant que le transfert n’est pas confirmé. Choisissez un dossier ; aucun fichier existant ne sera remplacé.") },
+            confirmButton = { Column {
+                TextButton(enabled = !state.restoreBusy, onClick = { restorePicker.launch(null) }) { Text("Choisir un dossier") }
+                TextButton(enabled = !state.restoreBusy, onClick = { viewModel.restoreBatch() }) { Text("Restaurer à l’origine") }
+            } },
+            dismissButton = { TextButton(onClick = viewModel::dismissRestore) { Text("Annuler") } })
+    }
+
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -176,6 +249,13 @@ fun MainScreen(
                         }
                     },
                     actions = {
+                        if (isTrashView) {
+                            TextButton(onClick = viewModel::restoreSelectedFromTrash) { Text("Restaurer") }
+                        }
+                        if (!isTrashView) {
+                            IconButton(onClick = { viewModel.copySelected(false) }) { Icon(Icons.Default.ContentCopy, "Copier la sélection") }
+                            IconButton(onClick = { viewModel.copySelected(true) }) { Icon(Icons.Default.ContentCut, "Déplacer la sélection") }
+                        }
                         IconButton(onClick = { showMultiRenameDialog = true }) {
                             Icon(Icons.Default.DriveFileRenameOutline, contentDescription = "Renommer")
                         }
@@ -193,7 +273,7 @@ fun MainScreen(
                     }
                 )
             } else {
-                MediumTopAppBar(
+                TopAppBar(
                     title = { 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -201,7 +281,9 @@ fun MainScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = state.categoryName ?: if (viewModel.isAtRoot()) "Bonobo" else state.currentPath.split("/").last()
+                                text = if (state.categoryName != null && state.activePanel == 1) "" else if (viewModel.isAtRoot()) "Bonobo" else viewModel.navigationPath().substringAfterLast("/"),
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
                             if (viewModel.isAtRoot() && state.categoryName == null) {
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -238,11 +320,6 @@ fun MainScreen(
                         if (state.categoryName != "Favoris") IconButton(onClick = viewModel::toggleDualPane) {
                             Icon(Icons.Default.VerticalSplit, contentDescription = "Double panneau")
                         }
-                        if (!viewModel.isAtRoot() && state.categoryName == null) {
-                            IconButton(onClick = viewModel::addBookmark) {
-                                Icon(Icons.Default.BookmarkBorder, contentDescription = "Épingler")
-                            }
-                        }
                         IconButton(onClick = { sortMenuExpanded = true }) {
                             Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Trier")
                             DropdownMenu(
@@ -269,8 +346,22 @@ fun MainScreen(
                                 )
                             }
                         }
-                        IconButton(onClick = onOpenSettings) {
-                            Icon(Icons.Default.Settings, contentDescription = "Paramètres")
+                        Box {
+                            IconButton(onClick = { moreMenuExpanded = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "Autres actions")
+                            }
+                            DropdownMenu(expanded = moreMenuExpanded, onDismissRequest = { moreMenuExpanded = false }) {
+                                if (!viewModel.isAtRoot() && (state.activePanel == 2 || state.categoryName == null)) {
+                                    DropdownMenuItem(text = { Text("Épingler ce dossier") }, onClick = {
+                                        moreMenuExpanded = false
+                                        viewModel.addBookmark()
+                                    })
+                                }
+                                DropdownMenuItem(text = { Text("Paramètres") }, onClick = {
+                                    moreMenuExpanded = false
+                                    onOpenSettings()
+                                })
+                            }
                         }
                     },
                     scrollBehavior = scrollBehavior
@@ -300,11 +391,19 @@ fun MainScreen(
                     )
                 }
 
-                state.clipboard?.let {
+                state.clipboard?.let { clipboard ->
                     ExtendedFloatingActionButton(
                         onClick = { viewModel.pasteClipboard() },
                         icon = { Icon(Icons.Default.ContentPaste, contentDescription = null) },
-                        text = { Text("Coller ici") }
+                        text = { Text(if (clipboard.isMove) "Déplacer ici" else "Copier ici") }
+                    )
+                }
+
+                remoteState?.clipboard?.let { clipboard ->
+                    ExtendedFloatingActionButton(
+                        onClick = { remoteViewModel?.pasteClipboardToLocal(viewModel.navigationPath()) },
+                        icon = { Icon(Icons.Default.ContentPaste, contentDescription = null) },
+                        text = { Text(if (clipboard.operation == fr.bonobo.filemanager.presentation.ui.network.RemoteOperation.MOVE) "Déplacer ici" else "Copier ici") }
                     )
                 }
 
@@ -350,12 +449,50 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
+            fr.bonobo.filemanager.presentation.components.TransferPanel(managedTransfer, viewModel::cancelTransfer, viewModel::dismissTransfer)
+            if (state.deletionBusy) {
+                LinearProgressIndicator(Modifier.fillMaxWidth())
+                Text("Suppression en cours · attente de confirmation", Modifier.padding(horizontal = 12.dp))
+            }
+            if (!managedTransfer.active && state.pendingArtifacts.isNotEmpty()) {
+                var showArtifacts by remember { mutableStateOf(false) }
+                TextButton(onClick = { showArtifacts = true }) {
+                    Text("${state.pendingArtifacts.size} création(s) à contrôler")
+                }
+                if (showArtifacts) AlertDialog(onDismissRequest = { showArtifacts = false },
+                    title = { Text("Fichiers partiels ou résultat à contrôler") },
+                    text = {
+                        androidx.compose.foundation.lazy.LazyColumn(Modifier.heightIn(max = 400.dp)) {
+                            item { Text("Aucun nettoyage automatique après redémarrage. Examinez le document indiqué ; utilisez ensuite Supprimer avec sa confirmation si vous souhaitez le retirer. Les noms commençant par .bonobo sont visibles en activant les fichiers cachés.") }
+                            items(state.pendingArtifacts.size) { index ->
+                                val entry = state.pendingArtifacts[index]
+                                Text("${entry.name}\n${entry.path}\nDossier : ${entry.parent}")
+                                if (entry.directory) Text("Dossier partiel conservé : vérifiez son contenu avant toute suppression manuelle. Une nouvelle copie au même nom sera refusée ; choisissez un autre nom ou résolvez ce conflit.")
+                                if (!entry.owned) Text("Création non confirmée : vérifiez l'existence du document dans ce dossier. Aucun nettoyage automatique.")
+                                TextButton(onClick = { showArtifacts = false; viewModel.examineArtifact(entry) }) {
+                                    Text("Examiner le dossier")
+                                }
+                                TextButton(onClick = { viewModel.acknowledgeArtifact(entry) }) {
+                                    Text("Retirer ce signalement (conserve le fichier)")
+                                }
+                            }
+                        }
+                    }, confirmButton = { TextButton(onClick = { showArtifacts = false }) { Text("Fermer") } })
+            }
             PullToRefreshBox(
-                isRefreshing = state.isLoading,
+                isRefreshing = if (state.activePanel == 1) state.isLoading else state.isSecondLoading,
                 onRefresh = viewModel::refresh,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.weight(1f)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
+                    if (!isSelectionMode && state.categoryName != null) {
+                        Text(
+                            text = state.categoryName.orEmpty(),
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
                     AnimatedVisibility(visible = !isSelectionMode) {
                         if (state.categoryName == "Coffre-fort") {
                             OutlinedButton(
@@ -376,12 +513,18 @@ fun MainScreen(
                         }
                     }
 
-                    if (!viewModel.isAtRoot() && state.categoryName == null) {
+                    if (!state.isDualPane && !viewModel.isAtRoot() && state.categoryName == null) {
                         BreadcrumbNav(
-                            path = state.currentPath,
-                            rootPath = state.rootPath,
+                            path = viewModel.navigationPath(state.activePanel),
+                            rootPath = viewModel.navigationRoot(state.activePanel),
                             onNavigate = viewModel::loadFiles
                         )
+                    }
+                    if (!state.isDualPane && state.categoryName == null) {
+                        viewModel.usbLocationLabel()?.let { label ->
+                            Text(label, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelLarge)
+                        }
                     }
 
                     state.pendingExtraction?.let { extraction ->
@@ -440,6 +583,30 @@ fun MainScreen(
                         }
                     }
 
+                    remoteState?.clipboard?.let { clipboard ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                                    shape = MaterialTheme.shapes.small
+                                )
+                                .padding(start = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Depuis le réseau : ${clipboard.item.name}",
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            IconButton(onClick = { remoteViewModel?.cancelClipboard() }) {
+                                Icon(Icons.Default.Close, contentDescription = "Annuler", tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                            }
+                        }
+                    }
+
                     state.clipboard?.let { clipboard ->
                         Row(
                             modifier = Modifier
@@ -453,7 +620,7 @@ fun MainScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Prêt à coller : ${clipboard.file.name}",
+                                text = "Prêt à coller : ${clipboard.files.size} élément(s)",
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -486,7 +653,7 @@ fun MainScreen(
                         }
                     }
 
-                    state.error?.let { error ->
+                    (state.error ?: state.secondError)?.let { error ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -499,6 +666,9 @@ fun MainScreen(
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(16.dp))
+                            TextButton(onClick = viewModel::refreshAfterResume) { Text("Réessayer") }
+                            TextButton(onClick = viewModel::reopenStorageRoot) { Text("Rouvrir l'emplacement autorisé") }
+                            TextButton(onClick = { showStorageRecovery = true }) { Text("Choisir un autre emplacement") }
                             Button(onClick = onNavigateHome) {
                                 Icon(Icons.Default.Home, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -516,59 +686,64 @@ fun MainScreen(
                         }
                     }
                     if (state.isDualPane) {
-                        Row(modifier = Modifier.fillMaxSize()) {
-                            // Panneau 1
-                            Box(modifier = Modifier.weight(1f).clickable { viewModel.setActivePanel(1) }) {
-                                FileExplorerPanel(
-                                    state = state,
-                                    onNavigate = { viewModel.setActivePanel(1); viewModel.loadFiles(it) },
-                                    onItemClick = { item ->
-                                        viewModel.setActivePanel(1)
-                                        if (isSelectionMode) viewModel.toggleSelection(item.path)
-                                        else if (isTrashView) itemToDelete = item
-                                        else {
-                                            if (item.isDirectory) viewModel.open(item)
-                                            else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive)
+                        BoxWithConstraints(Modifier.fillMaxSize()) {
+                            val sideBySide = showExplorerPanesSideBySide(maxWidth.value)
+                            Column(Modifier.fillMaxSize()) {
+                                Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Text("Panneau ${state.activePanel} / 2", Modifier.weight(1f),
+                                        style = MaterialTheme.typography.labelLarge)
+                                    TextButton(onClick = {
+                                        viewModel.setActivePanel(if (state.activePanel == 1) 2 else 1)
+                                    }) { Text("⇄", style = MaterialTheme.typography.titleLarge) }
+                                }
+                                Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+                                    TextButton(onClick = viewModel::openLocalStorage) { Text("Mémoire interne") }
+                                    TextButton(onClick = { showStorageRecovery = true }) { Text("USB / OTG") }
+                                }
+                                Row(Modifier.weight(1f).fillMaxWidth()) {
+                                    val panels = if (sideBySide) listOf(1, 2) else listOf(state.activePanel)
+                                    panels.forEachIndexed { index, panel ->
+                                        if (index > 0) VerticalDivider()
+                                        Box(Modifier.weight(1f).clickable { viewModel.setActivePanel(panel) }) {
+                                            panelStateHolder.SaveableStateProvider(panel) {
+                                                FileExplorerPanel(
+                                                    state = state.copy(
+                                                        rootPath = viewModel.navigationRoot(panel),
+                                                        currentPath = viewModel.navigationPath(panel),
+                                                        files = if (panel == 1) state.files else state.secondFiles,
+                                                        isLoading = if (panel == 1) state.isLoading else state.isSecondLoading,
+                                                        selectedPaths = if (panel == state.activePanel) state.selectedPaths else state.inactiveSelectedPaths,
+                                                        error = if (panel == 1) state.error else state.secondError,
+                                                        categoryName = if (panel == 1) state.categoryName else null
+                                                    ),
+                                                    onNavigate = { viewModel.setActivePanel(panel); viewModel.loadFiles(it) },
+                                                    onItemClick = { item ->
+                                                        viewModel.setActivePanel(panel)
+                                                        if ((if (panel == state.activePanel) state.selectedPaths else state.inactiveSelectedPaths).isNotEmpty()) viewModel.toggleSelection(item.path)
+                                                        else if (panel == 1 && state.categoryName == "Corbeille") itemToDelete = item
+                                                        else if (item.isDirectory) {
+                                                            if (panel == 1) viewModel.open(item) else viewModel.loadFiles(item.path)
+                                                        }
+                                                        else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio,
+                                                            onOpenText, onOpenPdf, onOpenEpub, onOpenArchive, onOpenOfficeDocument)
+                                                    },
+                                                    onItemLongClick = { viewModel.setActivePanel(panel); viewModel.toggleSelection(it.path) },
+                                                    onItemOption = { item, option -> viewModel.setActivePanel(panel); handleOption(option, item) },
+                                                    locationLabel = viewModel.usbLocationLabel(panel),
+                                                    modifier = Modifier.background(if (state.activePanel == panel)
+                                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f) else Color.Transparent)
+                                                )
+                                            }
                                         }
-                                    },
-                                    onItemLongClick = { viewModel.setActivePanel(1); viewModel.toggleSelection(it.path) },
-                                    onItemOption = { item, opt ->
-                                        viewModel.setActivePanel(1)
-                                        handleOption(opt, item)
-                                    },
-                                    modifier = Modifier.background(if (state.activePanel == 1) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f) else Color.Transparent)
-                                )
-                            }
-                            
-                            VerticalDivider()
-                            
-                            // Panneau 2
-                            Box(modifier = Modifier.weight(1f).clickable { viewModel.setActivePanel(2) }) {
-                                FileExplorerPanel(
-                                    state = state.copy(
-                                        currentPath = state.secondPath ?: state.rootPath,
-                                        files = state.secondFiles,
-                                        isLoading = state.isSecondLoading
-                                    ),
-                                    onNavigate = { viewModel.setActivePanel(2); viewModel.loadFiles(it) },
-                                    onItemClick = { item ->
-                                        viewModel.setActivePanel(2)
-                                        if (isSelectionMode) viewModel.toggleSelection(item.path)
-                                        else {
-                                            if (item.isDirectory) viewModel.loadFiles(item.path)
-                                            else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive)
-                                        }
-                                    },
-                                    onItemLongClick = { viewModel.setActivePanel(2); viewModel.toggleSelection(it.path) },
-                                    onItemOption = { item, opt ->
-                                        viewModel.setActivePanel(2)
-                                        handleOption(opt, item)
-                                    },
-                                    modifier = Modifier.background(if (state.activePanel == 2) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f) else Color.Transparent)
-                                )
+                                    }
+                                }
                             }
                         }
                     } else {
+                        if (!state.isLoading && state.error == null && state.categoryName == null && state.files.isEmpty()) {
+                            Text("Aucun élément visible dans ce dossier ; les fichiers cachés peuvent être masqués.", modifier = Modifier.padding(16.dp))
+                        }
                         // Vue classique (LazyColumn/Grid)
                         if (state.isGridView) {
                             LazyVerticalGrid(
@@ -591,7 +766,7 @@ fun MainScreen(
                                                 itemToDelete = item
                                             } else {
                                                 if (item.isDirectory) viewModel.open(item)
-                                                else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive)
+                                                else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive, onOpenOfficeDocument)
                                             }
                                         },
                                         onLongClick = { viewModel.toggleSelection(item.path) },
@@ -600,7 +775,7 @@ fun MainScreen(
                                         onMove = { viewModel.setClipboard(item, isMove = true) },
                                         onRename = { itemToRename = item },
                                         onDelete = { itemToDelete = item },
-                                        onShare = { ShareUtils.shareFile(context, File(item.path), item.mimeType) },
+                                        onShare = { ShareUtils.sharePath(context, item.path, item.mimeType) },
                                         onCompress = { itemToCompress = item },
                                         onExtract = { viewModel.setPendingExtraction(item) },
                                         onRestore = { viewModel.restoreFromTrash(item) },
@@ -630,7 +805,7 @@ fun MainScreen(
                                                 itemToDelete = item
                                             } else {
                                                 if (item.isDirectory) viewModel.open(item)
-                                                else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive)
+                                                else openItem(context, item, onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive, onOpenOfficeDocument)
                                             }
                                         },
                                         onLongClick = { viewModel.toggleSelection(item.path) },
@@ -639,7 +814,7 @@ fun MainScreen(
                                         onMove = { viewModel.setClipboard(item, isMove = true) },
                                         onRename = { itemToRename = item },
                                         onDelete = { itemToDelete = item },
-                                        onShare = { ShareUtils.shareFile(context, File(item.path), item.mimeType) },
+                                        onShare = { ShareUtils.sharePath(context, item.path, item.mimeType) },
                                         onCompress = { itemToCompress = item },
                                         onExtract = { viewModel.setPendingExtraction(item) },
                                         onRestore = { viewModel.restoreFromTrash(item) },
@@ -741,18 +916,17 @@ fun MainScreen(
     if (showMultiDeleteDialog) {
         MultiDeleteDialog(
             count = state.selectedPaths.size,
+            canTrash = state.selectedPaths.none { fr.bonobo.filemanager.util.SafFiles.isSaf(it) },
             isTrashView = isTrashView,
             onDismiss = { showMultiDeleteDialog = false },
             onConfirmPermanent = {
                 viewModel.deleteSelected()
                 showMultiDeleteDialog = false
-                scope.launch { snackbarHostState.showSnackbar("Éléments supprimés définitivement") }
             },
             onMoveToTrash = {
                 // Je vais ajouter moveToTrashSelected dans le ViewModel
                 viewModel.moveToTrashSelected()
                 showMultiDeleteDialog = false
-                scope.launch { snackbarHostState.showSnackbar("Déplacés vers la corbeille") }
             }
         )
     }
@@ -776,15 +950,13 @@ fun MainScreen(
             onConfirmPermanent = {
                 viewModel.delete(item)
                 itemToDelete = null
-                scope.launch { snackbarHostState.showSnackbar("Fichier supprimé définitivement") }
             },
             onMoveToTrash = {
                 if (isTrashView) {
                     viewModel.restoreFromTrash(item)
-                    scope.launch { snackbarHostState.showSnackbar("Fichier restauré") }
+
                 } else {
                     viewModel.moveToTrash(item)
-                    scope.launch { snackbarHostState.showSnackbar("Déplacé vers la corbeille") }
                 }
                 itemToDelete = null
             }
@@ -829,8 +1001,22 @@ private fun openItem(
     onOpenText: (String) -> Unit,
     onOpenPdf: (String) -> Unit,
     onOpenEpub: (String) -> Unit,
-    onOpenArchive: (String) -> Unit
+    onOpenArchive: (String) -> Unit,
+    onOpenOfficeDocument: (String) -> Unit
 ) {
+    if (fr.bonobo.filemanager.util.SafFiles.isSaf(item.path)) {
+        val activity = context as? androidx.fragment.app.FragmentActivity ?: return
+        activity.lifecycleScope.launch {
+            runCatching {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    fr.bonobo.filemanager.util.IncomingFiles.snapshot(context, android.net.Uri.parse(item.path))
+                }
+            }.onSuccess { local ->
+                openItem(context, item.copy(path = local.path, name = local.name), onOpenImage, onOpenVideo, onOpenAudio, onOpenText, onOpenPdf, onOpenEpub, onOpenArchive, onOpenOfficeDocument)
+            }.onFailure { android.widget.Toast.makeText(context, "Ouverture impossible : ${it.message}", android.widget.Toast.LENGTH_LONG).show() }
+        }
+        return
+    }
     when {
         item.name.lowercase().endsWith(".apk") -> installApk(context, item)
         item.mimeType?.startsWith("image/") == true -> onOpenImage(item.path)
@@ -838,8 +1024,11 @@ private fun openItem(
         item.mimeType?.startsWith("audio/") == true -> onOpenAudio(item.path)
         item.name.endsWith(".pdf", true) -> onOpenPdf(item.path)
         item.name.endsWith(".epub", true) -> onOpenEpub(item.path)
+        item.name.substringAfterLast('.', "").lowercase() in setOf("docx", "odt", "xlsx", "ods", "pptx", "odp") -> onOpenOfficeDocument(item.path)
         fr.bonobo.filemanager.util.MimeTypeUtils.isArchive(File(item.path)) -> onOpenArchive(item.path)
-        item.mimeType?.startsWith("text/") == true -> onOpenText(item.path)
+        item.mimeType?.startsWith("text/") == true || item.name.substringAfterLast('.', "").lowercase() in setOf(
+            "txt", "md", "csv", "tsv", "json", "xml", "html", "htm", "log", "ini", "conf", "yaml", "yml", "kt", "java", "c", "cpp", "h", "py", "js", "css"
+        ) -> onOpenText(item.path)
         else -> openExternalFile(context, item)
     }
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.Beta195ReliabilityTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-28T14:09:40" hostname="aurora" time="0.032">
+  <properties/>
+  <testcase name="cancellationWaitsForOutputCloseThenCleansOnlyOwnedFile" classname="fr.bonobo.filemanager.Beta195ReliabilityTest" time="0.012"/>
+  <testcase name="deletionEventsAndNavigationVocabularyContainOnlyClosedCategories" classname="fr.bonobo.filemanager.Beta195ReliabilityTest" time="0.017"/>
+  <testcase name="refusedCleanupLeavesReceiptAndRetryConflictsUntilManualResolution" classname="fr.bonobo.filemanager.Beta195ReliabilityTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

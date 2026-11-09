@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.Beta191Test" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-23T16:16:55" hostname="aurora" time="1.251">
+  <properties/>
+  <testcase name="newCopyAndMoveAfterCancellationResetEveryCounterAndUseNewIdentity" classname="fr.bonobo.filemanager.Beta191Test" time="1.225"/>
+  <testcase name="downloadsShortcutResolvesConcreteDestinationAndLeavesOtherTilesAndSafBookmarksAlone" classname="fr.bonobo.filemanager.Beta191Test" time="0.026"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

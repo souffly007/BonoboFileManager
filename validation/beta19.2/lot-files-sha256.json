@@ -1,0 +1,17 @@
+{
+  "app/build.gradle.kts": "3290f908d8ff23922e04ee14a6e5ce9f32105ec71f6fb8db6e782b8a0397c35a",
+  "app/src/main/java/fr/bonobo/filemanager/util/DeletionBatch.kt": "0e6b17e63fd84b5362591ee89a5ff951f7d41d2f216cfca3068532c740252961",
+  "app/src/main/java/fr/bonobo/filemanager/util/SafFiles.kt": "6471de6f31f9391ada8fd76472f58295f848c197dd153b0037745b5fd6afdfec",
+  "app/src/main/java/fr/bonobo/filemanager/data/transfer/TransferEngineFactory.kt": "262266efa9e7a79255d81327d1e913ec73762169611ef5aca8972e191d02dff7",
+  "app/src/main/java/fr/bonobo/filemanager/domain/transfer/TransferCoordinator.kt": "662707ce96ab856b5826a9bc827d6c8219ecd3b1e2cf85495a89446f6ff8e61f",
+  "app/src/main/java/fr/bonobo/filemanager/data/repository/FileRepositoryImpl.kt": "067e4536cced252beb79524bfbfaeb584fd6c07efcbc44bbd81d2f382f0dc588",
+  "app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/MainViewModel.kt": "4def40d97b29143894438dae6ca6e3cbb0338e916746d4ac12d604d826a8642b",
+  "app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/MainScreen.kt": "9985fcc185a1a327d9912b742674aefa90d4441cb308a70e78fd2ce487195426",
+  "app/src/main/java/fr/bonobo/filemanager/presentation/ui/operations/OperationDialog.kt": "51537b8ecb601673484a11d7410071ac9d5cb643b3458370269849cd2bf4170b",
+  "app/src/test/java/fr/bonobo/filemanager/Beta192DeletionTest.kt": "cd48985fe1059f8f34507213e6f4e4a6a4468547ccf3af050efe2e9feda9f43f",
+  "app/src/test/java/fr/bonobo/filemanager/Beta192TransferTest.kt": "67c848974d8ec6e9dbece47db301511eb8cf075ecd932d60ee5f18847c864da6",
+  "app/src/androidTest/java/fr/bonobo/filemanager/DeletionDialogTest.kt": "d14e6919e4ad7e233d33822d512906df5dc07e9ab4794e834c686a84d6a9cc6f",
+  "app/src/androidTest/java/fr/bonobo/filemanager/saf/SafIntegrationTest.kt": "7d27ac26a555e34c2eb8ea242d89a05653318def02a6ce271e19bdad718f787f",
+  "app/src/androidTest/java/fr/bonobo/filemanager/saf/TestDocumentsProvider.java": "85a514ab6a66320befb85899e76c9daf8076b23261212426c51498e3ae8524b0",
+  "app/src/androidTest/java/fr/bonobo/filemanager/saf/TestGrantActivity.java": "54fb74956f74a127176c17c1dffd4fb3af83b5382eff89e0753bac76c9563dc6"
+}

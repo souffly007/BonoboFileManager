@@ -15,8 +15,8 @@ android {
         applicationId = "fr.bonobo.filemanager"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.2.8"
+        versionCode = 35
+        versionName = "1.3.0-beta19.6"
 
         testInstrumentationRunner =
             "androidx.test.runner.AndroidJUnitRunner"
@@ -27,8 +27,8 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".https.preview"
-            versionNameSuffix = "-https-preview"
+            applicationIdSuffix = ".adaptive"
+            versionNameSuffix = "-debug"
             resValue("string", "app_name", "Bonobo Files Explorateur")
         }
         release {
@@ -51,7 +51,7 @@ android {
 
     lint {
         checkReleaseBuilds = false
-        abortOnError = false
+        abortOnError = true
     }
 
     buildFeatures {
@@ -64,7 +64,17 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/DEPENDENCIES"
             excludes += "/META-INF/LICENSE"
+            excludes += "/META-INF/LICENSE.txt"
             excludes += "/META-INF/NOTICE"
+            excludes += "/META-INF/NOTICE.txt"
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/*.SF"
+            excludes += "/META-INF/*.DSA"
+            excludes += "/META-INF/*.RSA"
+            // bcprov / bcpkix / bcutil (jdk18on) embarquent chacun le même
+            // manifeste multi-release -> conflit mergeDebugJavaResource.
+            excludes += "/META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+            excludes += "/META-INF/versions/9/module-info.class"
         }
     }
 }
@@ -115,6 +125,13 @@ dependencies {
     implementation("org.slf4j:slf4j-android:1.7.36")
     implementation("commons-net:commons-net:3.11.1")
     implementation("com.hierynomus:smbj:0.15.0")
+    implementation("com.hierynomus:sshj:0.39.0") // SFTP/SSH client
+    implementation("com.squareup.okhttp3:okhttp:4.12.0") // WebDAV HTTPS
+    val sshdVersion = "2.19.0"
+    implementation("org.apache.sshd:sshd-common:$sshdVersion")
+    implementation("org.apache.sshd:sshd-core:$sshdVersion")
+    implementation("org.apache.sshd:sshd-sftp:$sshdVersion")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
 
     // Archives (.zip, .rar, .7z)
     implementation("org.apache.commons:commons-compress:1.27.1")
@@ -140,4 +157,13 @@ dependencies {
 // JVM socket tests use a JVM logger; production keeps the Android SLF4J binding.
 configurations.matching { it.name.endsWith("UnitTestRuntimeClasspath") }.configureEach {
     exclude(group = "org.slf4j", module = "slf4j-android")
+}
+
+
+configurations.all {
+    resolutionStrategy {
+        force("org.bouncycastle:bcprov-jdk18on:1.78.1")
+        force("org.bouncycastle:bcpkix-jdk18on:1.78.1")
+        force("org.bouncycastle:bcutil-jdk18on:1.78.1")
+    }
 }

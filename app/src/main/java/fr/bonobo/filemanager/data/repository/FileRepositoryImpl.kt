@@ -11,6 +11,13 @@ import fr.bonobo.filemanager.domain.model.FileItem
 import fr.bonobo.filemanager.domain.repository.IFileRepository
 import fr.bonobo.filemanager.util.FileUtils
 import fr.bonobo.filemanager.util.SafeFiles
+import fr.bonobo.filemanager.diagnostic.DeletionTrace
+import fr.bonobo.filemanager.diagnostic.TechnicalJournal.Kind
+import fr.bonobo.filemanager.diagnostic.TechnicalJournal.Mode
+import fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result as JournalResult
+import fr.bonobo.filemanager.diagnostic.TechnicalJournal.Storage
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -31,6 +38,29 @@ class FileRepositoryImpl @Inject constructor(
     private val bookmarkDao: BookmarkDao,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : IFileRepository {
+    // Rename refuses any existing sibling name before and verifies after (SafMutations.rename).
+    private val saf = fr.bonobo.filemanager.util.SafFiles(context, renameWithoutReplacement = true)
+    private fun isSaf(path: String) = fr.bonobo.filemanager.util.SafFiles.isSaf(path)
+    private fun deleteLocal(path: String) {
+        val file = File(path)
+        val trace = DeletionTrace(Storage.LOCAL,
+            if (file.isDirectory) Kind.DIRECTORY else if (file.exists()) Kind.FILE else Kind.UNKNOWN,
+            Mode.PERMANENT)
+        trace.start()
+        try {
+            val accepted = FileUtils.deleteRecursively(file)
+            trace.provider(if (accepted) JournalResult.OK else JournalResult.REFUSED)
+            val absent = !file.exists()
+            trace.verify(if (absent) JournalResult.OK else JournalResult.INDETERMINATE)
+            trace.end(if (accepted && absent) JournalResult.OK else JournalResult.INDETERMINATE)
+            check(accepted && absent) { "Suppression non confirmée ; actualisez le dossier." }
+        } catch (e: Exception) {
+            if (file.exists()) trace.verify(JournalResult.INDETERMINATE)
+            trace.end(JournalResult.INDETERMINATE)
+            throw e
+        }
+    }
+
 
     private suspend fun isRootEnabled(): Boolean {
         return try {
@@ -41,12 +71,39 @@ class FileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getFiles(path: String): List<FileItem> = withContext(Dispatchers.IO) {
+        if (isSaf(path)) {
+            val hidden = context.settingsDataStore.data.first()[SettingsKeys.SHOW_HIDDEN_FILES] ?: false
+            return@withContext saf.list(path).filter { hidden || !it.name.startsWith(".") }.map { it.copy(isFavorite = favoriteDao.isFavorite(it.path)) }
+        }
+        fr.bonobo.filemanager.diagnostic.Diagnostic.detail(
+            fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.NAV_OPEN, JournalResult.START,
+            storage = Storage.LOCAL, kind = Kind.DIRECTORY,
+            phase = fr.bonobo.filemanager.diagnostic.TechnicalJournal.Phase.OPEN)
         val showHidden = context.settingsDataStore.data.first()[SettingsKeys.SHOW_HIDDEN_FILES] ?: false
         if (isRootEnabled() && hasRootAccess()) {
             return@withContext getFilesRoot(path, showHidden)
         }
 
+        if (!(File(path).isDirectory && File(path).canRead() && File(path).listFiles() != null)) {
+            fr.bonobo.filemanager.diagnostic.Diagnostic.detail(
+                fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.NAV_PROVIDER_FAILURE,
+                JournalResult.IO_ERROR, storage = Storage.LOCAL, kind = Kind.DIRECTORY,
+                phase = fr.bonobo.filemanager.diagnostic.TechnicalJournal.Phase.OPEN)
+            error("Stockage indisponible ou accès refusé. Reconnectez le support puis actualisez.")
+        }
+        fr.bonobo.filemanager.diagnostic.Diagnostic.detail(
+            fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.NAV_OPEN, JournalResult.OK,
+            storage = Storage.LOCAL, kind = Kind.DIRECTORY,
+            phase = fr.bonobo.filemanager.diagnostic.TechnicalJournal.Phase.OPEN)
+        fr.bonobo.filemanager.diagnostic.Diagnostic.detail(
+            fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.NAV_READ, JournalResult.START,
+            storage = Storage.LOCAL, kind = Kind.DIRECTORY,
+            phase = fr.bonobo.filemanager.diagnostic.TechnicalJournal.Phase.READ)
         val files = FileUtils.listFiles(directory = File(path), showHidden = showHidden)
+        fr.bonobo.filemanager.diagnostic.Diagnostic.detail(
+            fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.NAV_READ, JournalResult.OK,
+            storage = Storage.LOCAL, kind = Kind.DIRECTORY,
+            phase = fr.bonobo.filemanager.diagnostic.TechnicalJournal.Phase.READ)
 
         fileDao.insertAll(
             files.map { item ->
@@ -114,24 +171,22 @@ class FileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun copyFile(sourcePath: String, destinationPath: String): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching { FileUtils.copy(source = File(sourcePath), destination = File(destinationPath)) }
+        runCatching { saf.copy(sourcePath, destinationPath); Unit }.onFailure { if (it is kotlinx.coroutines.CancellationException) throw it }
     }
 
     override suspend fun moveFile(sourcePath: String, destinationPath: String): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching {
-            val source = File(sourcePath)
-            val destination = File(destinationPath)
-            FileUtils.copy(source = source, destination = destination)
-            check(FileUtils.deleteRecursively(source)) { "Impossible de supprimer le fichier source" }
-        }
+        runCatching { saf.move(sourcePath, destinationPath) }.onFailure { if (it is kotlinx.coroutines.CancellationException) throw it }
     }
 
     override suspend fun deleteFile(path: String): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching { check(FileUtils.deleteRecursively(File(path))) { "Impossible de supprimer le fichier" } }
+        trashOperations.withLock {
+        runCatching { if (isSaf(path)) saf.delete(path) else deleteLocal(path) }
+        }
     }
 
     override suspend fun renameFile(path: String, newName: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
+            if (isSaf(path)) { saf.rename(path, newName.trim()); return@runCatching Unit }
             require(newName.isNotBlank()) { "Le nouveau nom est vide" }
             val source = File(path)
             require(source.exists()) { "Le fichier n'existe pas" }
@@ -144,11 +199,11 @@ class FileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun createFolder(parentPath: String, name: String): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching { check(FileUtils.createDirectory(File(parentPath), name)) { "Impossible de créer le dossier" } }
+        runCatching { if (isSaf(parentPath)) { saf.create(parentPath, name, android.provider.DocumentsContract.Document.MIME_TYPE_DIR); Unit } else check(FileUtils.createDirectory(File(parentPath), name)) { "Impossible de créer le dossier" } }
     }
 
     override suspend fun createFile(parentPath: String, name: String): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching { check(FileUtils.createEmptyFile(File(parentPath), name)) { "Impossible de créer le fichier" } }
+        runCatching { if (isSaf(parentPath)) { saf.create(parentPath, name, "application/octet-stream"); Unit } else check(FileUtils.createEmptyFile(File(parentPath), name)) { "Impossible de créer le fichier" } }
     }
 
     override suspend fun getJunkFiles(): List<FileItem> = withContext(Dispatchers.IO) {
@@ -162,15 +217,25 @@ class FileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteFiles(paths: List<String>): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching { paths.forEach { path -> check(FileUtils.deleteRecursively(File(path))) { "Suppression impossible : $path" } } }
+        trashOperations.withLock {
+        runCatching { paths.forEach { path -> if (isSaf(path)) saf.delete(path) else deleteLocal(path) } }
+        }
     }
 
+    private val trashOperations = Mutex()
     private val trashDir = File(Environment.getExternalStorageDirectory(), ".bonobo_trash")
 
     override suspend fun moveToTrash(path: String): Result<Unit> = withContext(Dispatchers.IO) {
+        trashOperations.withLock {
         runCatching {
-            if (!trashDir.exists()) trashDir.mkdirs()
             val source = File(path)
+            val trace = DeletionTrace(if (isSaf(path)) Storage.SAF else Storage.LOCAL,
+                if (source.isDirectory) Kind.DIRECTORY else if (source.exists()) Kind.FILE else Kind.UNKNOWN,
+                Mode.TRASH)
+            trace.start()
+            try {
+            require(!isSaf(path)) { "La corbeille locale ne prend pas en charge SAF. Utilisez Supprimer pour une suppression définitive." }
+            check(trashDir.isDirectory || trashDir.mkdirs()) { "Corbeille locale inaccessible : création refusée" }
             val encodedPath = android.util.Base64.encodeToString(
                 source.absolutePath.toByteArray(),
                 android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP
@@ -181,53 +246,58 @@ class FileRepositoryImpl @Inject constructor(
                 destination = File(trashDir, "trash_${encodedPath}_#_${source.name} (${duplicate++})")
             }
             java.nio.file.Files.move(source.toPath(), destination.toPath())
+            trace.provider(JournalResult.OK)
+            val verified = !source.exists() && destination.exists()
+            trace.verify(if (verified) JournalResult.OK else JournalResult.INDETERMINATE)
+            trace.end(if (verified) JournalResult.OK else JournalResult.INDETERMINATE)
+            check(verified) { "Mise à la corbeille non confirmée ; actualisez." }
             Unit
+            } catch (e: Exception) { trace.end(JournalResult.INDETERMINATE); throw e }
+        }
         }
     }
 
     override suspend fun getTrashFiles(): List<FileItem> = withContext(Dispatchers.IO) {
         if (!trashDir.exists()) return@withContext emptyList()
         FileUtils.listFiles(trashDir, showHidden = true).map { item ->
-            val name = item.name
-            val originalName = when {
-                name.contains("_#_") -> name.substringAfter("_#_")
-                name.startsWith("trash_") -> {
-                    val afterTrash = name.substring(6)
-                    if (afterTrash.contains("_")) afterTrash.substringAfter("_") else afterTrash
-                }
-                else -> name
-            }
-            item.copy(name = originalName)
+            item.copy(name = fr.bonobo.filemanager.util.TrashPaths.displayName(item.name))
         }
     }
 
     override suspend fun restoreFromTrash(item: FileItem): Result<Unit> = withContext(Dispatchers.IO) {
+        trashOperations.withLock {
         runCatching {
-            val fileInTrash = File(item.path)
-            require(fileInTrash.canonicalFile.parentFile == trashDir.canonicalFile) { "Entrée de corbeille invalide" }
-            val fileName = fileInTrash.name
-            val encodedPath = when {
-                fileName.contains("_#_") -> fileName.substringAfter("trash_").substringBefore("_#_")
-                fileName.startsWith("trash_") -> fileName.substring(6).substringBefore("_")
-                else -> error("Format de fichier inconnu")
-            }
-            val originalPath = String(android.util.Base64.decode(encodedPath, android.util.Base64.URL_SAFE))
-            val destination = File(originalPath).canonicalFile
-            val storage = Environment.getExternalStorageDirectory().canonicalFile.toPath()
-            require(destination.toPath().startsWith(storage) && destination.toPath() != storage &&
-                !destination.toPath().startsWith(trashDir.canonicalFile.toPath())) { "Chemin de restauration invalide" }
-            require(!SafeFiles.exists(destination)) { "La destination existe déjà : restauration annulée" }
-            destination.parentFile?.mkdirs()
-            java.nio.file.Files.move(fileInTrash.toPath(), destination.toPath())
-            Unit
+            fr.bonobo.filemanager.util.TrashRestorer(saf, trashDir).restore(item.path)
+
+        }.onFailure { if (it is kotlinx.coroutines.CancellationException) throw it }
+        }
+    }
+
+    override suspend fun restoreTrashTo(item: FileItem, parent: String): Result<Unit> = withContext(Dispatchers.IO) {
+        trashOperations.withLock {
+        runCatching {
+            fr.bonobo.filemanager.util.TrashRestorer(saf, trashDir).restoreTo(item.path, parent)
+
+        }.onFailure { if (it is kotlinx.coroutines.CancellationException) throw it }
         }
     }
 
     override suspend fun emptyTrash(): Result<Unit> = withContext(Dispatchers.IO) {
+        trashOperations.withLock {
         runCatching {
             if (trashDir.exists()) {
+                val trace = DeletionTrace(Storage.LOCAL, Kind.DIRECTORY, Mode.TRASH)
+                trace.start()
+                try {
                 check(FileUtils.deleteRecursively(trashDir)) { "Impossible de vider la corbeille" }
+                trace.provider(JournalResult.OK)
+                val verified = !trashDir.exists()
+                trace.verify(if (verified) JournalResult.OK else JournalResult.INDETERMINATE)
+                trace.end(if (verified) JournalResult.OK else JournalResult.INDETERMINATE)
+                check(verified) { "Effacement de la corbeille non confirmé" }
+                } catch (e: Exception) { trace.end(JournalResult.INDETERMINATE); throw e }
             }
+        }
         }
     }
 
@@ -240,7 +310,7 @@ class FileRepositoryImpl @Inject constructor(
                     name = favorite.name,
                     size = if (file.exists()) file.length() else 0L,
                     lastModified = Date(favorite.addedAt),
-                    isDirectory = file.isDirectory,
+                    isDirectory = if (isSaf(favorite.path)) favorite.mimeType == android.provider.DocumentsContract.Document.MIME_TYPE_DIR else file.isDirectory,
                     mimeType = favorite.mimeType,
                     isFavorite = true
                 )
@@ -257,8 +327,8 @@ class FileRepositoryImpl @Inject constructor(
                     name = item.name,
                     size = if (file.exists()) file.length() else 0L,
                     lastModified = Date(item.accessedAt),
-                    isDirectory = file.isDirectory,
-                    mimeType = if (file.exists()) item.mimeType else null,
+                    isDirectory = if (isSaf(item.path)) item.mimeType == android.provider.DocumentsContract.Document.MIME_TYPE_DIR else file.isDirectory,
+                    mimeType = if (isSaf(item.path) || file.exists()) item.mimeType else null,
                     isFavorite = false
                 )
             }

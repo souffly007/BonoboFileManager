@@ -1,0 +1,1 @@
+package: name='fr.bonobo.filemanager' versionCode='31' versionName='1.3.0-beta19.2' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'

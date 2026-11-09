@@ -1,0 +1,134 @@
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+fr.bonobo.filemanager.saf.SafIntegrationTest:
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:80)
+
+INSTRUMENTATION_STATUS: stream=
+Error in contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:80)
+
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:32)
+
+INSTRUMENTATION_STATUS: stream=
+Error in usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:32)
+
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:69)
+
+INSTRUMENTATION_STATUS: stream=
+Error in interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:69)
+
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:59)
+
+INSTRUMENTATION_STATUS: stream=
+Error in readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:59)
+
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 25.181
+There were 4 failures:
+1) contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:80)
+2) usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:32)
+3) interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:69)
+4) readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:59)
+
+FAILURES!!!
+Tests run: 4,  Failures: 4
+
+
+INSTRUMENTATION_CODE: -1

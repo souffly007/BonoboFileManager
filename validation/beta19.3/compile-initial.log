@@ -1,0 +1,46 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.9/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon JVM discovery is an incubating feature.
+Daemon will be stopped at the end of the build 
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:mergeDebugResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin FAILED
+e: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/OperationArtifacts.kt:29:54 Unresolved reference 'path'.
+e: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/OperationArtifacts.kt:29:92 Unresolved reference 'parent'.
+e: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/OperationArtifacts.kt:30:54 Unresolved reference 'name'.
+e: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/OperationArtifacts.kt:30:95 Unresolved reference 'directory'.
+e: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/OperationArtifacts.kt:31:58 Unresolved reference 'identity'.
+e: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/OperationArtifacts.kt:31:99 Unresolved reference 'owned'.
+e: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/OperationArtifacts.kt:32:57 Unresolved reference 'staging'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 19s
+16 actionable tasks: 16 executed

@@ -1,0 +1,215 @@
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+fr.bonobo.filemanager.saf.SafIntegrationTest:
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:71)
+
+INSTRUMENTATION_STATUS: stream=
+Error in contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:71)
+
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:23)
+
+INSTRUMENTATION_STATUS: stream=
+Error in usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:23)
+
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:60)
+
+INSTRUMENTATION_STATUS: stream=
+Error in interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:60)
+
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:50)
+
+INSTRUMENTATION_STATUS: stream=
+Error in readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:50)
+
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.038
+There were 4 failures:
+1) contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:71)
+2) usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:23)
+3) interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: Permission Denial: opening provider fr.bonobo.filemanager.saf.TestDocumentsProvider from ProcessRecord{9536124 4292:fr.bonobo.filemanager.adaptive/u0a211} (pid=4292, uid=10211) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.getContentProvider(IActivityManager.java:6315)
+	at android.app.ActivityThread.acquireProvider(ActivityThread.java:7841)
+	at android.app.ContextImpl$ApplicationContentResolver.acquireProvider(ContextImpl.java:3757)
+	at android.content.ContentResolver.acquireProvider(ContentResolver.java:2493)
+	at android.content.ContentResolver.acquireContentProviderClient(ContentResolver.java:2571)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:19)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:60)
+4) readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:50)
+
+FAILURES!!!
+Tests run: 4,  Failures: 4
+
+
+INSTRUMENTATION_CODE: -1

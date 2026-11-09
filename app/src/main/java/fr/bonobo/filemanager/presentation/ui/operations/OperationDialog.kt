@@ -83,6 +83,7 @@ fun DeleteDialog(
         text = {
             Text(
                 if (isTrashView) "Que souhaitez-vous faire de « ${item.name} » ?"
+                else if (fr.bonobo.filemanager.util.SafFiles.isSaf(item.path)) "La corbeille locale est indisponible pour SAF. Supprimer définitivement « ${item.name} » ?"
                 else "Souhaitez-vous déplacer « ${item.name} » dans la corbeille ou le supprimer définitivement ?"
             )
         },
@@ -103,7 +104,7 @@ fun DeleteDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Restaurer le fichier")
                     }
-                } else {
+                } else if (!fr.bonobo.filemanager.util.SafFiles.isSaf(item.path)) {
                     Button(
                         onClick = onMoveToTrash,
                         modifier = Modifier.fillMaxWidth(),
@@ -145,6 +146,7 @@ fun DeleteDialog(
 @Composable
 fun MultiDeleteDialog(
     count: Int,
+    canTrash: Boolean = true,
     isTrashView: Boolean,
     onDismiss: () -> Unit,
     onConfirmPermanent: () -> Unit,
@@ -158,6 +160,7 @@ fun MultiDeleteDialog(
         text = {
             Text(
                 if (isTrashView) "Voulez-vous vraiment supprimer définitivement ces $count éléments ? Cette action est irréversible."
+                else if (!canTrash) "La sélection contient des documents SAF : corbeille locale indisponible. Supprimer définitivement ces $count éléments ?"
                 else "Souhaitez-vous déplacer ces $count éléments dans la corbeille ou les supprimer définitivement ?"
             )
         },
@@ -166,7 +169,7 @@ fun MultiDeleteDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (!isTrashView) {
+                if (!isTrashView && canTrash) {
                     Button(
                         onClick = onMoveToTrash,
                         modifier = Modifier.fillMaxWidth(),

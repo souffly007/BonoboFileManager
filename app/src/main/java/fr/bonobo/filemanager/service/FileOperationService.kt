@@ -41,27 +41,25 @@ class FileOperationService : Service() {
         val destination = intent?.getStringExtra(EXTRA_DESTINATION)
 
         scope.launch {
-            when (operation) {
-                OPERATION_COPY -> {
-                    if (source != null && destination != null) {
-                        copyFileUseCase(source, destination)
-                    }
+            try {
+                val result = when (operation) {
+                    OPERATION_COPY -> if (source != null && destination != null) copyFileUseCase(source, destination)
+                        else Result.failure(IllegalArgumentException("Source ou destination absente"))
+                    OPERATION_MOVE -> if (source != null && destination != null) moveFileUseCase(source, destination)
+                        else Result.failure(IllegalArgumentException("Source ou destination absente"))
+                    OPERATION_DELETE -> if (source != null) deleteFileUseCase(source)
+                        else Result.failure(IllegalArgumentException("Source absente"))
+                    else -> Result.failure(IllegalArgumentException("Opération inconnue"))
                 }
-
-                OPERATION_MOVE -> {
-                    if (source != null && destination != null) {
-                        moveFileUseCase(source, destination)
-                    }
+                result.exceptionOrNull()?.let { throw it }
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) {
+                android.util.Log.w("BonoboSAF", "Service : opération non confirmée ; " + e.javaClass.simpleName)
+                kotlinx.coroutines.withContext(Dispatchers.Main) {
+                    android.widget.Toast.makeText(this@FileOperationService,
+                        "Opération non confirmée : ${e.message.orEmpty()}", android.widget.Toast.LENGTH_LONG).show()
                 }
-
-                OPERATION_DELETE -> {
-                    if (source != null) {
-                        deleteFileUseCase(source)
-                    }
-                }
-            }
-
-            stopSelf(startId)
+            } finally { stopSelf(startId) }
         }
 
         return START_NOT_STICKY

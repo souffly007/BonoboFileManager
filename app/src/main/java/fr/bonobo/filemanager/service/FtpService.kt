@@ -98,7 +98,7 @@ class FtpService : Service() {
             _fingerprint.value = identity.fingerprint
             _password.value = password
             _isRunning.value = true
-            getSystemService(NotificationManager::class.java).notify(
+            postNotification(
                 NOTIFICATION_ID, createNotification("Serveur FTPS actif — TLS obligatoire"))
         } catch (e: Exception) {
             runCatching { candidate?.stop() }
@@ -134,6 +134,14 @@ class FtpService : Service() {
         stopFtpServer()
         _password.value = null
         super.onDestroy()
+    }
+
+    private fun postNotification(id: Int, notification: Notification) {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) return
+        if (getSystemService(NotificationManager::class.java).areNotificationsEnabled()) {
+            getSystemService(NotificationManager::class.java).notify(id, notification)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

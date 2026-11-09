@@ -1,0 +1,3 @@
+Comparaison SHA-256 au snapshot final du lot 2 : 222 fichiers, différences : [].
+Après préparation : seuls fichiers du snapshot modifiés : ['app/build.gradle.kts'].
+Lot 1 et lot 2 dans app/src/main, panneaux local/réseau et service dans manifeste principal ; aucun conditionnement Debug dans data/transfer.

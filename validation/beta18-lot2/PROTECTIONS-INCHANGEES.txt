@@ -1,0 +1,8 @@
+app/build.gradle.kts
+app/src/main/java/fr/bonobo/filemanager/util/RestoreReceipts.kt
+app/src/main/java/fr/bonobo/filemanager/util/TrashRestorer.kt
+app/src/main/java/fr/bonobo/filemanager/util/StorageEquivalence.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/SftpClientRepository.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/WebDavClientRepository.kt
+app/src/main/java/fr/bonobo/filemanager/data/local/AppDatabase.kt
+app/src/main/java/fr/bonobo/filemanager/di/DatabaseModule.kt

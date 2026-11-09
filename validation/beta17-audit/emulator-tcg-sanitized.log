@@ -1,0 +1,10 @@
+INFO         | Android emulator version 37.2.12.0 (build_id 16428233) (CL:N/A)
+INFO         | Graphics backend: gfxstream
+INFO         | Feature 'Vulkan' (21) is overridden to 'disabled'
+TCG doesn't support requested feature: CPUID.01H:ECX.avx [bit 28]
+TCG doesn't support requested feature: CPUID.01H:ECX.f16c [bit 29]
+WARNING: cannnot unmap ptr 0x7f7585a01000 as it is in the protected range from 0x7f74e5a00000 to 0x7f7585c00000
+INFO         | GPU Vendor=[Google (Google Inc.)]
+INFO         | GPU Renderer=[Android Emulator OpenGL ES Translator (Google SwiftShader)]
+INFO         | GPU Version=[OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)]
+exit_code=139

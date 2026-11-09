@@ -28,6 +28,11 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
+    private val notificationPermission = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { granted ->
+        if (!granted) android.widget.Toast.makeText(this, "Notifications désactivées. Les transferts restent disponibles ; leur état est visible dans Bonobo.", android.widget.Toast.LENGTH_LONG).show()
+    }
+    private val received = androidx.compose.runtime.mutableStateOf<String?>(null)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +40,7 @@ class MainActivity : FragmentActivity() {
         checkPermissions()
         handleDropboxIntent(intent)
         handleOneDriveIntent(intent)
+        handleFiles(intent)
 
         val themeFlow = settingsDataStore.data
             .map { preferences ->
@@ -53,7 +59,7 @@ class MainActivity : FragmentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    AppNavigation(onExit = { finish() })
+                    AppNavigation(onExit = { finish() }, receivedPath = received.value, onReceivedConsumed = { received.value = null })
                 }
             }
         }
@@ -64,6 +70,7 @@ class MainActivity : FragmentActivity() {
         setIntent(intent)
         handleDropboxIntent(intent)
         handleOneDriveIntent(intent)
+        handleFiles(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -87,7 +94,27 @@ class MainActivity : FragmentActivity() {
     }
 
 
+    private fun handleFiles(incoming: Intent?) {
+        if (incoming == null || incoming.action !in listOf(Intent.ACTION_VIEW, Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE) || incoming.data?.scheme in listOf("msauth", "db-a4pj0x994ilv7o6")) return
+        lifecycleScope.launch {
+            runCatching {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    fr.bonobo.filemanager.util.IncomingFiles.receive(this@MainActivity, incoming)
+                }
+            }.onSuccess { files ->
+                if (files.isNotEmpty()) android.widget.Toast.makeText(this@MainActivity, "Ouverture d'une copie temporaire. Les modifications ne changent pas le fichier d'origine.", android.widget.Toast.LENGTH_LONG).show()
+                if (files.size == 1) received.value = files.first().path
+                else if (files.isNotEmpty()) {
+                    val folder = java.io.File(cacheDir, "received/shared-${java.util.UUID.randomUUID()}").apply { mkdirs() }
+                    files.forEachIndexed { index, file -> check(file.renameTo(java.io.File(folder, "$index-${file.name}"))) }
+                    received.value = folder.path
+                }
+            }.onFailure { android.widget.Toast.makeText(this@MainActivity, "Fichier reçu inaccessible : ${it.message}", android.widget.Toast.LENGTH_LONG).show() }
+        }
+    }
+
     private fun checkPermissions() {
+        if (intent?.action in listOf(Intent.ACTION_VIEW, Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE)) return
         if (!PermissionUtils.hasStoragePermission(this)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 try {
@@ -113,5 +140,23 @@ class MainActivity : FragmentActivity() {
 
     override fun onResume() {
         super.onResume()
+        runCatching {
+            if (fr.bonobo.filemanager.diagnostic.Diagnostic.journal?.enabled == true) {
+                fr.bonobo.filemanager.diagnostic.Diagnostic.event(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.APP_RESUMED)
+                val grants = contentResolver.persistedUriPermissions
+                fr.bonobo.filemanager.diagnostic.Diagnostic.event(
+                    fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.SAF_PERMISSION,
+                    if (grants.any { it.isReadPermission && it.isWritePermission })
+                        fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.OK
+                    else fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.REFUSED)
+            }
+        }
+        val prefs = getSharedPreferences("notification_permission", MODE_PRIVATE)
+        if (Build.VERSION.SDK_INT >= 33 && intent?.action == Intent.ACTION_MAIN &&
+            PermissionUtils.hasStoragePermission(this) && !prefs.getBoolean("requested", false) &&
+            androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            prefs.edit().putBoolean("requested", true).apply()
+            notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 }

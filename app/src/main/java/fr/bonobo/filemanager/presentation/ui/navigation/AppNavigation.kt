@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import fr.bonobo.filemanager.presentation.ui.apps.AppManagerScreen
 import fr.bonobo.filemanager.presentation.ui.cleaner.CleanerScreen
 import fr.bonobo.filemanager.presentation.ui.dashboard.AboutScreen
+import fr.bonobo.filemanager.presentation.ui.dashboard.LicensesScreen
 import fr.bonobo.filemanager.presentation.ui.dashboard.DashboardScreen
 import fr.bonobo.filemanager.presentation.ui.main.MainScreen
 import fr.bonobo.filemanager.presentation.ui.main.MainViewModel
@@ -27,11 +28,14 @@ import fr.bonobo.filemanager.presentation.ui.viewer.VideoPlayerScreen
 import fr.bonobo.filemanager.presentation.ui.viewer.PdfViewerScreen
 import fr.bonobo.filemanager.presentation.ui.viewer.EpubViewerScreen
 import fr.bonobo.filemanager.presentation.ui.viewer.ArchivePreviewScreen
+import fr.bonobo.filemanager.presentation.ui.viewer.OfficeDocumentViewerScreen
 
 object Routes {
     const val VAULT = "vault"
     const val DASHBOARD = "dashboard"
     const val ABOUT = "about"
+
+    const val LICENSES = "licenses"
     const val NETWORK = "network"
     const val APPS = "apps"
     const val CLEANER = "cleaner"
@@ -48,6 +52,7 @@ object Routes {
     const val PDF = "pdf/{path}"
     const val EPUB = "epub/{path}"
     const val ARCHIVE = "archive/{path}"
+    const val OFFICE_DOCUMENT = "office_document/{path}"
 
     fun category(type: String): String = "category/$type"
     fun image(path: String): String = "image/${Uri.encode(path)}"
@@ -59,17 +64,38 @@ object Routes {
     fun pdf(path: String) = "pdf/${Uri.encode(path)}"
     fun epub(path: String) = "epub/${Uri.encode(path)}"
     fun archive(path: String) = "archive/${Uri.encode(path)}"
+    fun officeDocument(path: String) = "office_document/${Uri.encode(path)}"
 }
 
 @Composable
 fun AppNavigation(
-    onExit: () -> Unit = {}
+    onExit: () -> Unit = {},
+    receivedPath: String? = null,
+    onReceivedConsumed: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     // Partage du ViewModel pour garder l'état entre les écrans si besoin
     val sharedViewModel: MainViewModel = hiltViewModel()
     val remoteViewModel: RemoteViewModel = hiltViewModel()
 
+    androidx.compose.runtime.LaunchedEffect(receivedPath) {
+        receivedPath?.let { path ->
+            val file = java.io.File(path)
+            val route = when (file.extension.lowercase()) {
+                "pdf" -> Routes.pdf(path)
+                "epub" -> Routes.epub(path)
+                "jpg", "png", "webp", "gif" -> Routes.image(path)
+                "mp4" -> Routes.video(path)
+                "mp3" -> Routes.audio(path)
+                "zip", "rar", "7z" -> Routes.archive(path)
+                "docx", "xlsx", "pptx", "odt", "ods", "odp" -> Routes.officeDocument(path)
+                else -> if (file.isDirectory) Routes.FILES else Routes.text(path)
+            }
+            if (file.isDirectory) sharedViewModel.openFolder(path, resetNavigationRoot = true)
+            navController.navigate(route)
+            onReceivedConsumed()
+        }
+    }
     NavHost(
         navController = navController,
         startDestination = Routes.DASHBOARD
@@ -83,7 +109,7 @@ fun AppNavigation(
                 },
                 onNavigateToPath = { path ->
                     sharedViewModel.setActivePanel(1)
-                    sharedViewModel.openFolder(path)
+                    sharedViewModel.openFolder(path, resetNavigationRoot = true)
                     navController.navigate(Routes.FILES)
                 },
                 onNavigateToCategory = { type ->
@@ -151,6 +177,17 @@ fun AppNavigation(
             AboutScreen(
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onNavigateToLicenses = {
+                    navController.navigate(Routes.LICENSES)
+                }
+            )
+        }
+
+        composable(Routes.LICENSES) {
+            LicensesScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -182,13 +219,28 @@ fun AppNavigation(
                     navController.navigate(Routes.DASHBOARD) {
                         popUpTo(Routes.DASHBOARD) { inclusive = true }
                     }
-                }
+                },
+                onOpenText = { path -> navController.navigate("remote_text/${Uri.encode(path)}") },
+                onOpenPdf = { path -> navController.navigate(Routes.pdf(path)) },
+                onOpenOfficeDocument = { path -> navController.navigate(Routes.officeDocument(path)) },
+                onOpenVideo = { path -> navController.navigate(Routes.video(path)) },
+                onOpenAudio = { path -> navController.navigate(Routes.audio(path)) }
+            )
+        }
+
+        composable("remote_text/{path}", arguments = listOf(navArgument("path") { type = NavType.StringType })) { entry ->
+            val path = Uri.decode(entry.arguments?.getString("path").orEmpty())
+            TextEditorScreen(
+                filePath = path,
+                onNavigateBack = { navController.popBackStack() },
+                onSaveOverride = { text -> remoteViewModel.saveRemoteText(path, text) }
             )
         }
 
         composable(Routes.FILES) {
             MainScreen(
                 viewModel = sharedViewModel,
+                remoteViewModel = remoteViewModel,
                 onOpenSettings = {
                     navController.navigate(Routes.SETTINGS)
                 },
@@ -212,6 +264,7 @@ fun AppNavigation(
                 onOpenText = { path ->
                     navController.navigate(Routes.text(path))
                 },
+                onOpenOfficeDocument = { path -> navController.navigate(Routes.officeDocument(path)) },
                 onOpenTransfer = { path ->
                     navController.navigate(Routes.transfer(path))
                 },
@@ -227,6 +280,7 @@ fun AppNavigation(
         ) {
             MainScreen(
                 viewModel = sharedViewModel,
+                remoteViewModel = remoteViewModel,
                 onOpenSettings = {
                     navController.navigate(Routes.SETTINGS)
                 },
@@ -250,6 +304,7 @@ fun AppNavigation(
                 onOpenText = { path ->
                     navController.navigate(Routes.text(path))
                 },
+                onOpenOfficeDocument = { path -> navController.navigate(Routes.officeDocument(path)) },
                 onOpenTransfer = { path ->
                     navController.navigate(Routes.transfer(path))
                 },
@@ -294,7 +349,7 @@ fun AppNavigation(
             val path = Uri.decode(entry.arguments?.getString("path").orEmpty())
             TextEditorScreen(
                 filePath = path,
-                onSaved = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
@@ -327,5 +382,6 @@ fun AppNavigation(
         composable(Routes.PDF, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> PdfViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
         composable(Routes.EPUB, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> EpubViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
         composable(Routes.ARCHIVE, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> ArchivePreviewScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
+        composable(Routes.OFFICE_DOCUMENT, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> OfficeDocumentViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
     }
 }

@@ -15,13 +15,13 @@ object FileUtils {
             throw Exception("Le dossier n'existe pas : ${directory.absolutePath}")
         }
         if (!directory.isDirectory) {
-            return emptyList()
+            throw java.io.IOException("L'emplacement n'est pas un dossier : ${directory.absolutePath}")
         }
         val files = try {
             directory.listFiles()
         } catch (_: SecurityException) {
             null
-        } ?: return emptyList()
+        } ?: throw java.io.IOException("Lecture du dossier impossible : ${directory.absolutePath}")
 
         return files
             .asSequence()
@@ -106,6 +106,30 @@ object FileUtils {
                 if (mime.startsWith(mimeTypePrefix)) {
                     result += file.toFileItem()
                 }
+            }
+        }
+        return result
+    }
+
+    /** Files that belong in the user-facing Documents category.
+     * Deliberately excludes archives, APKs and generic binary MIME types (application).
+     */
+    fun listDocumentFiles(
+        directory: File,
+        showHidden: Boolean = false
+    ): List<FileItem> {
+        val documentExtensions = setOf(
+            "pdf", "epub", "txt", "md", "rtf", "csv", "tsv",
+            "doc", "docx", "odt", "ods", "xls", "xlsx",
+            "ppt", "pptx", "odp"
+        )
+        val result = mutableListOf<FileItem>()
+        directory.listFiles()?.forEach { file ->
+            if (!showHidden && file.isHidden) return@forEach
+            if (file.isDirectory) {
+                if (file.canRead()) result += listDocumentFiles(file, showHidden)
+            } else if (file.extension.lowercase() in documentExtensions) {
+                result += file.toFileItem()
             }
         }
         return result

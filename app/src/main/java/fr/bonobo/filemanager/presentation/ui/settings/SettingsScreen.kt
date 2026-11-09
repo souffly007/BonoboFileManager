@@ -19,6 +19,7 @@ import fr.bonobo.filemanager.presentation.components.IconTile
 import fr.bonobo.filemanager.presentation.components.ThumbnailPreset
 import fr.bonobo.filemanager.presentation.ui.theme.AppThemeMode
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +38,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel(), onNavigateBac
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            DiagnosticSettings()
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("Miniatures", style = MaterialTheme.typography.titleMedium)
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))) {
@@ -105,4 +107,43 @@ private fun SettingsToggle(title: String, description: String, checked: Boolean,
         }
         Switch(checked, onChange)
     }
+}
+
+@Composable
+private fun DiagnosticSettings() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val journal = fr.bonobo.filemanager.diagnostic.Diagnostic.journal
+    var enabled by remember { mutableStateOf(journal?.enabled == true) }
+    var confirm by remember { mutableStateOf(false) }
+    var status by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    val export = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        if (uri != null) scope.launch {
+            val success = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching { context.contentResolver.openOutputStream(uri)?.use {
+                    journal?.export(it) == true
+                } == true }.getOrDefault(false)
+            }
+            status = if (success) "Journal exporté" else "Échec de l’export"
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("Diagnostic technique", style = MaterialTheme.typography.titleMedium)
+        SettingsToggle("Activer le journal", "Local et privé, limité à 1 Mo. Désactivé à chaque démarrage. Aucun nom, URI ou contenu enregistré.", enabled) {
+            journal?.setEnabled(it); enabled = it
+        }
+        Button(onClick = { export.launch("bonobo-diagnostic.txt") }) { Text("Exporter le journal") }
+        OutlinedButton(onClick = { confirm = true }) { Text("Effacer le journal") }
+        if (status.isNotEmpty()) Text(status)
+    }
+    if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text("Effacer le journal ?") },
+        text = { Text("Cette action supprime les traces techniques locales.") },
+        confirmButton = { TextButton(onClick = {
+            confirm = false
+            scope.launch {
+                val success = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { journal?.clear() == true }
+                status = if (success) "Journal effacé" else "Échec de l’effacement"
+            }
+        }) { Text("Effacer") } }, dismissButton = { TextButton(onClick = { confirm = false }) { Text("Annuler") } })
 }

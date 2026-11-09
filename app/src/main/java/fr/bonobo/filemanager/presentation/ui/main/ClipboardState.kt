@@ -4,5 +4,6 @@ import fr.bonobo.filemanager.domain.model.FileItem
 
 data class ClipboardState(
     val file: FileItem,
-    val isMove: Boolean
+    val isMove: Boolean,
+    val files: List<FileItem> = listOf(file)
 )

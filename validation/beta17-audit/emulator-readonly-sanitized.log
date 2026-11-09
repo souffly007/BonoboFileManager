@@ -1,0 +1,10 @@
+INFO         | Android emulator version 37.2.12.0 (build_id 16428233) (CL:N/A)
+INFO         | Graphics backend: gfxstream
+INFO         | Feature 'Vulkan' (21) is overridden to 'disabled'
+INFO         | Feature 'GLDirectMem' (53) is overridden to 'disabled'
+INFO         | Feature 'GLDMA' (51) is overridden to 'disabled'
+WARNING: cannnot unmap ptr 0x7f69c2c01000 as it is in the protected range from 0x7f6922c00000 to 0x7f69c2e00000
+INFO         | GPU Vendor=[Google (Google Inc.)]
+INFO         | GPU Renderer=[Android Emulator OpenGL ES Translator (Google SwiftShader)]
+INFO         | GPU Version=[OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)]
+exit_code=139

@@ -13,5 +13,5 @@ data class RemoteConnection(
 
 enum class ConnectionType {
     /** Legacy value kept only so old saved configurations can be migrated safely. */
-    FTP, FTPS, SMB, SFTP, GOOGLE_DRIVE
+    FTP, FTPS, SMB, SFTP, WEBDAV, GOOGLE_DRIVE
 }

@@ -16,44 +16,158 @@ import fr.bonobo.filemanager.presentation.components.IconTile
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen(onNavigateBack: () -> Unit) {
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("À propos") }, navigationIcon = {
-            IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Retour") }
-        })
-    }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+fun AboutScreen(
+    onNavigateBack: () -> Unit,
+    onNavigateToLicenses: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("À propos") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = "Retour"
+                        )
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 IconTile(Icons.Outlined.FolderCopy, size = 56.dp)
+
                 Column(Modifier.weight(1f)) {
-                    Text("Bonobo Explorateur", style = MaterialTheme.typography.titleLarge)
-                    Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        "Bonobo Files Explorateur",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text(
+                        "Version ${BuildConfig.VERSION_NAME}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
-            Text("Vos fichiers, simplement.", style = MaterialTheme.typography.bodyLarge)
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    AboutDetail("Création", "Franck R.-F. · souffly007", "by DonkeyKong")
+
+            Text(
+                "Vos fichiers, simplement.",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                )
+            ) {
+                Column(
+                    Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    AboutDetail(
+                        "Création",
+                        "Franck R.-F. · Souffly",
+                        "souffly007"
+                    )
+
                     HorizontalDivider()
-                    AboutDetail("Logiciel libre", "GNU GPL v3 ou ultérieure", "SPDX : GPL-3.0-or-later")
+
+                    AboutDetail(
+                        "Licence",
+                        "Logiciel propriétaire",
+                        "Tous droits réservés"
+                    )
+
+                    HorizontalDivider()
+
+                    TextButton(
+                        onClick = onNavigateToLicenses,
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                "Composants tiers",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Text(
+                                "Licences des logiciels tiers",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            Text(
+                                "Consulter les licences et mentions légales",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
-            Text("Vous pouvez utiliser, étudier, modifier et redistribuer ce logiciel dans les conditions de sa licence. " +
-                "Le texte complet accompagne les sources dans le fichier LICENSE.",
-                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text("Copyright © 2025 Franck R.-F.", style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            Text(
+                "Bonobo Files Explorateur est un logiciel propriétaire. " +
+                        "Les composants open source et logiciels tiers intégrés à " +
+                        "l'application restent soumis à leurs licences respectives.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Text(
+                "souffly.app · contact@souffly.app",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                "Copyright © 2026 Franck R.-F. / Souffly\nTous droits réservés.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
 
 @Composable
-private fun AboutDetail(title: String, value: String, note: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        Text(value, style = MaterialTheme.typography.bodyMedium)
-        Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun AboutDetail(
+    title: String,
+    value: String,
+    note: String
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            value,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            note,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

@@ -10,8 +10,17 @@ data class MainUiState(
     val searchQuery: String = "",
     val storageInfo: StorageInfo? = null,
     val clipboard: ClipboardState? = null,
+    val operationNotice: String? = null,
+    val pendingRestore: FileItem? = null,
+    val pendingRestores: List<FileItem> = emptyList(),
+    val restoreBusy: Boolean = false,
+    val deletionBusy: Boolean = false,
+    val pendingArtifacts: List<fr.bonobo.filemanager.util.OperationArtifacts.Entry> = emptyList(),
+    val inactiveSelectedPaths: Set<String> = emptySet(),
+    val transferProgress: String? = null,
     val isLoading: Boolean = false,
     val error: String? = null,
+    val secondError: String? = null,
     
     // Nouvelles fonctionnalités
     val sortMode: SortMode = SortMode.NAME,
@@ -27,7 +36,10 @@ data class MainUiState(
     val secondFiles: List<FileItem> = emptyList(),
     val isSecondLoading: Boolean = false,
     val activePanel: Int = 1 // 1 or 2
-)
+) {
+    fun activate(panel: Int): MainUiState = if (panel == activePanel) this else copy(
+        activePanel = panel, selectedPaths = inactiveSelectedPaths, inactiveSelectedPaths = selectedPaths)
+}
 
 enum class SortMode {
     NAME, SIZE, DATE

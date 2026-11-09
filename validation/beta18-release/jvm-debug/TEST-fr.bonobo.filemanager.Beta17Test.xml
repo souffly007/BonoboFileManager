@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.Beta17Test" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-11T18:19:23" hostname="aurora" time="0.026">
+  <properties/>
+  <testcase name="legacyOriginAndInvalidPaths" classname="fr.bonobo.filemanager.Beta17Test" time="0.008"/>
+  <testcase name="batchContinuesAfterFailureAndReportsEachItem" classname="fr.bonobo.filemanager.Beta17Test" time="0.005"/>
+  <testcase name="cancellationStopsBeforeNextSource" classname="fr.bonobo.filemanager.Beta17Test" time="0.011"/>
+  <testcase name="restorationNeverOverwritesOrTargetsTrash" classname="fr.bonobo.filemanager.Beta17Test" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

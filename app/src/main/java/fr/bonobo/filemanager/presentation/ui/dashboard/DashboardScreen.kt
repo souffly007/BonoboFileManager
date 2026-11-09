@@ -67,6 +67,8 @@ fun DashboardScreen(
     onOpenSettings: () -> Unit,
     onExit: () -> Unit = {}
 ) {
+    var showUsbPicker by remember { mutableStateOf(false) }
+    if (showUsbPicker) fr.bonobo.filemanager.presentation.components.UsbStoragePicker(onOpen = onNavigateToPath, onDismiss = { showUsbPicker = false })
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val rootAccess by settingsViewModel.rootAccess.collectAsStateWithLifecycle()
     val bookmarks by viewModel.bookmarks.collectAsStateWithLifecycle()
@@ -122,7 +124,9 @@ fun DashboardScreen(
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
+            val context = androidx.compose.ui.platform.LocalContext.current
             val categories = mutableListOf(
+                CategoryItem("Stockage USB / OTG", Icons.Outlined.Usb, CategoryFolder),
                 CategoryItem("Explorateur", Icons.Outlined.Folder, CategoryFolder),
                 CategoryItem("Favoris", Icons.Outlined.Favorite, Color(0xFFE53935)),
                 CategoryItem("Téléchargements", Icons.Outlined.Download, CategoryDownload),
@@ -137,13 +141,28 @@ fun DashboardScreen(
                 CategoryItem("Applications", Icons.Outlined.Apps, CategoryDocs)
             )
 
+            // Stockages amovibles : expose la carte SD comme une destination de premier niveau.
+            val sdRoots = remember {
+                context.getExternalFilesDirs(null).mapNotNull { dir ->
+                    if (dir == null || android.os.Environment.isExternalStorageEmulated(dir)) null
+                    else {
+                        val marker = "/Android/data/${context.packageName}/files"
+                        val root = dir.absolutePath.substringBefore(marker)
+                        java.io.File(root).takeIf { it.exists() && it.canRead() }?.absolutePath
+                    }
+                }.distinct()
+            }
+            sdRoots.forEachIndexed { index, path ->
+                categories.add(CategoryItem(if (sdRoots.size == 1) "Stockage amovible" else "Stockage amovible ${index + 1}", Icons.Outlined.SdStorage, CategoryFolder, path))
+            }
+
             if (rootAccess) {
                 categories.add(CategoryItem("Système Root", Icons.Outlined.Lock, CategoryLargeFiles))
             }
 
-            // Ajouter les marque-pages
+            // Raccourcis ajoutés à l’accueil
             bookmarks.forEach { bookmark ->
-                categories.add(CategoryItem(bookmark.name, Icons.Outlined.Bookmark, Color(0xFFFFEB3B)))
+                categories.add(CategoryItem(bookmark.name, Icons.Outlined.Bookmark, Color(0xFFFFEB3B), bookmark.path))
             }
 
             LazyVerticalGrid(
@@ -155,8 +174,6 @@ fun DashboardScreen(
                 items(categories) { category ->
                     var showDeleteBookmark by remember { mutableStateOf(false) }
                     var showShortcutMenu by remember { mutableStateOf(false) }
-                    val context = androidx.compose.ui.platform.LocalContext.current
-                    
                     Box {
                         if (showShortcutMenu) {
                             DropdownMenu(
@@ -164,7 +181,7 @@ fun DashboardScreen(
                                 onDismissRequest = { showShortcutMenu = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Créer un raccourci bureau") },
+                                    text = { Text("Ajouter à l’accueil") },
                                     onClick = {
                                         showShortcutMenu = false
                                         fr.bonobo.filemanager.util.ShortcutUtils.createCategoryShortcut(
@@ -181,11 +198,10 @@ fun DashboardScreen(
                             AlertDialog(
                                 onDismissRequest = { showDeleteBookmark = false },
                                 title = { Text("Supprimer le raccourci") },
-                                text = { Text("Voulez-vous supprimer le marque-page « ${category.title} » ?") },
+                                text = { Text("Voulez-vous retirer « ${category.title} » de l’accueil ?") },
                                 confirmButton = {
                                     Button(onClick = { 
-                                        val b = bookmarks.find { it.name == category.title }
-                                        if (b != null) viewModel.removeBookmark(b.path)
+                                        category.bookmarkPath?.let(viewModel::removeBookmark)
                                         showDeleteBookmark = false 
                                     }) {
                                         Text("Supprimer")
@@ -202,7 +218,11 @@ fun DashboardScreen(
                         CategoryCard(
                             category = category,
                             onClick = {
-                                when (category.title) {
+                                val downloadsPath = HomeFolderShortcut.downloadsPath(category.title, category.bookmarkPath,
+                                    android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).absolutePath)
+                                if (downloadsPath != null) onNavigateToPath(downloadsPath)
+                                else when (category.title) {
+                                    "Stockage USB / OTG" -> { showUsbPicker = true }
                                     "Explorateur" -> onNavigateToExplorer()
                                     "Favoris" -> onNavigateToCategory("Favoris")
                                     "Réseau" -> onNavigateToNetwork()
@@ -213,10 +233,23 @@ fun DashboardScreen(
                                         onNavigateToPath("/")
                                     }
                                     else -> {
-                                        // Vérifier si c'est un marque-page
-                                        val bookmark = bookmarks.find { it.name == category.title }
-                                        if (bookmark != null) {
-                                            onNavigateToPath(bookmark.path)
+                                        // Un marque-page transporte son chemin : ne jamais le retrouver par son nom.
+                                        // Cela évite les collisions avec une catégorie ou deux dossiers portant le même nom.
+                                        val bookmarkPath = category.bookmarkPath
+                                        if (bookmarkPath != null) {
+                                            val target = java.io.File(bookmarkPath)
+                                            if (fr.bonobo.filemanager.util.SafFiles.isSaf(bookmarkPath) || (target.exists() && target.isDirectory && target.canRead())) {
+                                                onNavigateToPath(bookmarkPath)
+                                            } else {
+                                                // Raccourci devenu invalide (dossier déplacé/supprimé ou stockage absent).
+                                                // On le retire au lieu d'ouvrir un écran bloqué.
+                                                viewModel.removeBookmark(bookmarkPath)
+                                                android.widget.Toast.makeText(
+                                                    context,
+                                                    "Ce raccourci n’est plus accessible et a été retiré.",
+                                                    android.widget.Toast.LENGTH_LONG
+                                                ).show()
+                                            }
                                         } else {
                                             onNavigateToCategory(category.title)
                                         }
@@ -224,7 +257,7 @@ fun DashboardScreen(
                                 }
                             },
                             onLongClick = {
-                                if (bookmarks.any { it.name == category.title }) {
+                                if (category.bookmarkPath != null) {
                                     showDeleteBookmark = true
                                 } else {
                                     showShortcutMenu = true
@@ -241,7 +274,8 @@ fun DashboardScreen(
 data class CategoryItem(
     val title: String,
     val icon: ImageVector,
-    val color: Color
+    val color: Color,
+    val bookmarkPath: String? = null
 )
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)

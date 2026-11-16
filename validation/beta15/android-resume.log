@@ -1,0 +1,201 @@
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.AdaptiveExplorerTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stream=
+fr.bonobo.filemanager.AdaptiveExplorerTest:
+INSTRUMENTATION_STATUS: test=foldersSelectionAndClipboardSurviveRotationAndRecreation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.AdaptiveExplorerTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: No compose hierarchies found in the app. Possible reasons include: (1) the Activity that calls setContent did not launch; (2) setContent was not called; (3) setContent was called before the ComposeTestRule ran. If setContent is called by the Activity, make sure the Activity is launched after the ComposeTestRule runs
+	at androidx.compose.ui.test.TestContext.getAllSemanticsNodes$ui_test_release(TestOwner.kt:87)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNodes$ui_test_release(SemanticsNodeInteraction.kt:63)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:157)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performSemanticsAction(Actions.kt:587)
+	at fr.bonobo.filemanager.AdaptiveExplorerTest.foldersSelectionAndClipboardSurviveRotationAndRecreation(AdaptiveExplorerTest.kt:19)
+
+INSTRUMENTATION_STATUS: stream=
+Error in foldersSelectionAndClipboardSurviveRotationAndRecreation(fr.bonobo.filemanager.AdaptiveExplorerTest):
+java.lang.IllegalStateException: No compose hierarchies found in the app. Possible reasons include: (1) the Activity that calls setContent did not launch; (2) setContent was not called; (3) setContent was called before the ComposeTestRule ran. If setContent is called by the Activity, make sure the Activity is launched after the ComposeTestRule runs
+	at androidx.compose.ui.test.TestContext.getAllSemanticsNodes$ui_test_release(TestOwner.kt:87)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNodes$ui_test_release(SemanticsNodeInteraction.kt:63)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:157)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performSemanticsAction(Actions.kt:587)
+	at fr.bonobo.filemanager.AdaptiveExplorerTest.foldersSelectionAndClipboardSurviveRotationAndRecreation(AdaptiveExplorerTest.kt:19)
+
+INSTRUMENTATION_STATUS: test=foldersSelectionAndClipboardSurviveRotationAndRecreation
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.ExampleInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stream=
+fr.bonobo.filemanager.ExampleInstrumentedTest:
+INSTRUMENTATION_STATUS: test=useAppContext
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.ExampleInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=useAppContext
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stream=
+fr.bonobo.filemanager.saf.SafIntegrationTest:
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stack=java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:66)
+
+INSTRUMENTATION_STATUS: stream=
+Error in contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:66)
+
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stack=java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:18)
+
+INSTRUMENTATION_STATUS: stream=
+Error in usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:18)
+
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stack=java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:55)
+
+INSTRUMENTATION_STATUS: stream=
+Error in interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:55)
+
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=6
+INSTRUMENTATION_STATUS: stack=java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:46)
+
+INSTRUMENTATION_STATUS: stream=
+Error in readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:46)
+
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 71.705
+There were 5 failures:
+1) foldersSelectionAndClipboardSurviveRotationAndRecreation(fr.bonobo.filemanager.AdaptiveExplorerTest)
+java.lang.IllegalStateException: No compose hierarchies found in the app. Possible reasons include: (1) the Activity that calls setContent did not launch; (2) setContent was not called; (3) setContent was called before the ComposeTestRule ran. If setContent is called by the Activity, make sure the Activity is launched after the ComposeTestRule runs
+	at androidx.compose.ui.test.TestContext.getAllSemanticsNodes$ui_test_release(TestOwner.kt:87)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNodes$ui_test_release(SemanticsNodeInteraction.kt:63)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:157)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performSemanticsAction(Actions.kt:587)
+	at fr.bonobo.filemanager.AdaptiveExplorerTest.foldersSelectionAndClipboardSurviveRotationAndRecreation(AdaptiveExplorerTest.kt:19)
+2) contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:66)
+3) usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:18)
+4) interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:55)
+5) readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.io.IOException: Support déconnecté
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:46)
+
+FAILURES!!!
+Tests run: 6,  Failures: 5
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.UseCaseTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-11T15:53:02" hostname="aurora" time="3.169">
+  <properties/>
+  <testcase name="delete use case delegates to repository" classname="fr.bonobo.filemanager.UseCaseTest" time="3.169"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

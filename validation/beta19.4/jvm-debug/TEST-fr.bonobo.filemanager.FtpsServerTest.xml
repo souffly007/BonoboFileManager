@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.FtpsServerTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-23T16:17:02" hostname="aurora" time="3.805">
+  <properties/>
+  <testcase name="missingPermissionExplains421AndConfiguredUserCanLogin" classname="fr.bonobo.filemanager.FtpsServerTest" time="2.207"/>
+  <testcase name="clearLoginIsRejected" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.013"/>
+  <testcase name="seedboxDownloadPathUsesBinaryTlsAndChecksCompletion" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.313"/>
+  <testcase name="downgradeIsRejectedAndReconnectWorks" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.196"/>
+  <testcase name="encryptedUploadListingAndDownload" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.347"/>
+  <testcase name="missingRemoteFileIsNotAnEmptySuccessfulDownload" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.118"/>
+  <testcase name="badPasswordIsRejectedOverTls" classname="fr.bonobo.filemanager.FtpsServerTest" time="0.611"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+]]></system-err>
+</testsuite>

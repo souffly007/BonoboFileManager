@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Classe 8 = stockage de masse (clés USB, disques) -->
+    <!--suppress AndroidElementNotAllowed -->
+    <usb-device class="8" />
+</resources>

@@ -1,0 +1,251 @@
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+fr.bonobo.filemanager.saf.SafIntegrationTest:
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: Document 86c790a3-cdda-41d7-a5ed-73950b4e8226 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:81)
+
+INSTRUMENTATION_STATUS: stream=
+Error in contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: Document 86c790a3-cdda-41d7-a5ed-73950b4e8226 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:81)
+
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: Document 21e388b8-9ec5-4686-ac0b-54a339952894 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.delete(SafFiles.kt:58)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:55)
+
+INSTRUMENTATION_STATUS: stream=
+Error in usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: Document 21e388b8-9ec5-4686-ac0b-54a339952894 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.delete(SafFiles.kt:58)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:55)
+
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: Document 99696ef0-3ecb-4e79-a063-08d97c3ec8c4 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:70)
+
+INSTRUMENTATION_STATUS: stream=
+Error in interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: Document 99696ef0-3ecb-4e79-a063-08d97c3ec8c4 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:70)
+
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: Document 121b0e07-1f28-4234-aa3e-075721dfde39 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.delete(SafFiles.kt:58)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:66)
+
+INSTRUMENTATION_STATUS: stream=
+Error in readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: Document 121b0e07-1f28-4234-aa3e-075721dfde39 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.delete(SafFiles.kt:58)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:66)
+
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.636
+There were 4 failures:
+1) contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: Document 86c790a3-cdda-41d7-a5ed-73950b4e8226 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:81)
+2) usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: Document 21e388b8-9ec5-4686-ac0b-54a339952894 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.delete(SafFiles.kt:58)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:55)
+3) interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: Document 99696ef0-3ecb-4e79-a063-08d97c3ec8c4 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:70)
+4) readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: Document 121b0e07-1f28-4234-aa3e-075721dfde39 is not a descendant of root
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:203)
+	at android.database.DatabaseUtils.readExceptionFromParcel(DatabaseUtils.java:155)
+	at android.content.ContentProviderProxy.query(ContentProviderNative.java:495)
+	at android.content.ContentResolver.query(ContentResolver.java:1229)
+	at android.content.ContentResolver.query(ContentResolver.java:1161)
+	at android.content.ContentResolver.query(ContentResolver.java:1117)
+	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:45)
+	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+	at fr.bonobo.filemanager.util.SafFiles.delete(SafFiles.kt:58)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:66)
+
+FAILURES!!!
+Tests run: 4,  Failures: 4
+
+
+INSTRUMENTATION_CODE: -1

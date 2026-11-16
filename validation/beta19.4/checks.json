@@ -1,0 +1,31 @@
+{
+  "apk": "app/release/bonobo-files-explorateur-1.3.0-beta19.4-unsigned.apk",
+  "size": 25150070,
+  "sha256": "5330f197f6ed875f7fbc7fe182482f96a8029bdaf0b3204094d74d0a6cb5fcc6",
+  "jar_signatures": [],
+  "apk_signing_block": false,
+  "source_identical": true,
+  "jvm_debug": {
+    "tests": 131,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint_debug": {
+    "Error": 0,
+    "Warning": 88,
+    "Fatal": 0
+  },
+  "jvm_release": {
+    "tests": 131,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint_release": {
+    "Error": 0,
+    "Warning": 86,
+    "Fatal": 0
+  },
+  "apksigner_exit_code": 1
+}

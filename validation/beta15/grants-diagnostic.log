@@ -1,0 +1,597 @@
+--------- beginning of main
+10-10 13:33:24.940  4374  4374 W anager.adaptive: ClassLoaderContext shared library size mismatch. Expected=2, found=3 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.apk*3768650092:/data/app/~~pf9yL9h1rNBEUtPMe3DlIw==/fr.bonobo.filemanager.adaptive-cjpLz__ix3VTiJGt-kSrgA==/base.apk*2036490934])
+10-10 13:33:24.941  4374  4374 W anager.adaptive: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.apk*3768650092:/data/app/~~pf9yL9h1rNBEUtPMe3DlIw==/fr.bonobo.filemanager.adaptive-cjpLz__ix3VTiJGt-kSrgA==/base.apk*2036490934])
+10-10 13:33:24.942  4374  4374 W anager.adaptive: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.apk*3768650092:/data/app/~~pf9yL9h1rNBEUtPMe3DlIw==/fr.bonobo.filemanager.adaptive-cjpLz__ix3VTiJGt-kSrgA==/base.apk*2036490934])
+10-10 13:33:24.942  4374  4374 W ziparchive: Unable to open '/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.dm': No such file or directory
+10-10 13:33:24.942  4374  4374 W ziparchive: Unable to open '/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.dm': No such file or directory
+10-10 13:33:24.960  4374  4374 W ziparchive: Unable to open '/data/app/~~pf9yL9h1rNBEUtPMe3DlIw==/fr.bonobo.filemanager.adaptive-cjpLz__ix3VTiJGt-kSrgA==/base.dm': No such file or directory
+10-10 13:33:24.960  4374  4374 W ziparchive: Unable to open '/data/app/~~pf9yL9h1rNBEUtPMe3DlIw==/fr.bonobo.filemanager.adaptive-cjpLz__ix3VTiJGt-kSrgA==/base.dm': No such file or directory
+--------- beginning of system
+10-10 13:33:25.832   593  3301 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+10-10 13:33:25.832   593  3301 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+10-10 13:33:25.832   593  3301 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+10-10 13:33:25.834   593  3301 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+10-10 13:33:25.834   593  3301 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+10-10 13:33:25.842  1120  1120 W SplitSelectStateCtor: Missing session instanceIds
+10-10 13:33:25.940  4426  4426 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:33:25.940  4426  4426 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:33:25.980   593  3301 W ActivityTaskManager: takeTaskSnapshot: taskId=19 not found or not visible
+10-10 13:33:25.996  1485  1485 E A       : onError
+10-10 13:33:25.996  1485  1485 E A       : com.google.android.apps.gsa.shared.speech.b.l: errorCode: 65561, engine: 2
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.staticplugins.bp.a.f.a(PG:23)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.s3.o.hi(PG:13)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.ci.g.a.f.e(PG:9)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.speech.k.a.g.d(PG:162)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.speech.k.a.g.iO(PG:26)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.s3.p.c(PG:102)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.s3.q.run(PG:1)
+10-10 13:33:25.996  1485  1485 E A       : 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)
+10-10 13:33:25.996  1485  1485 E A       : 	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.shared.util.c.a.e.run(PG:12)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.shared.util.c.a.bg.run(PG:3)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.shared.util.c.a.bg.run(PG:3)
+10-10 13:33:25.996  1485  1485 E A       : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+10-10 13:33:25.996  1485  1485 E A       : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-10 13:33:25.996  1485  1485 E A       : 	at java.lang.Thread.run(Thread.java:1012)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.shared.util.c.a.l.run(PG:42)
+10-10 13:33:25.996  1485  1485 E A       : Caused by: com.google.android.apps.gsa.shared.speech.b.n: errorCode: 65586, engine: 2
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.s3.o.hi(PG:6)
+10-10 13:33:25.996  1485  1485 E A       : 	... 14 more
+10-10 13:33:25.996  1485  1485 E A       : Caused by: com.google.android.apps.gsa.shared.speech.b.j: errorCode: 401, engine: 2
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.assistant.shared.n.i.b(PG:30)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.s3.producers.j.hs(PG:11)
+10-10 13:33:25.996  1485  1485 E A       : 	at com.google.android.apps.gsa.speech.k.a.g.d(PG:135)
+10-10 13:33:25.996  1485  1485 E A       : 	... 12 more
+10-10 13:33:26.000  1485  1485 W A       : Failed to sync device settings.
+10-10 13:33:26.001  1485  1485 W JobInfo : Job 'com.google.android.googlequicksearchbox/com.google.android.apps.gsa.tasks.BackgroundTasksJobService#-353' has a deadline with functional constraints and an extremely short time window of 0 ms (delay=240000, deadline=240000). The functional constraints are not likely to be satisfied when the job runs.
+10-10 13:33:26.004   593   979 W JobInfo : Job 'com.google.android.googlequicksearchbox/com.google.android.apps.gsa.tasks.BackgroundTasksJobService#-353' has a deadline with functional constraints and an extremely short time window of 0 ms (delay=240000, deadline=240000). The functional constraints are not likely to be satisfied when the job runs.
+10-10 13:33:26.004   593   979 W JobInfo : Job 'com.google.android.googlequicksearchbox/com.google.android.apps.gsa.tasks.BackgroundTasksJobService#-353' has a deadline with functional constraints and an extremely short time window of 0 ms (delay=240000, deadline=240000). The functional constraints are not likely to be satisfied when the job runs.
+10-10 13:33:26.015  4426  4426 W ziparchive: Unable to open '/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.dm': No such file or directory
+10-10 13:33:26.016  4426  4426 W ziparchive: Unable to open '/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.dm': No such file or directory
+10-10 13:33:26.021   593   979 W JobScheduler: Job didn't exist in JobStore: 1132826 #u0a144/-353 com.google.android.googlequicksearchbox/com.google.android.apps.gsa.tasks.BackgroundTasksJobService
+10-10 13:33:26.085   593   979 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ENABLE_FAKE_FOCUS
+--------- beginning of crash
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4426
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: java.lang.NoClassDefFoundError: Failed resolution of: Lkotlin/collections/CollectionsKt;
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at fr.bonobo.filemanager.saf.TestGrantActivity.onCreate(TestGrantActivity.kt:12)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:9002)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:8980)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1526)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4030)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4235)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:112)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:174)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:109)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:81)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2636)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "kotlin.collections.CollectionsKt" on path: DexPathList[[zip file "/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.apk"],nativeLibraryDirectories=[/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/lib/x86_64, /system/lib64, /system_ext/lib64]]
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+10-10 13:33:26.105  4426  4426 E AndroidRuntime: 	... 18 more
+10-10 13:33:26.107   593   687 W ActivityTaskManager:   Force finishing activity fr.bonobo.filemanager.adaptive.test/fr.bonobo.filemanager.saf.TestGrantActivity
+10-10 13:33:26.147   593  3301 W UserManagerService: Requested status bar icon for non-badged user 0
+10-10 13:33:26.147   593   687 W UserManagerService: Requested status bar icon for non-badged user 0
+10-10 13:33:26.175   593  1404 W AppSearchIcing: icing-search-engine.cc:321: Error: 5, Message: Document (com.google.android.googlequicksearchbox$OneSearchZeroStateGoogleSuggestions/default, zp) not found.
+10-10 13:33:26.300  1485  1728 W A       : CompleteServer request has failed and can't show offline suggestions.
+10-10 13:33:26.300  1485  1728 W A       : java.util.NoSuchElementException: Expected at least one element
+10-10 13:33:26.300  1485  1728 W A       : 	at kotlinx.coroutines.b.cs.a(PG:104)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.af.jd(PG:29)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.af.a(PG:13)
+10-10 13:33:26.300  1485  1728 W A       : 	at kotlinx.coroutines.e.b.a(PG:14)
+10-10 13:33:26.300  1485  1728 W A       : 	at kotlinx.coroutines.m.a(PG:54)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ak.jd(PG:190)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ak.a(PG:13)
+10-10 13:33:26.300  1485  1728 W A       : 	at kotlinx.coroutines.e.b.a(PG:14)
+10-10 13:33:26.300  1485  1728 W A       : 	at kotlinx.coroutines.m.a(PG:54)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ah.jd(PG:26)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ah.a(PG:13)
+10-10 13:33:26.300  1485  1728 W A       : 	at kotlinx.coroutines.dw.c(PG:42)
+10-10 13:33:26.300  1485  1728 W A       : 	at kotlinx.coroutines.dw.a(PG:12)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.aj.jd(PG:99)
+10-10 13:33:26.300  1485  1728 W A       : 	at n.c.b.a.a.q(PG:12)
+10-10 13:33:26.300  1485  1728 W A       : 	at kotlinx.coroutines.bh.run(PG:112)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.apps.tiktok.f.y.run(PG:3)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.apps.tiktok.tracing.fl.run(PG:24)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.k.x.run(PG:3)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.common.n.c.c.run(PG:50)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.k.e.run(PG:8)
+10-10 13:33:26.300  1485  1728 W A       : 	at java.lang.Thread.run(Thread.java:1012)
+10-10 13:33:26.300  1485  1728 W A       : 	at com.google.android.libraries.k.d.b.run(PG:74)
+10-10 13:33:26.306  1485  1728 W A       : #getSuggestions failed
+10-10 13:33:26.306  1485  1728 W A       : java.util.NoSuchElementException: Expected at least one element
+10-10 13:33:26.306  1485  1728 W A       : 	at kotlinx.coroutines.b.cs.a(PG:104)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.af.jd(PG:29)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.af.a(PG:13)
+10-10 13:33:26.306  1485  1728 W A       : 	at kotlinx.coroutines.e.b.a(PG:14)
+10-10 13:33:26.306  1485  1728 W A       : 	at kotlinx.coroutines.m.a(PG:54)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ak.jd(PG:190)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ak.a(PG:13)
+10-10 13:33:26.306  1485  1728 W A       : 	at kotlinx.coroutines.e.b.a(PG:14)
+10-10 13:33:26.306  1485  1728 W A       : 	at kotlinx.coroutines.m.a(PG:54)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ah.jd(PG:26)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ah.a(PG:13)
+10-10 13:33:26.306  1485  1728 W A       : 	at kotlinx.coroutines.dw.c(PG:42)
+10-10 13:33:26.306  1485  1728 W A       : 	at kotlinx.coroutines.dw.a(PG:12)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.aj.jd(PG:99)
+10-10 13:33:26.306  1485  1728 W A       : 	at n.c.b.a.a.q(PG:12)
+10-10 13:33:26.306  1485  1728 W A       : 	at kotlinx.coroutines.bh.run(PG:112)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.apps.tiktok.f.y.run(PG:3)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.apps.tiktok.tracing.fl.run(PG:24)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.k.x.run(PG:3)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.common.n.c.c.run(PG:50)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.k.e.run(PG:8)
+10-10 13:33:26.306  1485  1728 W A       : 	at java.lang.Thread.run(Thread.java:1012)
+10-10 13:33:26.306  1485  1728 W A       : 	at com.google.android.libraries.k.d.b.run(PG:74)
+10-10 13:33:26.310   593   682 W PackageConfigPersister: App-specific configuration not found for packageName: com.google.android.apps.nexuslauncher and userId: 0
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: Unable to get suggestions from AGA
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: io.grpc.StatusRuntimeException: UNKNOWN
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: 	at k3.e.a(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:77)
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: 	at i3.l.b(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:43)
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: 	at i3.l.a(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:27)
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: 	at i3.z.run(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:7)
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: 	at i3.m2.run(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:19)
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-10 13:33:26.316  1120  4444 E OneSearchSuggestProvider: 	at java.lang.Thread.run(Thread.java:1012)
+10-10 13:33:26.608   593   622 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{b84706d u0 fr.bonobo.filemanager.adaptive.test/fr.bonobo.filemanager.saf.TestGrantActivity t-1 f}}
+10-10 13:33:29.339   593  1448 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+10-10 13:33:29.620  1485  3096 W A       : (REDACTED) [%s] response code: %d
+10-10 13:33:30.858  4374  4424 E TestRunner: failed: contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest)
+10-10 13:33:30.859  4374  4424 E TestRunner: ----- begin exception -----
+10-10 13:33:30.859  4374  4424 E TestRunner: java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:80)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+10-10 13:33:30.859  4374  4424 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+10-10 13:33:30.862  4374  4424 E TestRunner: ----- end exception -----
+10-10 13:33:30.869   593   979 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+10-10 13:33:30.869   593   979 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+10-10 13:33:30.869   593   979 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+10-10 13:33:30.870   593   979 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+10-10 13:33:30.870   593   979 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+10-10 13:33:30.877  1120  1120 W SplitSelectStateCtor: Missing session instanceIds
+10-10 13:33:30.931  4445  4445 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:33:30.931  4445  4445 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:33:30.985  4445  4445 W ziparchive: Unable to open '/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.dm': No such file or directory
+10-10 13:33:30.985  4445  4445 W ziparchive: Unable to open '/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.dm': No such file or directory
+10-10 13:33:30.995   593   682 W ActivityTaskManager: takeTaskSnapshot: taskId=20 not found or not visible
+10-10 13:33:31.059   593   682 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ENABLE_FAKE_FOCUS
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4445
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: java.lang.NoClassDefFoundError: Failed resolution of: Lkotlin/collections/CollectionsKt;
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at fr.bonobo.filemanager.saf.TestGrantActivity.onCreate(TestGrantActivity.kt:12)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:9002)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:8980)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1526)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4030)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4235)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:112)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:174)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:109)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:81)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2636)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "kotlin.collections.CollectionsKt" on path: DexPathList[[zip file "/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/base.apk"],nativeLibraryDirectories=[/data/app/~~uvNMNBJJiNB6l8x15g6Tow==/fr.bonobo.filemanager.adaptive.test-6bct-7ajafwDbRykQ-_pKQ==/lib/x86_64, /system/lib64, /system_ext/lib64]]
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+10-10 13:33:31.076  4445  4445 E AndroidRuntime: 	... 18 more
+10-10 13:33:31.079   593   682 W ActivityTaskManager:   Force finishing activity fr.bonobo.filemanager.adaptive.test/fr.bonobo.filemanager.saf.TestGrantActivity
+10-10 13:33:31.420   593   620 W Looper  : Slow dispatch took 339ms android.ui h=com.android.server.am.ActivityManagerService$UiHandler c=com.android.server.am.ErrorDialogController$$ExternalSyntheticLambda5@458a999 m=0
+10-10 13:33:31.449   593  3454 W HWUI    : Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+10-10 13:33:31.449   593  3454 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+10-10 13:33:31.579   593   622 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{d39bc02 u0 fr.bonobo.filemanager.adaptive.test/fr.bonobo.filemanager.saf.TestGrantActivity t20 f}}
+10-10 13:33:31.579   593   622 W ActivityTaskManager: Activity pause timeout for ActivityRecord{d39bc02 u0 fr.bonobo.filemanager.adaptive.test/fr.bonobo.filemanager.saf.TestGrantActivity t20 f}}
+10-10 13:33:31.591   593  1404 W AppSearchIcing: icing-search-engine.cc:321: Error: 5, Message: Document (com.google.android.googlequicksearchbox$OneSearchZeroStateGoogleSuggestions/default, zp) not found.
+10-10 13:33:31.598   593   620 W Looper  : Slow dispatch took 163ms android.ui h=android.view.Choreographer$FrameHandler c=android.view.Choreographer$FrameDisplayEventReceiver@5420350 m=0
+10-10 13:33:31.620   593  1793 W UserManagerService: Requested status bar icon for non-badged user 0
+10-10 13:33:31.625   593  3301 W UserManagerService: Requested status bar icon for non-badged user 0
+10-10 13:33:31.629  1485  1728 W A       : CompleteServer request has failed and can't show offline suggestions.
+10-10 13:33:31.629  1485  1728 W A       : java.util.NoSuchElementException: Expected at least one element
+10-10 13:33:31.629  1485  1728 W A       : 	at kotlinx.coroutines.b.cs.a(PG:104)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.af.jd(PG:29)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.af.a(PG:13)
+10-10 13:33:31.629  1485  1728 W A       : 	at kotlinx.coroutines.e.b.a(PG:14)
+10-10 13:33:31.629  1485  1728 W A       : 	at kotlinx.coroutines.m.a(PG:54)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ak.jd(PG:190)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ak.a(PG:13)
+10-10 13:33:31.629  1485  1728 W A       : 	at kotlinx.coroutines.e.b.a(PG:14)
+10-10 13:33:31.629  1485  1728 W A       : 	at kotlinx.coroutines.m.a(PG:54)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ah.jd(PG:26)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ah.a(PG:13)
+10-10 13:33:31.629  1485  1728 W A       : 	at kotlinx.coroutines.dw.c(PG:42)
+10-10 13:33:31.629  1485  1728 W A       : 	at kotlinx.coroutines.dw.a(PG:12)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.aj.jd(PG:99)
+10-10 13:33:31.629  1485  1728 W A       : 	at n.c.b.a.a.q(PG:12)
+10-10 13:33:31.629  1485  1728 W A       : 	at kotlinx.coroutines.bh.run(PG:112)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.apps.tiktok.f.y.run(PG:3)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.apps.tiktok.tracing.fl.run(PG:24)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.k.x.run(PG:3)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.common.n.c.c.run(PG:50)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.k.e.run(PG:8)
+10-10 13:33:31.629  1485  1728 W A       : 	at java.lang.Thread.run(Thread.java:1012)
+10-10 13:33:31.629  1485  1728 W A       : 	at com.google.android.libraries.k.d.b.run(PG:74)
+10-10 13:33:31.634  1485  1728 W A       : #getSuggestions failed
+10-10 13:33:31.634  1485  1728 W A       : java.util.NoSuchElementException: Expected at least one element
+10-10 13:33:31.634  1485  1728 W A       : 	at kotlinx.coroutines.b.cs.a(PG:104)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.af.jd(PG:29)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.af.a(PG:13)
+10-10 13:33:31.634  1485  1728 W A       : 	at kotlinx.coroutines.e.b.a(PG:14)
+10-10 13:33:31.634  1485  1728 W A       : 	at kotlinx.coroutines.m.a(PG:54)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ak.jd(PG:190)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ak.a(PG:13)
+10-10 13:33:31.634  1485  1728 W A       : 	at kotlinx.coroutines.e.b.a(PG:14)
+10-10 13:33:31.634  1485  1728 W A       : 	at kotlinx.coroutines.m.a(PG:54)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ah.jd(PG:26)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.ah.a(PG:13)
+10-10 13:33:31.634  1485  1728 W A       : 	at kotlinx.coroutines.dw.c(PG:42)
+10-10 13:33:31.634  1485  1728 W A       : 	at kotlinx.coroutines.dw.a(PG:12)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.search.ab.b.e.aj.jd(PG:99)
+10-10 13:33:31.634  1485  1728 W A       : 	at n.c.b.a.a.q(PG:12)
+10-10 13:33:31.634  1485  1728 W A       : 	at kotlinx.coroutines.bh.run(PG:112)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.apps.tiktok.f.y.run(PG:3)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.apps.tiktok.tracing.fl.run(PG:24)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.k.x.run(PG:3)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.common.n.c.c.run(PG:50)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.k.e.run(PG:8)
+10-10 13:33:31.634  1485  1728 W A       : 	at java.lang.Thread.run(Thread.java:1012)
+10-10 13:33:31.634  1485  1728 W A       : 	at com.google.android.libraries.k.d.b.run(PG:74)
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: Unable to get suggestions from AGA
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: io.grpc.StatusRuntimeException: UNKNOWN
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: 	at k3.e.a(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:77)
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: 	at i3.l.b(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:43)
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: 	at i3.l.a(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:27)
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: 	at i3.z.run(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:7)
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: 	at i3.m2.run(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:19)
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-10 13:33:31.644  1120  4444 E OneSearchSuggestProvider: 	at java.lang.Thread.run(Thread.java:1012)
+10-10 13:33:31.816   593   620 W Looper  : Slow dispatch took 142ms android.ui h=android.view.Choreographer$FrameHandler c=android.view.Choreographer$FrameDisplayEventReceiver@5420350 m=0
+10-10 13:33:31.816   593  3301 W ActivityTaskManager: takeTaskSnapshot: taskId=20 not found or not visible
+10-10 13:33:31.994   593   620 W Looper  : Slow dispatch took 100ms android.ui h=android.view.Choreographer$FrameHandler c=android.view.Choreographer$FrameDisplayEventReceiver@5420350 m=0
+10-10 13:33:33.932   593  1448 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+--------- beginning of kernel
+10-10 13:33:35.387     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+10-10 13:33:35.890  4374  4424 E TestRunner: failed: usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest)
+10-10 13:33:35.890  4374  4424 E TestRunner: ----- begin exception -----
+10-10 13:33:35.890  4374  4424 E TestRunner: java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:32)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+10-10 13:33:35.890  4374  4424 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+10-10 13:33:35.890  4374  4424 E TestRunner: ----- end exception -----
+10-10 13:33:35.899   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+10-10 13:33:35.900   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+10-10 13:33:35.900   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+10-10 13:33:35.900   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+10-10 13:33:35.900   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+10-10 13:33:35.913  1120  1120 W SplitSelectStateCtor: Missing session instanceIds
+10-10 13:33:35.921   593  1121 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ENABLE_FAKE_FOCUS
+10-10 13:33:39.418   593  1448 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+10-10 13:33:40.900   593   622 W BLASTSyncEngine: Sync group 28 timeout
+10-10 13:33:40.904   593  3302 W UserManagerService: Requested status bar icon for non-badged user 0
+10-10 13:33:40.938  4374  4424 E TestRunner: failed: interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest)
+10-10 13:33:40.939  4374  4424 E TestRunner: ----- begin exception -----
+10-10 13:33:40.939  4374  4424 E TestRunner: java.lang.IllegalStateException: La fixture n'a pas accordé l'accès temporaire
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:25)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:69)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+10-10 13:33:40.939  4374  4424 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+10-10 13:33:40.939  4374  4424 E TestRunner: ----- end exception -----
+10-10 13:33:40.956   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+10-10 13:33:40.957   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+10-10 13:33:40.957   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+10-10 13:33:40.960   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+10-10 13:33:40.960   593  3302 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+10-10 13:33:41.227   593  1121 W UserManagerService: Requested status bar icon for non-badged user 0
+10-10 13:33:41.596   593   622 W ActivityTaskManager: Activity destroy timeout for ActivityRecord{d39bc02 u0 fr.bonobo.filemanager.adaptive.test/fr.bonobo.filemanager.saf.TestGrantActivity t20 f}}
+10-10 13:33:44.597   593  1448 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+10-10 13:33:45.907   593   622 W ActivityTaskManager: Launch timeout has expired, giving up wake lock!
+10-10 13:33:45.972   593  1121 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+10-10 13:33:45.972   593  1121 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+10-10 13:33:45.972   593  1121 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+10-10 13:33:45.972   593  1121 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+10-10 13:33:45.973   593  1121 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+10-10 13:33:50.996  4374  4424 E TestRunner: failed: readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest)
+10-10 13:33:50.997  4374  4424 E TestRunner: ----- begin exception -----
+10-10 13:33:50.997  4374  4424 E TestRunner: java.lang.AssertionError
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.Assert.fail(Assert.java:87)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:42)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:53)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:59)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+10-10 13:33:50.997  4374  4424 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+10-10 13:33:50.997  4374  4424 E TestRunner: ----- end exception -----
+10-10 13:33:51.022   593  1121 E ActivityManager: Unable to freeze binder for 4374: -11
+10-10 13:33:51.053  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/YouTube/YouTube.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationCorner/DisplayCutoutEmulationCornerOverlay.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.extservices/priv-app/GoogleExtServices@350820300/GoogleExtServices.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationDouble/DisplayCutoutEmulationDoubleOverlay.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/TelephonyProvider/TelephonyProvider.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/TelephonyProvider__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DynamicSystemInstallationService/DynamicSystemInstallationService.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/Velvet/Velvet.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~iYkgoxlHS3EZjZQ8P6jBag==/fr.bonobo.synczen-XUIMwqocx6848ybyxfpOCg==/base.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/CalendarProvider/CalendarProvider.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/GoogleOneTimeInitializer/GoogleOneTimeInitializer.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/GoogleExtShared/GoogleExtShared.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~pf9yL9h1rNBEUtPMe3DlIw==/fr.bonobo.filemanager.adaptive-cjpLz__ix3VTiJGt-kSrgA==/base.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/HTMLViewer/HTMLViewer.apk' with 1 weak references
+10-10 13:33:51.054  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CompanionDeviceManager/CompanionDeviceManager.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DownloadProvider/DownloadProvider.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/PrebuiltBugle/PrebuiltBugle.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/SoundPickerPrebuilt/SoundPickerPrebuilt.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.mediaprovider/priv-app/MediaProviderGoogle@350820300/MediaProviderGoogle.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/SafetyHubPrebuilt/SafetyHubPrebuilt.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DownloadProviderUi/DownloadProviderUi.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.wifi/app/OsuLoginGoogle@350820300/OsuLoginGoogle.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/PacProcessor/PacProcessor.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/SimAppDialog/SimAppDialog.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/SimAppDialog__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.055  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.adservices/priv-app/AdServicesApkGoogle@350820260/AdServicesApkGoogle.apk' with 1 weak references
+10-10 13:33:51.056  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationHole/DisplayCutoutEmulationHoleOverlay.apk' with 1 weak references
+10-10 13:33:51.056  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationTall/DisplayCutoutEmulationTallOverlay.apk' with 1 weak references
+10-10 13:33:51.056  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CertInstaller/CertInstaller.apk' with 1 weak references
+10-10 13:33:51.056  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/talkback/talkback.apk' with 1 weak references
+10-10 13:33:51.058  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/vendor/overlay/EmulatorTalkBackOverlay/EmulatorTalkBackOverlay.apk' with 1 weak references
+10-10 13:33:51.058  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/NavigationBarMode3Button/NavigationBarMode3ButtonOverlay.apk' with 1 weak references
+10-10 13:33:51.058  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Camera2/Camera2.apk' with 1 weak references
+10-10 13:33:51.058  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/EasterEgg/EasterEgg.apk' with 1 weak references
+10-10 13:33:51.058  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/MtpService/MtpService.apk' with 1 weak references
+10-10 13:33:51.058  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.nfcservices/priv-app/NfcNciApexGoogle@AE3A.240806.043/NfcNciApexGoogle.apk' with 1 weak references
+10-10 13:33:51.058  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/Stk/Stk.apk' with 1 weak references
+10-10 13:33:51.059  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltDeskClockGoogle/PrebuiltDeskClockGoogle.apk' with 1 weak references
+10-10 13:33:51.059  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/NavigationBarMode2Button/NavigationBarMode2ButtonOverlay.apk' with 1 weak references
+10-10 13:33:51.059  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/DevicePersonalizationPrebuiltPixel2021-aiai_20240329.00_RC16/DevicePersonalizationPrebuiltPixel2021-aiai_20240329.00_RC16.apk' with 1 weak references
+10-10 13:33:51.059  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltGmail/PrebuiltGmail.apk' with 1 weak references
+10-10 13:33:51.059  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.permission/priv-app/GooglePermissionController@350820360/GooglePermissionController.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/GooglePermissionControllerOverlay.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.btservices/app/BluetoothGoogle@342010060/BluetoothGoogle.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/SettingsProvider/SettingsProvider.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/LargeScreenSettingsProviderOverlay.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/SettingsProvider__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/PrintSpooler/PrintSpooler.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/BasicDreams/BasicDreams.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/DeviceIntelligenceNetworkPrebuilt-astrea_20240329.00_RC02/DeviceIntelligenceNetworkPrebuilt-astrea_20240329.00_RC02.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/InputDevices/InputDevices.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.devicelock/priv-app/DeviceLockControllerGoogle@AE3A.240806.043/DeviceLockControllerGoogle.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/GoogleDialer/GoogleDialer.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/BuiltInPrintService/BuiltInPrintService.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/BuiltInPrintService__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CaptivePortalLoginGoogle/CaptivePortalLoginGoogle.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/MusicFX/MusicFX.apk' with 1 weak references
+10-10 13:33:51.060  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Drive/Drive.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Maps/Maps.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/ModuleMetadataGoogle/ModuleMetadataGoogle.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationEmu01/DisplayCutoutEmulationEmu01Overlay.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/AvatarPickerGoogle/AvatarPickerGoogle.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/MarkupGoogle_v2/MarkupGoogle_v2.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/NetworkStackGoogle/NetworkStackGoogle.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.rkpd/priv-app/rkpdapp.google@350820300/rkpdapp.google.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/GoogleContacts/GoogleContacts.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/Telecom/Telecom.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/Telecom__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/KeyChain/KeyChain.apk' with 1 weak references
+10-10 13:33:51.061  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~W5vi9nIs3Jcgb9_TnL6AJw==/com.android.chrome-W9nY8V-vKKMdJzuK8P5VPg==/Chrome.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~r9JFOZTyg1PjI9Mszb-IvQ==/com.google.android.trichromelibrary_636771938-ZBNwrwmNle8ZNi-n_3zGPw==/TrichromeLibrary.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/GooglePackageInstaller/GooglePackageInstaller.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PixelThemesStub/PixelThemesStub.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/GoogleServicesFramework/GoogleServicesFramework.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/TagGoogle/TagGoogle.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/GoogleTTS/GoogleTTS.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/CallLogBackup/CallLogBackup.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/PartnerSetupPrebuilt/PartnerSetupPrebuilt.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CameraExtensionsProxy/CameraExtensionsProxy.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/NexusWallpapersStubPrebuilt2018/NexusWallpapersStubPrebuilt2018.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/NexusLauncherRelease/NexusLauncherRelease.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CarrierDefaultApp/CarrierDefaultApp.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/CredentialManager/CredentialManager.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/FontNotoSerifSource/FontNotoSerifSourceOverlay.apk' with 1 weak references
+10-10 13:33:51.062  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DeviceAsWebcam/DeviceAsWebcam.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ProxyHandler/ProxyHandler.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.permission/priv-app/GoogleSafetyCenterResources@350820360/GoogleSafetyCenterResources.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationWaterfall/DisplayCutoutEmulationWaterfallOverlay.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/IntentResolver/IntentResolver.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/TransparentNavigationBar/TransparentNavigationBarOverlay.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/E2eeContactKeysProvider/E2eeContactKeysProvider.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.tethering/priv-app/ServiceConnectivityResourcesGoogle@350820300/ServiceConnectivityResourcesGoogle.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/vendor/overlay/goldfish_overlay_connectivity_google.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/GoogleFeedback/GoogleFeedback.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/GooglePrintRecommendationService/GooglePrintRecommendationService.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Photos/Photos.apk' with 1 weak references
+10-10 13:33:51.063  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/CalendarGooglePrebuilt/CalendarGooglePrebuilt.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ManagedProvisioning/ManagedProvisioning.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/SoundPicker/SoundPicker.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DocumentsUIGoogle/DocumentsUIGoogle.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltGoogleTelemetryTvp/PrebuiltGoogleTelemetryTvp.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/MultiDisplayProvider/MultiDisplayProvider.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DeviceDiagnostics/DeviceDiagnostics.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/DeviceDiagnostics__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/NotesRoleEnabled/NotesRoleEnabledOverlay.apk' with 1 weak references
+10-10 13:33:51.064  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/LiveWallpapersPicker/LiveWallpapersPicker.apk' with 1 weak references
+10-10 13:33:51.065  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltGoogleAdservicesTvp/PrebuiltGoogleAdservicesTvp.apk' with 1 weak references
+10-10 13:33:51.065  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.healthfitness/priv-app/HealthConnectControllerGoogle@350820300/HealthConnectControllerGoogle.apk' with 1 weak references
+10-10 13:33:51.065  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/KidsSupervisionStub/KidsSupervisionStub.apk' with 1 weak references
+10-10 13:33:51.065  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/StorageManager/StorageManager.apk' with 1 weak references
+10-10 13:33:51.065  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/StorageManager__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.065  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/BookmarkProvider/BookmarkProvider.apk' with 1 weak references
+10-10 13:33:51.065  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/SettingsGoogle/SettingsGoogle.apk' with 1 weak references
+10-10 13:33:51.065  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/SettingsGoogle__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/SettingsIntelligenceGooglePrebuilt/SettingsIntelligenceGooglePrebuilt.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.uwb/priv-app/ServiceUwbResourcesGoogle@350820300/ServiceUwbResourcesGoogle.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.wifi/priv-app/ServiceWifiResourcesGoogle@350820300/ServiceWifiResourcesGoogle.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/ThemePicker/ThemePicker.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/WallpaperPickerGoogleRelease/WallpaperPickerGoogleRelease.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/OdadPrebuilt/OdadPrebuilt.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/TeleService/TeleService.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/vendor/overlay/TeleService__sdk_gphone64_x86_64__auto_generated_rro_vendor.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/TeleService__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/Shell/Shell.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/BlockedNumberProvider/BlockedNumberProvider.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/UserDictionaryProvider/UserDictionaryProvider.apk' with 1 weak references
+10-10 13:33:51.066  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/app/EmergencyInfoGoogleNoUi/EmergencyInfoGoogleNoUi.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/FusedLocation/FusedLocation.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/priv-app/SystemUIGoogle/SystemUIGoogle.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/vendor/overlay/SystemUIGoogle__sdk_gphone64_x86_64__auto_generated_rro_vendor.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/SystemUIGoogle__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/YouTubeMusicPrebuilt/YouTubeMusicPrebuilt.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/BluetoothMidiService/BluetoothMidiService.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/Traceur/Traceur.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.cellbroadcast/priv-app/GoogleCellBroadcastApp@350820300/GoogleCellBroadcastApp.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ContactsProvider/ContactsProvider.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/ContactsProvider__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:51.067  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/LatinIMEGooglePrebuilt/LatinIMEGooglePrebuilt.apk' with 1 weak references
+10-10 13:33:51.068  1281  1295 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/GoogleRestorePrebuilt-v526684/GoogleRestorePrebuilt-v526684.apk' with 1 weak references
+10-10 13:33:54.208   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltGmail/PrebuiltGmail.apk' with 1 weak references
+10-10 13:33:54.208   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Drive/Drive.apk' with 1 weak references
+10-10 13:33:54.209   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/CalendarGooglePrebuilt/CalendarGooglePrebuilt.apk' with 1 weak references
+10-10 13:33:54.209   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk' with 1 weak references
+10-10 13:33:54.210   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /system_ext/app/AccessibilityMenu/AccessibilityMenu.apk' with 1 weak references
+10-10 13:33:54.210   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '/product/overlay/AccessibilityMenu__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+10-10 13:33:54.210   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/talkback/talkback.apk' with 1 weak references
+10-10 13:33:54.210   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '/vendor/overlay/EmulatorTalkBackOverlay/EmulatorTalkBackOverlay.apk' with 1 weak references
+10-10 13:33:54.210   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/LatinIMEGooglePrebuilt/LatinIMEGooglePrebuilt.apk' with 1 weak references
+10-10 13:33:54.212   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/InputDevices/InputDevices.apk' with 1 weak references
+10-10 13:33:54.212   593   608 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/GoogleTTS/GoogleTTS.apk' with 1 weak references
+10-10 13:33:54.239   593   752 E WifiScoringParams: Invalid frequency(-1), using 5G as default rssi array
+10-10 13:34:00.021   845   845 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.

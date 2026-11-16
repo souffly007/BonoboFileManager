@@ -1,0 +1,290 @@
+--------- beginning of crash
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 3989
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider fr.bonobo.filemanager.saf.TestDocumentsProvider: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: Caused by: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.provider.DocumentsProvider.attachInfo(DocumentsProvider.java:177)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-10 13:30:33.208  3989  3989 E AndroidRuntime: 	... 11 more
+--------- beginning of main
+10-10 13:30:33.257  4003  4003 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:30:33.257  4003  4003 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:30:33.291  4003  4003 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.291  4003  4003 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4003
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider fr.bonobo.filemanager.saf.TestDocumentsProvider: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: Caused by: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.provider.DocumentsProvider.attachInfo(DocumentsProvider.java:177)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-10 13:30:33.345  4003  4003 E AndroidRuntime: 	... 11 more
+--------- beginning of system
+10-10 13:30:33.347   593   612 W ActivityManager: Process fr.bonobo.filemanager.adaptive.test has crashed too many times, killing! Reason: crashed quickly
+10-10 13:30:33.349   593   612 W ActivityManager: Unable to launch app fr.bonobo.filemanager.adaptive.test/10212 for provider fr.bonobo.filemanager.test.documents: launching app became null
+10-10 13:30:33.349  2754  3138 E ActivityThread: Failed to find provider info for fr.bonobo.filemanager.test.documents
+10-10 13:30:33.349  2754  3138 E TestRunner: failed: interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest)
+10-10 13:30:33.350  2754  3138 E TestRunner: ----- begin exception -----
+10-10 13:30:33.350  2754  3138 E TestRunner: java.io.IOException: Support déconnecté
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:55)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+10-10 13:30:33.350  2754  3138 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+10-10 13:30:33.350  2754  3138 E TestRunner: ----- end exception -----
+10-10 13:30:33.354   593   687 W ActivityManager: ProcessRecord{b92025c 0:fr.bonobo.filemanager.adaptive.test/u0a212} is attached to a previous process 4003
+10-10 13:30:33.389  4016  4016 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:30:33.389  4016  4016 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:30:33.440  4016  4016 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.440  4016  4016 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4016
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider fr.bonobo.filemanager.saf.TestDocumentsProvider: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: Caused by: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.provider.DocumentsProvider.attachInfo(DocumentsProvider.java:177)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-10 13:30:33.500  4016  4016 E AndroidRuntime: 	... 11 more
+10-10 13:30:33.545  4032  4032 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:30:33.545  4032  4032 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:30:33.579  4032  4032 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.579  4032  4032 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4032
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider fr.bonobo.filemanager.saf.TestDocumentsProvider: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: Caused by: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.provider.DocumentsProvider.attachInfo(DocumentsProvider.java:177)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-10 13:30:33.636  4032  4032 E AndroidRuntime: 	... 11 more
+10-10 13:30:33.638   593  1468 W ActivityManager: Process fr.bonobo.filemanager.adaptive.test has crashed too many times, killing! Reason: crashed quickly
+10-10 13:30:33.642   593  1468 W ActivityManager: Unable to launch app fr.bonobo.filemanager.adaptive.test/10212 for provider fr.bonobo.filemanager.test.documents: launching app became null
+10-10 13:30:33.643  2754  3138 E ActivityThread: Failed to find provider info for fr.bonobo.filemanager.test.documents
+10-10 13:30:33.644   593   687 W ActivityManager: ProcessRecord{8fb4463 0:fr.bonobo.filemanager.adaptive.test/u0a212} is attached to a previous process 4032
+10-10 13:30:33.675  4044  4044 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:30:33.675  4044  4044 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:30:33.710  4044  4044 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.710  4044  4044 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4044
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider fr.bonobo.filemanager.saf.TestDocumentsProvider: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: Caused by: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.provider.DocumentsProvider.attachInfo(DocumentsProvider.java:177)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-10 13:30:33.765  4044  4044 E AndroidRuntime: 	... 11 more
+10-10 13:30:33.800  4056  4056 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:30:33.800  4056  4056 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:30:33.832  4056  4056 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.832  4056  4056 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4056
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider fr.bonobo.filemanager.saf.TestDocumentsProvider: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: Caused by: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.provider.DocumentsProvider.attachInfo(DocumentsProvider.java:177)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-10 13:30:33.889  4056  4056 E AndroidRuntime: 	... 11 more
+10-10 13:30:33.891   593  1468 W ActivityManager: Process fr.bonobo.filemanager.adaptive.test has crashed too many times, killing! Reason: crashed quickly
+10-10 13:30:33.893   593  1468 W ActivityManager: Unable to launch app fr.bonobo.filemanager.adaptive.test/10212 for provider fr.bonobo.filemanager.test.documents: launching app became null
+10-10 13:30:33.893  2754  3138 E ActivityThread: Failed to find provider info for fr.bonobo.filemanager.test.documents
+10-10 13:30:33.895   593  1468 W ActivityManager: ProcessRecord{9202aa8 0:fr.bonobo.filemanager.adaptive.test/u0a212} is attached to a previous process 4056
+10-10 13:30:33.933  4068  4068 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:30:33.933  4068  4068 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:30:33.971  4068  4068 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:33.971  4068  4068 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4068
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider fr.bonobo.filemanager.saf.TestDocumentsProvider: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: Caused by: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.provider.DocumentsProvider.attachInfo(DocumentsProvider.java:177)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-10 13:30:34.034  4068  4068 E AndroidRuntime: 	... 11 more
+10-10 13:30:34.078  4081  4081 W r.adaptive.test: Unexpected CPU variant for x86: x86_64.
+10-10 13:30:34.078  4081  4081 W r.adaptive.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+10-10 13:30:34.101  4081  4081 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:34.101  4081  4081 W ziparchive: Unable to open '/data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.dm': No such file or directory
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: FATAL EXCEPTION: main
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: Process: fr.bonobo.filemanager.adaptive.test, PID: 4081
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider fr.bonobo.filemanager.saf.TestDocumentsProvider: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: Caused by: java.lang.SecurityException: Provider must be protected by MANAGE_DOCUMENTS
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.provider.DocumentsProvider.attachInfo(DocumentsProvider.java:177)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-10 13:30:34.156  4081  4081 E AndroidRuntime: 	... 11 more
+10-10 13:30:34.157   593   687 W ActivityManager: Process fr.bonobo.filemanager.adaptive.test has crashed too many times, killing! Reason: crashed quickly
+10-10 13:30:34.158   593   687 W ActivityManager: Unable to launch app fr.bonobo.filemanager.adaptive.test/10212 for provider fr.bonobo.filemanager.test.documents: launching app became null
+10-10 13:30:34.158  2754  3138 E ActivityThread: Failed to find provider info for fr.bonobo.filemanager.test.documents
+10-10 13:30:34.159  2754  3138 E TestRunner: failed: readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest)
+10-10 13:30:34.159  2754  3138 E TestRunner: ----- begin exception -----
+10-10 13:30:34.159  2754  3138 E TestRunner: java.io.IOException: Support déconnecté
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at fr.bonobo.filemanager.util.SafFiles.flags(SafFiles.kt:46)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at fr.bonobo.filemanager.util.SafFiles.requireFlag(SafFiles.kt:48)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at fr.bonobo.filemanager.util.SafFiles.create(SafFiles.kt:52)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:46)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:467)
+10-10 13:30:34.159  2754  3138 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+10-10 13:30:34.159  2754  3138 E TestRunner: ----- end exception -----
+10-10 13:30:34.175   593  1468 E ActivityManager: Unable to freeze binder for 2754: -11
+10-10 13:30:34.236   593   622 W ActivityManager: setHasOverlayUi called on unknown pid: 2754
+--------- beginning of kernel
+10-10 13:30:35.388     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+10-10 13:30:42.999   593   632 W ActivityManager: Ignoring remove of inactive process: ProcessRecord{8c53d0e 0:fr.bonobo.filemanager.adaptive.test/u0a212}
+10-10 13:30:43.267   593   632 W ActivityManager: Ignoring remove of inactive process: ProcessRecord{b92025c 0:fr.bonobo.filemanager.adaptive.test/u0a212}
+10-10 13:30:43.554   593   632 W ActivityManager: Ignoring remove of inactive process: ProcessRecord{8fb4463 0:fr.bonobo.filemanager.adaptive.test/u0a212}
+10-10 13:30:43.812   593   632 W ActivityManager: Ignoring remove of inactive process: ProcessRecord{9202aa8 0:fr.bonobo.filemanager.adaptive.test/u0a212}
+10-10 13:30:44.087   593   632 W ActivityManager: Ignoring remove of inactive process: ProcessRecord{6eab043 0:fr.bonobo.filemanager.adaptive.test/u0a212}
+10-10 13:30:45.498  1572  1572 W JobService: onNetworkChanged() not implemented in androidx.work.impl.background.systemjob.SystemJobService. Must override in a subclass.
+10-10 13:30:45.617   845   855 W ndroid.systemui: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~pf9yL9h1rNBEUtPMe3DlIw==/fr.bonobo.filemanager.adaptive-cjpLz__ix3VTiJGt-kSrgA==/base.apk' with 1 weak references
+10-10 13:30:45.627   845   855 W ndroid.systemui: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~_LDzDfYmu-R5xY6omr25GA==/fr.bonobo.filemanager.adaptive.test-KSn2pkQQ6TMyoRAtyJCXUA==/base.apk' with 1 weak references

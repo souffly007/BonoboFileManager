@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.TransferCoordinatorTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-10-23T16:17:08" hostname="aurora" time="0.519">
+  <properties/>
+  <testcase name="unreadableJournalBlocksReplayAndActiveJournalBecomesInterrupted" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.001"/>
+  <testcase name="deletionFailureIsAnErrorAndOtherElementsRemainIndependent" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.068"/>
+  <testcase name="journalWriteFailureBeforeStartPreservesAllSources" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.022"/>
+  <testcase name="cancelDuringVerificationDoesNotStartDeleteAndKeepsFinishedResults" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.03"/>
+  <testcase name="zeroByteFileIsSuccessfulWithoutDivisionByZero" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.021"/>
+  <testcase name="unknownSizeNeverProducesFalsePercentage" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.024"/>
+  <testcase name="countsBeyondFourGiBRemainLongAndVerificationAddsNoBytes" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.026"/>
+  <testcase name="preflightFailureIsPerElementAndOtherItemsStillRun" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.013"/>
+  <testcase name="failureOfOneElementDoesNotDeleteItOrPreventOtherElements" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.014"/>
+  <testcase name="persistenceCleanupStillExcludesTheNextJob" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.016"/>
+  <testcase name="speedAndEtaRequireMonotoneStableMeasurementsAndResetBetweenPhases" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.002"/>
+  <testcase name="secondJobIsRejectedWhileFirstIsActive" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.027"/>
+  <testcase name="coveredSelectionIsNotTransferredTwiceAndOnlyFinalResultsClearClipboard" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.015"/>
+  <testcase name="changedTreeInvalidatesPreflightTotalsAndCountsActualFiles" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.067"/>
+  <testcase name="fullyCopiedBytesNeverAnnounceCompletionBeforeVerification" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.018"/>
+  <testcase name="sequentialBatchKeepsExactThrottledCountersAndDestinationSnapshot" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.013"/>
+  <testcase name="cancelBeforeScheduledStartNeverLeavesBusyState" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.064"/>
+  <testcase name="inventoryOverflowStopsBeforeAnyCopy" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.024"/>
+  <testcase name="cancelWaitsForBlockedMotorAndPreservesUnstartedSources" classname="fr.bonobo.filemanager.TransferCoordinatorTest" time="0.051"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,89 @@
+BONOBO FILES EXPLORATEUR
+Licence utilisateur
+
+Copyright © 2026 Franck R.-F. / Souffly
+Tous droits réservés.
+
+1. OBJET
+
+Bonobo Files Explorateur est un logiciel propriétaire distribué par
+Souffly.
+
+L'acquisition du logiciel accorde à l'utilisateur une licence
+personnelle d'utilisation. Le logiciel n'est pas vendu avec ses
+droits de propriété intellectuelle.
+
+2. DROIT D'UTILISATION
+
+Sous réserve du respect de la présente licence, l'utilisateur est
+autorisé à installer et utiliser Bonobo Files Explorateur sur ses
+appareils personnels.
+
+Cette licence est destinée à l'usage de l'acquéreur du logiciel.
+
+3. RESTRICTIONS
+
+Sauf disposition légale impérative contraire, il est interdit de :
+
+- vendre ou redistribuer l'application ou son fichier APK ;
+- mettre publiquement à disposition une copie de l'application ;
+- commercialiser une copie de l'application ;
+- supprimer ou modifier les mentions de propriété intellectuelle ;
+- présenter Bonobo Files Explorateur comme étant son propre logiciel.
+
+Les droits que la législation applicable accorde impérativement à
+l'utilisateur ne sont pas affectés par ces restrictions.
+
+4. COPIE DE SAUVEGARDE
+
+L'utilisateur peut conserver les copies nécessaires à la sauvegarde
+et à l'utilisation légitime du logiciel, conformément à la
+législation applicable.
+
+5. COMPOSANTS TIERS
+
+Bonobo Files Explorateur utilise des logiciels et bibliothèques
+développés par des tiers.
+
+Ces composants restent soumis à leurs licences respectives.
+
+La présente licence propriétaire ne remplace, ne limite et ne modifie
+aucun droit accordé par les licences applicables à ces composants.
+
+Les informations et licences correspondantes sont disponibles dans
+le document THIRD_PARTY_NOTICES.txt et/ou dans la section consacrée
+aux licences open source de l'application.
+
+6. PROPRIÉTÉ
+
+Bonobo Files Explorateur, son code original, son identité visuelle,
+ses éléments graphiques et sa documentation originale restent la
+propriété de leurs titulaires respectifs.
+
+Aucun droit de propriété intellectuelle n'est transféré à
+l'utilisateur en dehors du droit d'utilisation expressément accordé
+par la présente licence.
+
+7. MISES À JOUR
+
+Des mises à jour, corrections ou nouvelles versions du logiciel
+peuvent être proposées.
+
+Leur disponibilité et leurs conditions de distribution peuvent
+évoluer selon la version concernée.
+
+8. DROIT APPLICABLE
+
+La présente licence s'applique sous réserve des dispositions
+impératives du droit applicable et des droits dont bénéficie
+l'utilisateur en qualité de consommateur lorsqu'ils sont applicables.
+
+---
+
+Bonobo Files Explorateur
+Souffly
+https://souffly.app
+contact@souffly.app
+
+Copyright © 2026 Franck R.-F. / Souffly
+Tous droits réservés.

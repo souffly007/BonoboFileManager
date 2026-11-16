@@ -1,0 +1,16 @@
+app/src/androidTest/java/fr/bonobo/filemanager/saf/SafIntegrationTest.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/FileRepositoryImpl.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/RemoteFileRepository.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/SftpClientRepository.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/SmbClientRepository.kt
+app/src/main/java/fr/bonobo/filemanager/data/repository/WebDavClientRepository.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/MainViewModel.kt
+app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteViewModel.kt
+app/src/main/java/fr/bonobo/filemanager/util/IntegrityVerifier.kt
+app/src/main/java/fr/bonobo/filemanager/util/LocalIntegrityAccess.kt
+app/src/main/java/fr/bonobo/filemanager/util/RestoreReceipts.kt
+app/src/main/java/fr/bonobo/filemanager/util/SafFiles.kt
+app/src/main/java/fr/bonobo/filemanager/util/StorageEquivalence.kt
+app/src/main/java/fr/bonobo/filemanager/util/TrashRestorer.kt
+app/src/test/java/fr/bonobo/filemanager/Beta18IntegrityTest.kt
+app/src/test/java/fr/bonobo/filemanager/WebDavIntegrityTest.kt

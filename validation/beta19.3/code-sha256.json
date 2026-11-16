@@ -1,0 +1,22 @@
+{
+  "app/build.gradle.kts": "0dcd1f0f98c66d6188b7a0809d602e435da9a7ec31ddc2a521f11a816b168ca8",
+  "app/src/main/java/fr/bonobo/filemanager/util/SafFiles.kt": "2514ce67d0a64a9341832023b86faf7c401389a539dbf63ae61a3407de188c7e",
+  "app/src/main/java/fr/bonobo/filemanager/util/SafMutations.kt": "4ad61fee170f90ec60ff3b23e56de9c810f95d17da4031605426e3556ade0c25",
+  "app/src/main/java/fr/bonobo/filemanager/util/VerifiedStreamCopy.kt": "40df9144a228014991bf4290f8f50c22fa7d7f33977d086196ca72f995ba3d9e",
+  "app/src/main/java/fr/bonobo/filemanager/util/OperationArtifacts.kt": "a21f89e70b6a9b3cce45bcb4e430bc8117538491a59816295f653ded64e311ba",
+  "app/src/main/java/fr/bonobo/filemanager/util/ArtifactCleanup.kt": "51b2d0272910d576ce822833a13182b939387847666213463a370ba5735c28f7",
+  "app/src/main/java/fr/bonobo/filemanager/util/VerifiedMove.kt": "0aef8be942705cf2fdfdb218714f29f8d5808ab6ff33b46d82229175473dbcb5",
+  "app/src/main/java/fr/bonobo/filemanager/util/ControlledPublication.kt": "44e85e417fd5187937ebac4cec17832e40f10b6e5067b205e76dd68ca9da46f7",
+  "app/src/main/java/fr/bonobo/filemanager/util/DeletionBatch.kt": "57fcd56140dd311cc38bd1469e5a58b1ca361497d1f1d914177995d057d017aa",
+  "app/src/main/java/fr/bonobo/filemanager/domain/transfer/TransferState.kt": "11ee3da12389c32d8260cd15bab77194c883f993756feae950b9bcdfbf0a17b5",
+  "app/src/main/java/fr/bonobo/filemanager/domain/transfer/TransferCoordinator.kt": "cd8e8d64312ffdf4effbda2d410c5f5ad93c914b25be5ec41764f602557e3404",
+  "app/src/main/java/fr/bonobo/filemanager/presentation/components/TransferPanel.kt": "951279df28780f4e816eba30c426e566f18b5fdb1b1bedc8c25f615e61f4bb71",
+  "app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/MainUiState.kt": "9f43d65fc9c10e2687319eef5d882e54e7ebebb9a977f30fd9de8b365d9d098a",
+  "app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/MainViewModel.kt": "cf860de215d1a3950f116866f2bc8d532f626731946856a06be0ae768ba3b2db",
+  "app/src/main/java/fr/bonobo/filemanager/presentation/ui/main/MainScreen.kt": "526244ffaaa3fe3ddbbceda772360c446f07250fea1ce71447c8f003bd57282e",
+  "app/src/main/java/fr/bonobo/filemanager/worker/FileOperationWorker.kt": "3f3eefb2c215cf349bc581f2aa7d834ec7d17fe54c188e268a3ad4537c623588",
+  "app/src/main/java/fr/bonobo/filemanager/service/FileOperationService.kt": "911f64fe11f9ea30f968d8e6235662fc4602ef5fb5dbb38052a05b64f8bdf5c7",
+  "app/src/test/java/fr/bonobo/filemanager/Beta193SafReliabilityTest.kt": "df2399cfd8cd89d262d60ec184d206bce5a5a3b3a3f5cb21882d04f0ffa782f7",
+  "app/src/androidTest/java/fr/bonobo/filemanager/saf/TestDocumentsProvider.java": "48557d151aa82bbc971a8f936dfa7360c807ca8018e24fa5dcb3dbd36cdfb600",
+  "app/src/androidTest/java/fr/bonobo/filemanager/saf/SafIntegrationTest.kt": "82bd112e77f82e56d29d31c6feea44a799186782f3a6ca42713e7fcbdf8db8f0"
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.TransferSecurityTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-11T15:53:01" hostname="aurora" time="1.095">
+  <properties/>
+  <testcase name="shortPasswordRejected" classname="fr.bonobo.filemanager.TransferSecurityTest" time="0.441"/>
+  <testcase name="occupiedPortIsReported" classname="fr.bonobo.filemanager.TransferSecurityTest" time="0.164"/>
+  <testcase name="stopClosesPendingClient" classname="fr.bonobo.filemanager.TransferSecurityTest" time="0.071"/>
+  <testcase name="authenticationRequiredAndCorrectPasswordWorks" classname="fr.bonobo.filemanager.TransferSecurityTest" time="0.419"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

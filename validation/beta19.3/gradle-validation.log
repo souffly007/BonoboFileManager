@@ -1,0 +1,330 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.9/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon JVM discovery is an incubating feature.
+Daemon will be stopped at the end of the build 
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:kspDebugKotlin UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :app:buildKotlinToolingMetadata
+> Task :app:compileDebugJavaWithJavac
+> Task :app:generateReleaseBuildConfig
+> Task :app:hiltAggregateDepsDebug
+> Task :app:checkReleaseAarMetadata
+> Task :app:hiltJavaCompileDebug
+> Task :app:processDebugJavaRes
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:transformDebugClassesWithAsm
+> Task :app:kspDebugUnitTestKotlin
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:generateReleaseResValues
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:mergeReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:parseReleaseLocalResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:processReleaseManifestForPackage
+> Task :app:processReleaseResources
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:hiltAggregateDepsDebugUnitTest
+> Task :app:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:transformDebugUnitTestClassesWithAsm
+> Task :app:kspReleaseKotlin
+> Task :app:testDebugUnitTest
+> Task :app:javaPreCompileRelease
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileReleaseUnitTest
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:compileReleaseKotlin
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:mergeDebugJavaResource
+> Task :app:checkDebugDuplicateClasses
+
+> Task :app:compileReleaseKotlin
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:50:41 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:56:41 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:73:24 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:27:49 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:27:145 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:34:24 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/apps/AppManagerScreen.kt:186:56 'val Icons.Filled.Launch: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Launch.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:680:33 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:680:48 'val ipAddress: Int' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:791:106 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:896:106 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:1036:90 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:33 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:48 'val ipAddress: Int' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:115:80 'val Icons.Filled.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Sort.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:186:97 'val Icons.Filled.DriveFileMove: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DriveFileMove.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:260:84 'val Icons.Filled.DriveFileMove: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DriveFileMove.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/theme/Theme.kt:119:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ArchivePreviewScreen.kt:23:152 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/AudioPlayerScreen.kt:71:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/EpubViewerScreen.kt:24:17 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/EpubViewerScreen.kt:47:137 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:66:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:108:44 'val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:116:44 'val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/OfficeDocumentViewerScreen.kt:47:90 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:42:208 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:75:40 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:87:40 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/TextDiffScreen.kt:46:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/TextEditorScreen.kt:57:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/VideoPlayerScreen.kt:92:32 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:8:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:35:50 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:44:41 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:49:27 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:128:9 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:134:44 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:hiltAggregateDepsRelease
+> Task :app:mergeExtDexDebug
+> Task :app:hiltJavaCompileRelease
+> Task :app:processReleaseJavaRes
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:kspReleaseUnitTestKotlin
+> Task :app:transformReleaseClassesWithAsm
+> Task :app:compileReleaseUnitTestKotlin
+> Task :app:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :app:mergeLibDexDebug
+> Task :app:bundleReleaseClassesToRuntimeJar
+> Task :app:hiltAggregateDepsReleaseUnitTest
+> Task :app:hiltJavaCompileReleaseUnitTest NO-SOURCE
+> Task :app:processReleaseUnitTestJavaRes
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :app:transformReleaseUnitTestClassesWithAsm
+> Task :app:mergeDebugNativeLibs
+> Task :app:testReleaseUnitTest
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so.
+
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:mergeReleaseNativeLibs
+
+> Task :app:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so.
+
+> Task :app:extractReleaseNativeSymbolTables
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:dexBuilderRelease
+> Task :app:desugarReleaseFileDependencies
+> Task :app:mergeReleaseStartupProfile UP-TO-DATE
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :app:mergeReleaseArtProfile
+> Task :app:mergeExtDexRelease
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:compressReleaseAssets
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:mergeReleaseJavaResource
+> Task :app:mergeDexRelease
+> Task :app:optimizeReleaseResources
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:compileReleaseArtProfile
+> Task :app:processDebugAndroidTestManifest
+> Task :app:generateDebugAndroidTestBuildConfig
+> Task :app:checkDebugAndroidTestAarMetadata
+> Task :app:generateDebugAndroidTestResValues
+> Task :app:mapDebugAndroidTestSourceSetPaths
+> Task :app:generateDebugAndroidTestResources
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+> Task :app:javaPreCompileDebugAndroidTest
+> Task :app:mergeDebugAndroidTestShaders
+> Task :app:compileDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets
+> Task :app:compressDebugAndroidTestAssets
+> Task :app:desugarDebugAndroidTestFileDependencies
+> Task :app:checkDebugAndroidTestDuplicateClasses
+> Task :app:mergeDebugAndroidTestResources
+> Task :app:mergeExtDexDebugAndroidTest
+> Task :app:mergeLibDexDebugAndroidTest
+> Task :app:mergeDebugAndroidTestJniLibFolders
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugAndroidTest
+> Task :app:writeDebugAndroidTestSigningConfigVersions
+> Task :app:processDebugAndroidTestResources
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:extractProguardFiles
+> Task :app:generateDebugLintReportModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:kspDebugAndroidTestKotlin
+> Task :app:compileDebugAndroidTestKotlin
+> Task :app:compileDebugAndroidTestJavaWithJavac
+> Task :app:hiltAggregateDepsDebugAndroidTest
+> Task :app:hiltJavaCompileDebugAndroidTest NO-SOURCE
+> Task :app:transformDebugAndroidTestClassesWithAsm
+> Task :app:dexBuilderDebugAndroidTest
+> Task :app:mergeDebugAndroidTestGlobalSynthetics
+> Task :app:processDebugAndroidTestJavaRes
+> Task :app:mergeDebugAndroidTestJavaResource
+> Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:packageDebugAndroidTest
+> Task :app:createDebugAndroidTestApkListingFileRedirect
+> Task :app:assembleDebugAndroidTest
+> Task :app:lintAnalyzeDebug
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:generateReleaseLintReportModel
+> Task :app:generateReleaseUnitTestLintModel
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/build/reports/lint-results-debug.html
+
+> Task :app:lintDebug FAILED
+Lint found 1 errors, 88 warnings. First failure:
+
+/run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/SafFiles.kt:358: Error: Suspicious indentation: This is indented but is not continuing the previous expression (val children = snaps...) [SuspiciousIndentation]
+                        "Source modifiée ou destination alias de la source : copie refusée"
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    /run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/SafFiles.kt:354: Previous statement here
+
+   Explanation for issues of type "SuspiciousIndentation":
+   This check looks for cases where the indentation suggests a grouping that
+   isn't actually there in the code. A common example of this would be
+   something like
+   if (column > width)
+       line++
+       column = 0
+   Here, the column = 0 line will be executed every single time, not just if
+   the condition is true.
+
+   Available options:
+
+   **always-run** (default is false):
+   Whether this check should be included while editing.
+
+   While you're editing, it's common to have a temporary situation where you have suspicious indentation scenarios -- e.g. you start typing an `if` statement on the line above something you want to make conditional, and you haven't indented it yet. It can be distracting and misleading to suddenly have both statements light up as errors. Therefore, lint will avoid including this check when running on the fly in the editor, unless it looks like the file has not been recently edited. With this option, you can turn it on in all cases.
+
+   To configure this option, use a `lint.xml` file with an <option> like this:
+
+   ```xml
+   <lint>
+       <issue id="SuspiciousIndentation">
+           <option name="always-run" value="false" />
+       </issue>
+   </lint>
+   ```
+
+
+The full lint text report is located at:
+  /run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+
+> Task :app:lintAnalyzeRelease
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:lintDebug'.
+> Lint found errors in the project; aborting build.
+  
+  Fix the issues identified by lint, or create a baseline to see only new errors.
+  To create a baseline, run `gradlew updateLintBaseline` after adding the following to the module's build.gradle file:
+  ```
+  android {
+      lint {
+          baseline = file("lint-baseline.xml")
+      }
+  }
+  ```
+  For more details, see https://developer.android.com/studio/write/lint#snapshot
+  
+  Lint found 1 errors, 88 warnings. First failure:
+  
+  /run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/SafFiles.kt:358: Error: Suspicious indentation: This is indented but is not continuing the previous expression (val children = snaps...) [SuspiciousIndentation]
+                          "Source modifiée ou destination alias de la source : copie refusée"
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      /run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/SafFiles.kt:354: Previous statement here
+  
+     Explanation for issues of type "SuspiciousIndentation":
+     This check looks for cases where the indentation suggests a grouping that
+     isn't actually there in the code. A common example of this would be
+     something like
+     if (column > width)
+         line++
+         column = 0
+     Here, the column = 0 line will be executed every single time, not just if
+     the condition is true.
+  
+     Available options:
+  
+     **always-run** (default is false):
+     Whether this check should be included while editing.
+  
+     While you're editing, it's common to have a temporary situation where you have suspicious indentation scenarios -- e.g. you start typing an `if` statement on the line above something you want to make conditional, and you haven't indented it yet. It can be distracting and misleading to suddenly have both statements light up as errors. Therefore, lint will avoid including this check when running on the fly in the editor, unless it looks like the file has not been recently edited. With this option, you can turn it on in all cases.
+  
+     To configure this option, use a `lint.xml` file with an <option> like this:
+  
+     ```xml
+     <lint>
+         <issue id="SuspiciousIndentation">
+             <option name="always-run" value="false" />
+         </issue>
+     </lint>
+     ```
+  
+  
+  The full lint text report is located at:
+    /run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/Filemanager/app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 6m 52s
+150 actionable tasks: 133 executed, 17 up-to-date

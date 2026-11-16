@@ -1,0 +1,137 @@
+BONOBO FILES EXPLORATEUR
+THIRD-PARTY SOFTWARE NOTICES
+
+Copyright © 2026 Franck R.-F. / Souffly
+
+Bonobo Files Explorateur incorporates and uses third-party software
+components.
+
+These third-party components are not covered by the proprietary
+Bonobo Files Explorateur license. Each component remains subject
+to its own copyright and license terms.
+
+The inclusion of a component in this list does not imply endorsement
+of Bonobo Files Explorateur or Souffly by its authors.
+
+====================================================================
+1. ANDROID / GOOGLE / KOTLIN COMPONENTS
+====================================================================
+
+The application uses components from the AndroidX and Jetpack
+ecosystems, including:
+
+- AndroidX Core
+- AndroidX Activity
+- AndroidX Lifecycle
+- AndroidX Navigation
+- AndroidX Room
+- AndroidX WorkManager
+- AndroidX DataStore
+- AndroidX Biometric
+- AndroidX Media3
+- Jetpack Compose
+- Material Components / Material 3
+
+The application also uses Kotlin and Kotlin Coroutines components.
+
+Relevant open-source components remain subject to their respective
+licenses, principally the Apache License, Version 2.0.
+
+Google Play Services components are distributed subject to the
+applicable Google terms and licenses.
+
+====================================================================
+2. NETWORK AND FILE TRANSFER COMPONENTS
+====================================================================
+
+Bonobo Files Explorateur uses the following components:
+
+- Apache FtpServer 1.2.0
+- Apache MINA Core 2.1.6
+- Apache MINA SSHD 2.19.0
+- SMBJ 0.15.0
+- SSHJ 0.39.0
+- OkHttp 4.12.0
+- Okio 3.9.0
+- SLF4J
+- ASN.1 library (asn-one)
+- MBassador
+- EdDSA for Java
+
+These components remain subject to their respective open-source
+licenses.
+
+====================================================================
+3. ARCHIVE AND COMPRESSION COMPONENTS
+====================================================================
+
+Bonobo Files Explorateur uses:
+
+- Apache Commons Compress 1.27.1
+- Apache Commons Codec 1.17.1
+- Apache Commons IO 2.16.1
+- Apache Commons Lang 3.16.0
+- Zip4j 2.11.5
+- XZ for Java 1.12
+- Junrar 8.1.1
+
+Junrar incorporates code distributed under the UnRAR license.
+
+The UnRAR code may be used to handle RAR archives but must not be
+used to develop a RAR-compatible archiver or to recreate the
+proprietary RAR compression algorithm.
+
+Bonobo Files Explorateur uses Junrar for reading/extracting RAR
+archives and does not implement RAR archive creation.
+
+====================================================================
+4. CRYPTOGRAPHIC COMPONENTS
+====================================================================
+
+Bonobo Files Explorateur uses:
+
+- Bouncy Castle Provider 1.78.1
+- Bouncy Castle PKIX 1.78.1
+- Bouncy Castle Utility 1.78.1
+
+These components remain subject to the Bouncy Castle license and
+their applicable third-party notices.
+
+====================================================================
+5. IMAGE, MEDIA AND QR COMPONENTS
+====================================================================
+
+Bonobo Files Explorateur uses components including:
+
+- Coil 2.7.0
+- ZXing Core 3.5.4
+- AndroidX Media3 / ExoPlayer
+
+These components remain subject to their respective open-source
+licenses.
+
+====================================================================
+6. OTHER COMPONENTS
+====================================================================
+
+Bonobo Files Explorateur may include additional transitive
+dependencies required by the libraries listed above.
+
+Their copyrights remain the property of their respective authors,
+and they remain subject to their applicable licenses.
+
+Complete license texts applicable to redistributed third-party
+components are provided with the application where required.
+
+====================================================================
+NO TRANSFER OF THIRD-PARTY RIGHTS
+====================================================================
+
+Nothing in the proprietary Bonobo Files Explorateur license changes,
+restricts or replaces rights granted under applicable third-party
+open-source licenses.
+
+Bonobo Files Explorateur
+Souffly
+https://souffly.app
+contact@souffly.app

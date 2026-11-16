@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.Beta192DeletionTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-23T16:16:56" hostname="aurora" time="0.322">
+  <properties/>
+  <testcase name="localFilesAndFoldersAreRemovedOnlyAfterActualResult" classname="fr.bonobo.filemanager.Beta192DeletionTest" time="0.125"/>
+  <testcase name="safTrashAndMixedSelectionNeverInvokeAnyDeletion" classname="fr.bonobo.filemanager.Beta192DeletionTest" time="0.045"/>
+  <testcase name="safPermanentResultsIncludeRefusalAndThrownError" classname="fr.bonobo.filemanager.Beta192DeletionTest" time="0.055"/>
+  <testcase name="localTrashReportsOnlyConfirmedMoves" classname="fr.bonobo.filemanager.Beta192DeletionTest" time="0.06"/>
+  <testcase name="successWaitsForEngineAndFailureWithoutMessageIsNotSuccess" classname="fr.bonobo.filemanager.Beta192DeletionTest" time="0.037"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

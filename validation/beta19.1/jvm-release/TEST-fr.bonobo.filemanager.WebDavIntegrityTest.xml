@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.WebDavIntegrityTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-12T14:55:52" hostname="aurora" time="0.169">
+  <properties/>
+  <testcase name="verifiedGetUsesStrongEtagForConditionalDelete" classname="fr.bonobo.filemanager.WebDavIntegrityTest" time="0.146"/>
+  <testcase name="absentOrWeakEtagPreservesRemoteSource" classname="fr.bonobo.filemanager.WebDavIntegrityTest" time="0.011"/>
+  <testcase name="successfulHttpReplyWithCorruptContentNeverDeletes" classname="fr.bonobo.filemanager.WebDavIntegrityTest" time="0.005"/>
+  <testcase name="versionChangedBeforeDeleteIsNotReportedAsSuccess" classname="fr.bonobo.filemanager.WebDavIntegrityTest" time="0.007"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

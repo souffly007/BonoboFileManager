@@ -1,0 +1,227 @@
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.AdaptiveExplorerTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+fr.bonobo.filemanager.AdaptiveExplorerTest:
+INSTRUMENTATION_STATUS: test=foldersSelectionAndClipboardSurviveRotationAndRecreation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.AdaptiveExplorerTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=foldersSelectionAndClipboardSurviveRotationAndRecreation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+fr.bonobo.filemanager.saf.SafIntegrationTest:
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:74)
+	... 31 trimmed
+Caused by: android.os.RemoteException: Remote stack trace:
+	at com.android.server.uri.UriGrantsManagerService.checkGrantUriPermissionUnlocked(UriGrantsManagerService.java:1354)
+	at com.android.server.uri.UriGrantsManagerService.checkGrantUriPermissionFromIntentUnlocked(UriGrantsManagerService.java:666)
+	at com.android.server.uri.UriGrantsManagerService.-$$Nest$mcheckGrantUriPermissionFromIntentUnlocked(UriGrantsManagerService.java:0)
+	at com.android.server.uri.UriGrantsManagerService$LocalService.internalCheckGrantUriPermissionFromIntent(UriGrantsManagerService.java:1662)
+	at com.android.server.uri.UriGrantsManagerService$LocalService.checkGrantUriPermissionFromIntent(UriGrantsManagerService.java:1647)
+
+
+INSTRUMENTATION_STATUS: stream=
+Error in contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:74)
+	... 31 trimmed
+Caused by: android.os.RemoteException: Remote stack trace:
+	at com.android.server.uri.UriGrantsManagerService.checkGrantUriPermissionUnlocked(UriGrantsManagerService.java:1354)
+	at com.android.server.uri.UriGrantsManagerService.checkGrantUriPermissionFromIntentUnlocked(UriGrantsManagerService.java:666)
+	at com.android.server.uri.UriGrantsManagerService.-$$Nest$mcheckGrantUriPermissionFromIntentUnlocked(UriGrantsManagerService.java:0)
+	at com.android.server.uri.UriGrantsManagerService$LocalService.internalCheckGrantUriPermissionFromIntent(UriGrantsManagerService.java:1662)
+	at com.android.server.uri.UriGrantsManagerService$LocalService.checkGrantUriPermissionFromIntent(UriGrantsManagerService.java:1647)
+
+
+INSTRUMENTATION_STATUS: test=contentStreamsAndUnsupportedSchemes
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:26)
+
+INSTRUMENTATION_STATUS: stream=
+Error in usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:26)
+
+INSTRUMENTATION_STATUS: test=usbOperationsAndNameConflicts
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:63)
+
+INSTRUMENTATION_STATUS: stream=
+Error in interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:63)
+
+INSTRUMENTATION_STATUS: test=interruptedMoveKeepsSourceAndRemovesPartialDestination
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=fr.bonobo.filemanager.saf.SafIntegrationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:53)
+
+INSTRUMENTATION_STATUS: stream=
+Error in readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:53)
+
+INSTRUMENTATION_STATUS: test=readOnlyDisconnectedAndFailedWrites
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 6.5
+There were 4 failures:
+1) contentStreamsAndUnsupportedSchemes(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.contentStreamsAndUnsupportedSchemes(SafIntegrationTest.kt:74)
+	... 31 trimmed
+Caused by: android.os.RemoteException: Remote stack trace:
+	at com.android.server.uri.UriGrantsManagerService.checkGrantUriPermissionUnlocked(UriGrantsManagerService.java:1354)
+	at com.android.server.uri.UriGrantsManagerService.checkGrantUriPermissionFromIntentUnlocked(UriGrantsManagerService.java:666)
+	at com.android.server.uri.UriGrantsManagerService.-$$Nest$mcheckGrantUriPermissionFromIntentUnlocked(UriGrantsManagerService.java:0)
+	at com.android.server.uri.UriGrantsManagerService$LocalService.internalCheckGrantUriPermissionFromIntent(UriGrantsManagerService.java:1662)
+	at com.android.server.uri.UriGrantsManagerService$LocalService.checkGrantUriPermissionFromIntent(UriGrantsManagerService.java:1647)
+
+2) usbOperationsAndNameConflicts(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.usbOperationsAndNameConflicts(SafIntegrationTest.kt:26)
+3) interruptedMoveKeepsSourceAndRemovesPartialDestination(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.SecurityException: UID 10211 does not have permission to content://fr.bonobo.filemanager.test.documents/tree/root [user 0] [prefix]; you could obtain access using ACTION_OPEN_DOCUMENT or related APIs
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3242)
+	at android.os.Parcel.createException(Parcel.java:3226)
+	at android.os.Parcel.readException(Parcel.java:3209)
+	at android.os.Parcel.readException(Parcel.java:3151)
+	at android.app.IActivityManager$Stub$Proxy.grantUriPermission(IActivityManager.java:6840)
+	at android.app.ContextImpl.grantUriPermission(ContextImpl.java:2427)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root(SafIntegrationTest.kt:18)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.root$default(SafIntegrationTest.kt:16)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.interruptedMoveKeepsSourceAndRemovesPartialDestination(SafIntegrationTest.kt:63)
+4) readOnlyDisconnectedAndFailedWrites(fr.bonobo.filemanager.saf.SafIntegrationTest)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at fr.bonobo.filemanager.saf.SafIntegrationTest.readOnlyDisconnectedAndFailedWrites(SafIntegrationTest.kt:53)
+
+FAILURES!!!
+Tests run: 5,  Failures: 4
+
+
+INSTRUMENTATION_CODE: -1

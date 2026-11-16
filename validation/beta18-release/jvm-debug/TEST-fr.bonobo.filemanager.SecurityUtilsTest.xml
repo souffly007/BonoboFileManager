@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.SecurityUtilsTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-11T18:19:27" hostname="aurora" time="0.459">
+  <properties/>
+  <testcase name="passwordHashIsSaltedAndVerifiable" classname="fr.bonobo.filemanager.SecurityUtilsTest" time="0.255"/>
+  <testcase name="encryptDecryptRoundTripAndRejectWrongPassword" classname="fr.bonobo.filemanager.SecurityUtilsTest" time="0.203"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.AndroidIntegrationTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-11T14:08:49" hostname="aurora" time="0.079">
+  <properties/>
+  <testcase name="safNamesRejectTraversalAndControlCharacters" classname="fr.bonobo.filemanager.AndroidIntegrationTest" time="0.057"/>
+  <testcase name="persistenceUsesOnlyPermissionsActuallyReturnedByAndroid" classname="fr.bonobo.filemanager.AndroidIntegrationTest" time="0.006"/>
+  <testcase name="onlyImplementedFormatsAreAdvertised" classname="fr.bonobo.filemanager.AndroidIntegrationTest" time="0.001"/>
+  <testcase name="streamLimitsAndWriteErrorsAreNotSilentlyAccepted" classname="fr.bonobo.filemanager.AndroidIntegrationTest" time="0.004"/>
+  <testcase name="receivedNamesCannotEscapePrivateDirectory" classname="fr.bonobo.filemanager.AndroidIntegrationTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

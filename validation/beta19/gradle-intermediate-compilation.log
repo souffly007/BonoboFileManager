@@ -1,0 +1,118 @@
+Starting a Gradle Daemon, 1 busy and 2 incompatible and 2 stopped Daemons could not be reused, use --status for details
+Daemon JVM discovery is an incubating feature.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:mergeDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:javaPreCompileDebug
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:buildKotlinToolingMetadata UP-TO-DATE
+> Task :app:generateReleaseBuildConfig
+> Task :app:checkReleaseAarMetadata UP-TO-DATE
+> Task :app:generateReleaseResValues UP-TO-DATE
+> Task :app:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :app:generateReleaseResources UP-TO-DATE
+> Task :app:mergeReleaseResources UP-TO-DATE
+> Task :app:packageReleaseResources UP-TO-DATE
+> Task :app:parseReleaseLocalResources UP-TO-DATE
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease UP-TO-DATE
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:processReleaseManifestForPackage
+> Task :app:processDebugResources
+> Task :app:processReleaseResources
+> Task :app:kspReleaseKotlin
+> Task :app:kspDebugKotlin
+
+> Task :app:compileReleaseKotlin
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:115:80 'val Icons.Filled.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Sort.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:186:97 'val Icons.Filled.DriveFileMove: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DriveFileMove.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:260:84 'val Icons.Filled.DriveFileMove: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DriveFileMove.
+
+> Task :app:javaPreCompileRelease UP-TO-DATE
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:compileDebugKotlin
+> Task :app:hiltAggregateDepsRelease UP-TO-DATE
+> Task :app:hiltJavaCompileRelease
+> Task :app:transformReleaseClassesWithAsm
+> Task :app:bundleReleaseClassesToRuntimeJar
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:processReleaseJavaRes
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:kspReleaseUnitTestKotlin
+
+> Task :app:compileDebugKotlin
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:50:41 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:56:41 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:73:24 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:27:49 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:27:145 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:34:24 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/apps/AppManagerScreen.kt:186:56 'val Icons.Filled.Launch: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Launch.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:680:33 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:680:48 'val ipAddress: Int' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:791:106 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:896:106 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:1036:90 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:33 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:48 'val ipAddress: Int' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:115:80 'val Icons.Filled.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Sort.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:186:97 'val Icons.Filled.DriveFileMove: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DriveFileMove.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:260:84 'val Icons.Filled.DriveFileMove: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DriveFileMove.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/theme/Theme.kt:119:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ArchivePreviewScreen.kt:23:152 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/AudioPlayerScreen.kt:71:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/EpubViewerScreen.kt:24:17 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/EpubViewerScreen.kt:47:137 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:66:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:108:44 'val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:116:44 'val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/OfficeDocumentViewerScreen.kt:47:90 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:42:208 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:75:40 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:87:40 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/TextDiffScreen.kt:46:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/TextEditorScreen.kt:57:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/VideoPlayerScreen.kt:92:32 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:8:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:35:50 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:44:41 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:49:27 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:128:9 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:134:44 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+
+> Task :app:compileReleaseUnitTestKotlin FAILED
+e: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/test/java/fr/bonobo/filemanager/Beta19Test.kt:42:36 Unresolved reference 'activate'.
+
+> Task :app:compileDebugJavaWithJavac
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileReleaseUnitTestKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 18s
+46 actionable tasks: 35 executed, 11 up-to-date

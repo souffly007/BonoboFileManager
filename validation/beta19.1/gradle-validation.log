@@ -1,0 +1,230 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:processDebugManifestForPackage
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:buildKotlinToolingMetadata
+> Task :app:generateReleaseBuildConfig
+> Task :app:checkReleaseAarMetadata
+> Task :app:generateReleaseResValues
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:processDebugResources
+> Task :app:mergeReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:parseReleaseLocalResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:processReleaseManifestForPackage
+> Task :app:processReleaseResources
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac
+> Task :app:hiltAggregateDepsDebug UP-TO-DATE
+> Task :app:hiltJavaCompileDebug UP-TO-DATE
+> Task :app:transformDebugClassesWithAsm
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:kspReleaseKotlin
+> Task :app:kspDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:hiltAggregateDepsDebugUnitTest
+> Task :app:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:transformDebugUnitTestClassesWithAsm
+> Task :app:testDebugUnitTest
+> Task :app:javaPreCompileRelease
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileReleaseUnitTest
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+
+> Task :app:compileReleaseKotlin
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:50:41 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:56:41 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/DecompressFileUseCase.kt:73:24 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:27:49 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:27:145 'val nextTarEntry: TarArchiveEntry!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/domain/usecase/ListArchiveEntriesUseCase.kt:34:24 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/apps/AppManagerScreen.kt:186:56 'val Icons.Filled.Launch: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Launch.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:680:33 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:680:48 'val ipAddress: Int' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:791:106 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:896:106 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/NetworkScreen.kt:1036:90 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:33 'val connectionInfo: WifiInfo!' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/P2PTransferScreen.kt:205:48 'val ipAddress: Int' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:115:80 'val Icons.Filled.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Sort.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:186:97 'val Icons.Filled.DriveFileMove: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DriveFileMove.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/network/RemoteExplorerScreen.kt:260:84 'val Icons.Filled.DriveFileMove: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DriveFileMove.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/theme/Theme.kt:119:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ArchivePreviewScreen.kt:23:152 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/AudioPlayerScreen.kt:71:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/EpubViewerScreen.kt:24:17 'constructor(p0: File!): ZipFile' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/EpubViewerScreen.kt:47:137 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:66:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:108:44 'val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ImageViewerScreen.kt:116:44 'val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/OfficeDocumentViewerScreen.kt:47:90 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:42:208 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:75:40 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/PdfViewerScreen.kt:87:40 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/TextDiffScreen.kt:46:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/TextEditorScreen.kt:57:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/VideoPlayerScreen.kt:92:32 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:8:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:35:50 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:44:41 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:49:27 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:128:9 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/GoogleDriveCloudManager.kt:134:44 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:hiltAggregateDepsRelease
+> Task :app:packageDebug
+> Task :app:hiltJavaCompileRelease
+> Task :app:processReleaseJavaRes
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:transformReleaseClassesWithAsm
+> Task :app:bundleReleaseClassesToRuntimeJar
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:mergeReleaseNativeLibs
+
+> Task :app:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so.
+
+> Task :app:kspReleaseUnitTestKotlin
+> Task :app:extractReleaseNativeSymbolTables
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:compileReleaseUnitTestKotlin
+> Task :app:dexBuilderRelease
+> Task :app:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :app:desugarReleaseFileDependencies
+> Task :app:hiltAggregateDepsReleaseUnitTest
+> Task :app:mergeReleaseStartupProfile UP-TO-DATE
+> Task :app:hiltJavaCompileReleaseUnitTest NO-SOURCE
+> Task :app:processReleaseUnitTestJavaRes
+> Task :app:transformReleaseUnitTestClassesWithAsm
+> Task :app:testReleaseUnitTest
+> Task :app:mergeReleaseArtProfile
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:compressReleaseAssets
+> Task :app:mergeExtDexRelease
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:mergeReleaseJavaResource
+> Task :app:mergeDexRelease
+> Task :app:optimizeReleaseResources
+> Task :app:compileReleaseArtProfile
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:processDebugAndroidTestManifest
+> Task :app:generateDebugAndroidTestBuildConfig
+> Task :app:checkDebugAndroidTestAarMetadata
+> Task :app:generateDebugAndroidTestResValues
+> Task :app:mapDebugAndroidTestSourceSetPaths
+> Task :app:generateDebugAndroidTestResources
+> Task :app:mergeDebugAndroidTestResources
+> Task :app:processDebugAndroidTestResources
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+> Task :app:javaPreCompileDebugAndroidTest
+> Task :app:mergeDebugAndroidTestShaders
+> Task :app:compileDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets
+> Task :app:compressDebugAndroidTestAssets
+> Task :app:desugarDebugAndroidTestFileDependencies
+> Task :app:checkDebugAndroidTestDuplicateClasses
+> Task :app:mergeExtDexDebugAndroidTest
+> Task :app:mergeLibDexDebugAndroidTest
+> Task :app:mergeDebugAndroidTestJniLibFolders
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugAndroidTest
+> Task :app:writeDebugAndroidTestSigningConfigVersions
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:extractProguardFiles
+> Task :app:generateDebugLintReportModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:kspDebugAndroidTestKotlin
+> Task :app:compileDebugAndroidTestKotlin
+> Task :app:compileDebugAndroidTestJavaWithJavac
+> Task :app:hiltAggregateDepsDebugAndroidTest
+> Task :app:hiltJavaCompileDebugAndroidTest NO-SOURCE
+> Task :app:transformDebugAndroidTestClassesWithAsm
+> Task :app:dexBuilderDebugAndroidTest
+> Task :app:mergeDebugAndroidTestGlobalSynthetics
+> Task :app:processDebugAndroidTestJavaRes
+> Task :app:mergeDebugAndroidTestJavaResource
+> Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:packageDebugAndroidTest
+> Task :app:createDebugAndroidTestApkListingFileRedirect
+> Task :app:assembleDebugAndroidTest
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:generateReleaseLintReportModel
+> Task :app:generateReleaseUnitTestLintModel
+> Task :app:lintAnalyzeDebug
+> Task :app:lintAnalyzeRelease
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build/reports/lint-results-debug.html
+
+> Task :app:lintDebug
+> Task :app:lintAnalyzeReleaseUnitTest
+
+> Task :app:lintReportRelease
+Wrote HTML report to file:///var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build/reports/lint-results-release.html
+
+> Task :app:lintRelease
+
+BUILD SUCCESSFUL in 2m 16s
+153 actionable tasks: 125 executed, 28 up-to-date

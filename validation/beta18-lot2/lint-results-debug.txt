@@ -1,0 +1,384 @@
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:17: Warning: Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details. [OldTargetApi]
+        targetSdk = 35
+        ~~~~~~~~~~~~~~
+
+   Explanation for issues of type "OldTargetApi":
+   When your application runs on a version of Android that is more recent than
+   your targetSdkVersion specifies that it has been tested with, various
+   compatibility modes kick in. This ensures that your application continues
+   to work, but it may look out of place. For example, if the targetSdkVersion
+   is less than 14, your app may get an option button in the UI.
+
+   To fix this issue, set the targetSdkVersion to the highest available value.
+   Then test your app to make sure everything works correctly. You may want to
+   consult the compatibility notes to see what changes apply to each version
+   you are adding support for:
+   https://developer.android.com/reference/android/os/Build.VERSION_CODES.html
+   as well as follow this guide:
+   https://developer.android.com/distribute/best-practices/develop/target-sdk.
+   html
+
+   https://developer.android.com/distribute/best-practices/develop/target-sdk.html
+
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/data/repository/AppRepositoryImpl.kt:23: Warning: As of Android 11, this method no longer returns information about all apps; see https://g.co/dev/packagevisibility for details [QueryPermissionsNeeded]
+        val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                      ~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "QueryPermissionsNeeded":
+   Apps that target Android 11 cannot query or interact with other installed
+   apps by default. If you need to query or interact with other installed
+   apps, you may need to add a <queries> declaration in your manifest.
+
+   As a corollary, the methods PackageManager#getInstalledPackages and
+   PackageManager#getInstalledApplications will no longer return information
+   about all installed apps. To query specific apps or types of apps, you can
+   use methods like PackageManager#getPackageInfo or
+   PackageManager#queryIntentActivities.
+
+   https://g.co/dev/packagevisibility
+
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:83: Warning: A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.16.0 [GradleDependency]
+    implementation("androidx.core:core-ktx:1.15.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:85: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.8.7 is available: 2.10.0 [GradleDependency]
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:86: Warning: A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.8.7 is available: 2.9.4 [GradleDependency]
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:97: Warning: A newer version of com.google.dagger:hilt-android than 2.52 is available: 2.59 [GradleDependency]
+    implementation("com.google.dagger:hilt-android:2.52")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:101: Warning: A newer version of androidx.room:room-runtime than 2.6.1 is available: 2.8.4 [GradleDependency]
+    implementation("androidx.room:room-runtime:2.6.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:102: Warning: A newer version of androidx.room:room-ktx than 2.6.1 is available: 2.8.4 [GradleDependency]
+    implementation("androidx.room:room-ktx:2.6.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:134: Warning: A newer version of org.bouncycastle:bcprov-jdk18on than 1.78.1 is available: 1.85.2 [GradleDependency]
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/gradle/libs.versions.toml:5: Warning: A newer version of androidx.test.ext:junit than 1.1.5 is available: 1.2.1 [GradleDependency]
+junitVersion = "1.1.5"
+               ~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/gradle/libs.versions.toml:5: Warning: A newer version of androidx.test.ext:junit than 1.1.5 is available: 1.2.1 [GradleDependency]
+junitVersion = "1.1.5"
+               ~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/gradle/libs.versions.toml:5: Warning: A newer version of androidx.test.ext:junit than 1.1.5 is available: 1.2.1 [GradleDependency]
+junitVersion = "1.1.5"
+               ~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/gradle/libs.versions.toml:6: Warning: A newer version of androidx.test.espresso:espresso-core than 3.5.1 is available: 3.7.0 [GradleDependency]
+espressoCore = "3.5.1"
+               ~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/gradle/libs.versions.toml:6: Warning: A newer version of androidx.test.espresso:espresso-core than 3.5.1 is available: 3.7.0 [GradleDependency]
+espressoCore = "3.5.1"
+               ~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/gradle/libs.versions.toml:6: Warning: A newer version of androidx.test.espresso:espresso-core than 3.5.1 is available: 3.7.0 [GradleDependency]
+espressoCore = "3.5.1"
+               ~~~~~~~
+
+   Explanation for issues of type "GradleDependency":
+   This detector looks for usages of libraries where the version you are using
+   is not the current stable release. Using older versions is fine, and there
+   are cases where you deliberately want to stick with an older version.
+   However, you may simply not be aware that a more recent version is
+   available, and that is what this lint check helps find.
+
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/presentation/ui/viewer/ZoomableImage.kt:32: Warning: Modifier parameter should be the first optional parameter [ModifierParameter from androidx.compose.ui]
+    modifier: Modifier = Modifier,
+    ~~~~~~~~
+
+   Explanation for issues of type "ModifierParameter":
+   The first (or only) Modifier parameter in a Composable function should
+   follow the following rules:
+   - Be named modifier
+   - Have a type of Modifier
+   - Either have no default value, or have a default value of Modifier
+   - If optional, be the first optional parameter in the parameter list
+
+   Vendor: Jetpack Compose
+   Identifier: androidx.compose.ui
+   Feedback: https://issuetracker.google.com/issues/new?component=612128
+
+/var/home/Snoopy63/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk18on/1.78.1/17b3541f736df97465f87d9f5b5dfa4991b37bb3/bcpkix-jdk18on-1.78.1.jar: Warning: checkServerTrusted is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers [TrustAllX509TrustManager]
+/var/home/Snoopy63/.gradle/caches/modules-2/files-2.1/commons-net/commons-net/3.11.1/f0689b01d2e3ef4b316bcc87360849a22f05d06d/commons-net-3.11.1.jar: Warning: checkClientTrusted is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers [TrustAllX509TrustManager]
+/var/home/Snoopy63/.gradle/caches/modules-2/files-2.1/commons-net/commons-net/3.11.1/f0689b01d2e3ef4b316bcc87360849a22f05d06d/commons-net-3.11.1.jar: Warning: checkClientTrusted is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers [TrustAllX509TrustManager]
+/var/home/Snoopy63/.gradle/caches/modules-2/files-2.1/org.apache.mina/mina-core/2.1.6/ba4b9e10f13958ae1222b0e8ebfbbc5117408668/mina-core-2.1.6.jar: Warning: checkClientTrusted is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers [TrustAllX509TrustManager]
+/var/home/Snoopy63/.gradle/caches/modules-2/files-2.1/org.apache.mina/mina-core/2.1.6/ba4b9e10f13958ae1222b0e8ebfbbc5117408668/mina-core-2.1.6.jar: Warning: checkServerTrusted is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers [TrustAllX509TrustManager]
+
+   Explanation for issues of type "TrustAllX509TrustManager":
+   This check looks for X509TrustManager implementations whose
+   checkServerTrusted or checkClientTrusted methods do nothing (thus trusting
+   any certificate chain) which could result in insecure network traffic
+   caused by trusting arbitrary TLS/SSL certificates presented by peers.
+
+   https://goo.gle/TrustAllX509TrustManager
+
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/FtpService.kt:47: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/FtpService.kt:150: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/SftpService.kt:48: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/SftpService.kt:114: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/util/ShortcutUtils.kt:15: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/mipmap-anydpi-v26: Warning: This folder configuration (v26) is unnecessary; minSdkVersion is 26. Merge all the resources in this folder into mipmap-anydpi. [ObsoleteSdkInt]
+
+   Explanation for issues of type "ObsoleteSdkInt":
+   This check flags version checks that are not necessary, because the
+   minSdkVersion (or surrounding known API level) is already at least as high
+   as the version checked for.
+
+   Similarly, it also looks for resources in -vNN folders, such as values-v14
+   where the version qualifier is less than or equal to the minSdkVersion,
+   where the contents should be merged into the best folder.
+
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/drawable/app_background.jpg: Warning: The resource R.drawable.app_background appears to be unused [UnusedResources]
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/colors.xml:3: Warning: The resource R.color.purple_200 appears to be unused [UnusedResources]
+    <color name="purple_200">#FFBB86FC</color>
+           ~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/colors.xml:4: Warning: The resource R.color.purple_500 appears to be unused [UnusedResources]
+    <color name="purple_500">#FF6200EE</color>
+           ~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/colors.xml:5: Warning: The resource R.color.purple_700 appears to be unused [UnusedResources]
+    <color name="purple_700">#FF3700B3</color>
+           ~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/colors.xml:6: Warning: The resource R.color.teal_200 appears to be unused [UnusedResources]
+    <color name="teal_200">#FF03DAC5</color>
+           ~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/colors.xml:7: Warning: The resource R.color.teal_700 appears to be unused [UnusedResources]
+    <color name="teal_700">#FF018786</color>
+           ~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/colors.xml:8: Warning: The resource R.color.black appears to be unused [UnusedResources]
+    <color name="black">#FF000000</color>
+           ~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/colors.xml:9: Warning: The resource R.color.white appears to be unused [UnusedResources]
+    <color name="white">#FFFFFFFF</color>
+           ~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/drawable/ic_launcher_foreground.xml:1: Warning: The resource R.drawable.ic_launcher_foreground appears to be unused [UnusedResources]
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+^
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/strings.xml:3: Warning: The resource R.string.shortcut_explorer_short appears to be unused [UnusedResources]
+    <string name="shortcut_explorer_short">Explorateur</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/strings.xml:4: Warning: The resource R.string.shortcut_explorer_long appears to be unused [UnusedResources]
+    <string name="shortcut_explorer_long">Ouvrir l\'explorateur</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/strings.xml:5: Warning: The resource R.string.shortcut_trash_short appears to be unused [UnusedResources]
+    <string name="shortcut_trash_short">Corbeille</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/values/strings.xml:6: Warning: The resource R.string.shortcut_trash_long appears to be unused [UnusedResources]
+    <string name="shortcut_trash_long">Ouvrir la corbeille</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UnusedResources":
+   Unused resources make applications larger and slow down builds.
+
+
+   The unused resource check can ignore tests. If you want to include
+   resources that are only referenced from tests, consider packaging them in a
+   test source set instead.
+
+   You can include test sources in the unused resource check by setting the
+   system property lint.unused-resources.include-tests =true, and to exclude
+   them (usually for performance reasons), use
+   lint.unused-resources.exclude-tests =true.
+   ,
+
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/RemoteDownloadTarget.kt:36: Warning: Consider also using StorageManager#getAllocatableBytes and allocateBytes which will consider clearable cached data [UsableSpace]
+                check(size <= 0 || Environment.getExternalStorageDirectory().usableSpace >= size) { "Espace libre insuffisant dans Téléchargements" }
+                                                                             ~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/java/fr/bonobo/filemanager/service/RemoteDownloadTarget.kt:61: Warning: Consider also using StorageManager#getAllocatableBytes and allocateBytes which will consider clearable cached data [UsableSpace]
+            check(size <= 0 || directory.usableSpace >= size) { "Espace libre insuffisant dans Téléchargements" }
+                                         ~~~~~~~~~~~
+
+   Explanation for issues of type "UsableSpace":
+   When you need to allocate disk space for large files, consider using the
+   new allocateBytes(FileDescriptor, long) API, which will automatically clear
+   cached files belonging to other apps (as needed) to meet your request.
+
+   When deciding if the device has enough disk space to hold your new data,
+   call getAllocatableBytes(UUID) instead of using getUsableSpace(), since the
+   former will consider any cached data that the system is willing to clear on
+   your behalf.
+
+   Note that these methods require API level 26. If your app is running on
+   older devices, you will probably need to use both APIs, conditionally
+   switching on Build.VERSION.SDK_INT. Lint only looks in the same compilation
+   unit to see if you are already using both APIs, so if it warns even though
+   you are already using the new API, consider moving the calls to the same
+   file or suppressing the warning.
+
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/src/main/res/drawable/app_background.jpg: Warning: Found bitmap drawable res/drawable/app_background.jpg in densityless folder [IconLocation]
+
+   Explanation for issues of type "IconLocation":
+   The res/drawable folder is intended for density-independent graphics such
+   as shapes defined in XML. For bitmaps, move it to drawable-mdpi and
+   consider providing higher and lower resolution versions in drawable-ldpi,
+   drawable-hdpi and drawable-xhdpi. If the icon really is density independent
+   (for example a solid color) you can place it in drawable-nodpi.
+
+   https://developer.android.com/guide/practices/screens_support.html
+
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:83: Warning: Use version catalog instead (androidx.core:core-ktx is already available as androidx-core-ktx, but using version 1.19.0 instead) [UseTomlInstead]
+    implementation("androidx.core:core-ktx:1.15.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:84: Warning: Use version catalog instead (androidx.activity:activity-compose is already available as androidx-activity-compose, but using version 1.13.0 instead) [UseTomlInstead]
+    implementation("androidx.activity:activity-compose:1.10.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:85: Warning: Use version catalog instead (androidx.lifecycle:lifecycle-runtime-ktx is already available as androidx-lifecycle-runtime-ktx, but using version 2.11.0 instead) [UseTomlInstead]
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:86: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:88: Warning: Use version catalog instead (androidx.compose:compose-bom is already available as androidx-compose-bom, but using version 2026.02.01 instead) [UseTomlInstead]
+    implementation(platform("androidx.compose:compose-bom:2025.01.00"))
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:89: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.compose.ui:ui")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:90: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.compose.ui:ui-tooling-preview")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:91: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.compose.foundation:foundation")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:92: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.compose.material3:material3")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:93: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.compose.material:material-icons-extended")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:95: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.navigation:navigation-compose:2.8.6")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:97: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("com.google.dagger:hilt-android:2.52")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:98: Warning: Use version catalog instead [UseTomlInstead]
+    ksp("com.google.dagger:hilt-compiler:2.52")
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:99: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:101: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.room:room-runtime:2.6.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:102: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.room:room-ktx:2.6.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:103: Warning: Use version catalog instead [UseTomlInstead]
+    ksp("androidx.room:room-compiler:2.6.1")
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:105: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:106: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:108: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("io.coil-kt:coil-compose:2.7.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:109: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("io.coil-kt:coil-video:2.7.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:111: Warning: Use the existing version catalog reference (libs.junit) instead [UseTomlInstead]
+    testImplementation("junit:junit:4.13.2")
+                       ~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:112: Warning: Use version catalog instead [UseTomlInstead]
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:114: Warning: Use version catalog instead (androidx.test.ext:junit is already available as androidx-junit, but using version 1.1.5 instead) [UseTomlInstead]
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:115: Warning: Use version catalog instead (androidx.test.espresso:espresso-core is already available as androidx-espresso-core, but using version 3.5.1 instead) [UseTomlInstead]
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:116: Warning: Use version catalog instead (androidx.compose:compose-bom is already available as androidx-compose-bom, but using version 2026.02.01 instead) [UseTomlInstead]
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.01.00"))
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:117: Warning: Use version catalog instead [UseTomlInstead]
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:119: Warning: Use version catalog instead [UseTomlInstead]
+    debugImplementation("androidx.compose.ui:ui-tooling")
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:120: Warning: Use version catalog instead [UseTomlInstead]
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:122: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:124: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("org.apache.ftpserver:ftpserver-core:1.2.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:125: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("org.slf4j:slf4j-android:1.7.36")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:126: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("commons-net:commons-net:3.11.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:127: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("com.hierynomus:smbj:0.15.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:128: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("com.hierynomus:sshj:0.39.0") // SFTP/SSH client
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:129: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("com.squareup.okhttp3:okhttp:4.12.0") // WebDAV HTTPS
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:131: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("org.apache.sshd:sshd-common:$sshdVersion")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:132: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("org.apache.sshd:sshd-core:$sshdVersion")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:133: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("org.apache.sshd:sshd-sftp:$sshdVersion")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:134: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:137: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("org.apache.commons:commons-compress:1.27.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:138: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("com.github.junrar:junrar:8.1.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:139: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("org.tukaani:xz:1.12")
+                   ~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:140: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("net.lingala.zip4j:zip4j:2.11.5")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:143: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("com.google.zxing:core:3.5.4")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:146: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:149: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("dev.rikka.shizuku:api:13.1.5")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:153: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.media3:media3-exoplayer:$media3Version")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/home/Snoopy63/AndroidStudioProjects/Filemanager/app/build.gradle.kts:154: Warning: Use version catalog instead [UseTomlInstead]
+    implementation("androidx.media3:media3-ui:$media3Version")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UseTomlInstead":
+   If your project is using a libs.versions.toml file, you should place all
+   Gradle dependencies in the TOML file. This lint check looks for version
+   declarations outside of the TOML file and suggests moving them (and in the
+   IDE, provides a quickfix to performing the operation automatically).
+
+0 errors, 92 warnings

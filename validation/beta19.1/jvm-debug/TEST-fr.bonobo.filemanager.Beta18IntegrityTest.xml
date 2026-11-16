@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="fr.bonobo.filemanager.Beta18IntegrityTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-12T14:55:13" hostname="aurora" time="0.161">
+  <properties/>
+  <testcase name="localSafAliasesAndSymlinksCannotTargetTrash" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.002"/>
+  <testcase name="networkReadFailureAndSourceChangePreventDeletion" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.025"/>
+  <testcase name="recursiveNetworkTreeVerifiedBeforeDeletingAndCancellationPreservesSources" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.016"/>
+  <testcase name="incompleteInterruptedRestoreBlocksAnotherDestination" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.035"/>
+  <testcase name="concurrentRestorationsCreateOneCopy" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.045"/>
+  <testcase name="existingDestinationAndBrokenReceiptNeverOverwrite" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.01"/>
+  <testcase name="missingDestinationCanBeRestoredButModifiedDestinationCannot" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.01"/>
+  <testcase name="lostTruncatedOrSameSizeCorruptedNetworkCopyNeverDeletesSource" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.006"/>
+  <testcase name="receiptSurvivesRestartAndDifferentDestinationDoesNotDuplicate" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.005"/>
+  <testcase name="cancelledRestoreRetainsSourceAndPendingIntent" classname="fr.bonobo.filemanager.Beta18IntegrityTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

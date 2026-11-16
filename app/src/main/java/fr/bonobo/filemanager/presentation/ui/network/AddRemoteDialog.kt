@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import fr.bonobo.filemanager.data.repository.SmbPaths
 import fr.bonobo.filemanager.domain.model.ConnectionType
 import fr.bonobo.filemanager.domain.model.RemoteConnection
 
@@ -37,6 +38,10 @@ fun AddRemoteDialog(
         mutableStateOf(fixedType ?: if (smbOnly) ConnectionType.SMB
         else initialConnection?.type?.takeUnless { it == ConnectionType.FTP } ?: ConnectionType.FTPS)
     }
+    // SMB: « Partage » accepts Documents, c/Users/Nico, \\hôte\partage\chemin and smb://hôte/partage/chemin.
+    val smbShare = if (type == ConnectionType.SMB) SmbPaths.parseShare(share) else null
+    val smbShareError = (smbShare as? SmbPaths.ShareInput.Invalid)?.message
+    val smbHost = (smbShare as? SmbPaths.ShareInput.Valid)?.host
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -56,10 +61,18 @@ fun AddRemoteDialog(
                 
                 if (type == ConnectionType.SMB || type == ConnectionType.WEBDAV) {
                     OutlinedTextField(
-                        value = share, 
-                        onValueChange = { share = it }, 
-                        label = { Text(if (type == ConnectionType.SMB) "Partage / dossier (ex: public ou c/Users/Nico/Desktop)" else "Chemin WebDAV (ex: remote.php/dav/files/nom)") }, 
-                        singleLine = true, 
+                        value = share,
+                        onValueChange = { share = it },
+                        label = { Text(if (type == ConnectionType.SMB) "Partage / dossier (ex: public ou c/Users/Nico/Desktop)" else "Chemin WebDAV (ex: remote.php/dav/files/nom)") },
+                        singleLine = true,
+                        isError = smbShareError != null,
+                        supportingText = when {
+                            smbShareError != null -> { { Text(smbShareError) } }
+                            type == ConnectionType.SMB && share.isNotBlank() -> { {
+                                Text("Accepté aussi : \\\\serveur\\partage\\dossier ou smb://serveur/partage/dossier")
+                            } }
+                            else -> null
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -88,19 +101,21 @@ fun AddRemoteDialog(
         },
         confirmButton = {
             Button(
-                onClick = { 
+                onClick = {
+                    // SMB: store the normalized « partage/chemin »; an empty host is taken from the address.
+                    val validShare = smbShare as? SmbPaths.ShareInput.Valid
                     onConfirm(RemoteConnection(
                         id = initialConnection?.id ?: 0,
-                        name = name, 
-                        host = host, 
+                        name = name,
+                        host = host.ifBlank { smbHost.orEmpty() },
                         port = port.toIntOrNull() ?: if (type == ConnectionType.SFTP) 22 else if (type == ConnectionType.SMB) 445 else if (type == ConnectionType.WEBDAV) 443 else 21, 
                         user = user, 
                         pass = pass, 
                         type = type, 
-                        share = share.ifBlank { null }
+                        share = if (validShare != null) validShare.normalized else share.ifBlank { null }
                     ))
                 },
-                enabled = name.isNotBlank() && host.isNotBlank()
+                enabled = name.isNotBlank() && (host.isNotBlank() || smbHost != null) && smbShareError == null
             ) {
                 Text(if (initialConnection == null) "Ajouter" else "Enregistrer")
             }

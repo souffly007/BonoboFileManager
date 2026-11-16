@@ -113,9 +113,11 @@ class RemoteFileRepository @Inject constructor(
         }.onFailure { if (it is kotlinx.coroutines.CancellationException) throw it }
     }
 
-    suspend fun downloadToCache(connection: RemoteConnection, path: String, destination: java.io.File): Result<java.io.File> {
+    /** [thumbnail] only changes the SMB journal operation (THUMBNAIL instead of OPEN). */
+    suspend fun downloadToCache(connection: RemoteConnection, path: String, destination: java.io.File,
+        thumbnail: Boolean = false): Result<java.io.File> {
         return when (connection.type) {
-            ConnectionType.SMB -> smbRepository.downloadToCache(connection, path, destination)
+            ConnectionType.SMB -> smbRepository.downloadToCache(connection, path, destination, thumbnail)
             ConnectionType.SFTP -> sftpRepository.downloadToFile(connection, path, destination)
             ConnectionType.WEBDAV -> webDavRepository.downloadToFile(connection, path, destination)
             ConnectionType.FTPS -> runCatching {

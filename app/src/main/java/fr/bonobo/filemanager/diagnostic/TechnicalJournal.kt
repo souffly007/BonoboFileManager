@@ -20,7 +20,9 @@ class TechnicalJournal(private val directory: File, private val limit: Int = 1_0
         // Automatic opening when a USB key is plugged in
         USB_ATTACH_INTENT, USB_VOLUME_WAIT, USB_AUTO_OPEN,
         // Trash restore receipts: identity check (expected= recorded, transferred= found)
-        RESTORE_IDENTITY }
+        RESTORE_IDENTITY,
+        // SMB client: one START line and one end line per operation (smbOp=, ntStatus= on failure)
+        SMB_OPERATION }
     enum class Result { START, OK, ERROR, MATCH, MISMATCH, CANCELLED, REFUSED, INDETERMINATE, PERMISSION_DENIED, NO_PERSISTED_GRANT, NOT_FOUND, IO_ERROR, PROVIDER_REJECTED, PROVIDER_UNAVAILABLE, OPEN_FAILED, REFERENCE_INVALID, CONFLICT,
         /** Cleanup outcomes: never report a confirmed cleanup without DELETED. */
         DELETED, LEFTOVER, UNKNOWN,
@@ -31,11 +33,15 @@ class TechnicalJournal(private val directory: File, private val limit: Int = 1_0
         /** Folder of an interrupted copy kept on purpose: it only holds complete, verified files. */
         KEPT_VERIFIED,
         /** Restore receipt of an older trash entry whose restored copy no longer exists: replaced. */
-        STALE_RECEIPT }
-    enum class Storage { LOCAL, SAF, USB, OTHER, UNKNOWN }
+        STALE_RECEIPT,
+        /** SMB failures: credentials refused, share name unknown to the server, server not reachable. */
+        AUTH_REFUSED, SHARE_NOT_FOUND, UNREACHABLE }
+    enum class Storage { LOCAL, SAF, USB, SMB, OTHER, UNKNOWN }
     enum class Kind { FILE, DIRECTORY, UNKNOWN }
     enum class Mode { PERMANENT, TRASH, CLEANUP, COPY, MOVE, RESTORE, UNKNOWN }
     enum class Phase { REQUEST, CREATE, OPEN, READ, WRITE, CLOSE, PROVIDER, VERIFY, FINISH, UNKNOWN }
+    /** SMB operations. PASTE_HERE is the « Mettre ici » request; each pasted element then logs COPY/MOVE/DUPLICATE. */
+    enum class SmbOp { LIST, OPEN, THUMBNAIL, DOWNLOAD, SAVE, INSPECT, COPY, MOVE, DUPLICATE, PASTE_HERE, DELETE, DELETE_SOURCE }
     @Volatile var enabled = false
         private set
     @Volatile private var generation = 0L
@@ -56,6 +62,15 @@ class TechnicalJournal(private val directory: File, private val limit: Int = 1_0
         phase: Phase = Phase.UNKNOWN, durationMs: Long? = null, expected: Long? = null, transferred: Long? = null) {
         recordLine(event, result, operation, expected, transferred, durationMs,
             " storage=${storage.name} kind=${kind.name} mode=${mode.name} phase=${phase.name}")
+    }
+    /**
+     * SMB line: only enums and numbers (never host, share, path, user or password).
+     * [ntStatus] is the raw NTSTATUS of an SMBApiException, written as 0xC0000022.
+     */
+    fun recordSmb(op: SmbOp, result: Result, operation: UUID? = null, kind: Kind = Kind.UNKNOWN,
+        durationMs: Long? = null, ntStatus: Long? = null, transferred: Long? = null) {
+        recordLine(Event.SMB_OPERATION, result, operation, null, transferred, durationMs,
+            " storage=${Storage.SMB.name} kind=${kind.name} smbOp=${op.name} ntStatus=${formatNtStatus(ntStatus)}")
     }
     private fun recordLine(event: Event, result: Result, operation: UUID?,
         expected: Long?, transferred: Long?, durationMs: Long?, suffix: String) {
@@ -96,6 +111,10 @@ class TechnicalJournal(private val directory: File, private val limit: Int = 1_0
     internal fun awaitIdle() { val barrier = java.util.concurrent.CountDownLatch(1)
         executor.prestartCoreThread()
         executor.queue.put(Runnable { barrier.countDown() }); check(barrier.await(10, TimeUnit.SECONDS)) }
+    companion object {
+        fun formatNtStatus(code: Long?): String =
+            code?.let { String.format(java.util.Locale.ROOT, "0x%08X", it and 0xFFFFFFFFL) } ?: "-"
+    }
 }
 
 object Diagnostic {
@@ -112,5 +131,10 @@ object Diagnostic {
         phase: TechnicalJournal.Phase = TechnicalJournal.Phase.UNKNOWN, durationMs: Long? = null,
         expected: Long? = null, transferred: Long? = null) {
         try { journal?.recordDetail(event, result, operation, storage, kind, mode, phase, durationMs, expected, transferred) } catch (_: Exception) { }
+    }
+    fun smb(op: TechnicalJournal.SmbOp, result: TechnicalJournal.Result, operation: UUID? = null,
+        kind: TechnicalJournal.Kind = TechnicalJournal.Kind.UNKNOWN, durationMs: Long? = null,
+        ntStatus: Long? = null, transferred: Long? = null) {
+        try { journal?.recordSmb(op, result, operation, kind, durationMs, ntStatus, transferred) } catch (_: Exception) { }
     }
 }

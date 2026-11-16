@@ -104,7 +104,7 @@ class TransferCoordinator(private val scope: CoroutineScope,
                 try { inventories[source.ref] = engine.inspect(source) }
                 catch (e: Exception) {
                     if (e is CancellationException) throw e
-                    results += ItemResult(source, ItemStatus.FAILED, e.message ?: "Préparation impossible")
+                    results += ItemResult(source, ItemStatus.FAILED, e.message ?: "Préparation impossible", (e as? TransferFailure)?.technical)
                 }
             }
             val allKnown = inventories.size == sources.size

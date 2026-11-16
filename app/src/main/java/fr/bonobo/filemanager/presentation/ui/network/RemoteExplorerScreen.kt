@@ -172,7 +172,20 @@ fun RemoteExplorerScreen(
                         }
                     }
                 }
-                state.error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp)) }
+                state.error?.let { error ->
+                    // Short message on screen; the raw code (NTSTATUS…) only under « Détails techniques ».
+                    var showDetail by remember(error, state.errorDetail) { mutableStateOf(false) }
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        Text(error, color = MaterialTheme.colorScheme.error)
+                        state.errorDetail?.let { detail ->
+                            TextButton(onClick = { showDetail = !showDetail }, contentPadding = PaddingValues(0.dp)) {
+                                Text(if (showDetail) "Masquer les détails techniques" else "Détails techniques",
+                                    style = MaterialTheme.typography.bodySmall)
+                            }
+                            if (showDetail) Text(detail, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
                 state.message?.let { message ->
                     LaunchedEffect(message) {
                         kotlinx.coroutines.delay(2500)

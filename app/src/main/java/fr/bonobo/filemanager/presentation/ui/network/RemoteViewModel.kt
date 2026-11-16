@@ -24,6 +24,8 @@ data class RemoteUiState(
     val files: List<FileItem> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
+    /** Raw code of the last error (NTSTATUS…), shown only under « Détails techniques ». */
+    val errorDetail: String? = null,
     val openUri: Uri? = null,
     val openMimeType: String? = null,
     val internalOpenPath: String? = null,
@@ -115,29 +117,37 @@ class RemoteViewModel @Inject constructor(
             val key = (connection.host + "_" + connection.share.orEmpty() + "_" + item.path).hashCode().toUInt().toString(16)
             val cached = java.io.File(context.cacheDir, "remote_thumb_$key.$ext")
             if (!cached.exists()) {
-                remoteRepository.downloadToCache(connection, item.path, cached).onFailure { cached.delete(); return@launch }
+                remoteRepository.downloadToCache(connection, item.path, cached, thumbnail = true).onFailure { cached.delete(); return@launch }
             }
             _uiState.update { it.copy(thumbnails = it.thumbnails + (item.path to cached.absolutePath)) }
         }
     }
 
+    private var loadJob: kotlinx.coroutines.Job? = null
+
+    /**
+     * The current path (used by « Mettre ici », the favorites and « Retour ») only changes once the
+     * listing succeeded: a folder that fails to open never becomes the paste destination.
+     */
     fun loadRemoteFiles(path: String) {
         val connection = _uiState.value.connection ?: return
-        
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, selectedPaths = if (it.currentPath != path) emptySet() else it.selectedPaths, currentPath = path, error = null) }
-            
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null, errorDetail = null) }
             remoteRepository.listRemoteFiles(connection, path)
                 .onSuccess { remoteFiles ->
                     _uiState.update { state -> state.copy(
                         files = sorted(remoteFiles, state.sort, state.sortAscending),
+                        selectedPaths = if (state.currentPath != path) emptySet() else state.selectedPaths,
+                        currentPath = path,
                         isLoading = false
                     ) }
                 }
                 .onFailure { e ->
                     _uiState.update { it.copy(
                         isLoading = false,
-                        error = "Erreur de connexion : ${e.message}"
+                        error = fr.bonobo.filemanager.data.repository.SmbErrors.userMessage(e),
+                        errorDetail = fr.bonobo.filemanager.data.repository.SmbErrors.technicalDetail(e)
                     ) }
                 }
         }
@@ -158,7 +168,7 @@ class RemoteViewModel @Inject constructor(
         }
         val connection = _uiState.value.connection ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null, openUri = null, internalOpenPath = null, internalOpenKind = null) }
+            _uiState.update { it.copy(isLoading = true, error = null, errorDetail = null, openUri = null, internalOpenPath = null, internalOpenKind = null) }
             val safeName = item.name.replace(Regex("[^A-Za-z0-9._-]"), "_")
             val destination = java.io.File.createTempFile("bonobo_smb_", "_$safeName", context.cacheDir)
             remoteRepository.downloadToCache(connection, item.path, destination)
@@ -182,7 +192,9 @@ class RemoteViewModel @Inject constructor(
                 }
                 .onFailure { e ->
                     destination.delete()
-                    _uiState.update { it.copy(isLoading = false, error = "Impossible d'ouvrir le fichier : ${e.message}") }
+                    _uiState.update { it.copy(isLoading = false,
+                        error = "Impossible d'ouvrir le fichier : ${fr.bonobo.filemanager.data.repository.SmbErrors.userMessage(e)}",
+                        errorDetail = fr.bonobo.filemanager.data.repository.SmbErrors.technicalDetail(e)) }
                 }
         }
     }
@@ -237,13 +249,15 @@ class RemoteViewModel @Inject constructor(
         if (transfers.value.active) { _uiState.update { it.copy(error = "Attendez l’arrêt du transfert avant de supprimer une source.") }; return }
         val connection = _uiState.value.connection ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, error = null, errorDetail = null) }
             remoteRepository.deleteRemoteFile(connection, item.path)
                 .onSuccess {
                     loadRemoteFiles(_uiState.value.currentPath)
                 }
                 .onFailure { e ->
-                    _uiState.update { it.copy(isLoading = false, error = "Échec suppression : ${e.message}") }
+                    _uiState.update { it.copy(isLoading = false,
+                        error = "Échec suppression : ${fr.bonobo.filemanager.data.repository.SmbErrors.userMessage(e)}",
+                        errorDetail = fr.bonobo.filemanager.data.repository.SmbErrors.technicalDetail(e)) }
                 }
         }
     }
@@ -287,10 +301,19 @@ class RemoteViewModel @Inject constructor(
         startClipboardTransfer(fr.bonobo.filemanager.data.transfer.TransferEngineFactory.storage(destinationDirectory))
     }
 
-    private fun startClipboardTransfer(destination: fr.bonobo.filemanager.domain.transfer.StorageRef) {
+    /** « Mettre ici » on SMB: one PASTE_HERE line at the request and one at the end (each element logs its own COPY/MOVE/DUPLICATE). */
+    private class PasteTrace(val operation: java.util.UUID?, val started: Long = System.nanoTime())
+
+    private fun endPasteTrace(trace: PasteTrace?, result: fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result) {
+        trace ?: return
+        fr.bonobo.filemanager.diagnostic.Diagnostic.smb(fr.bonobo.filemanager.diagnostic.TechnicalJournal.SmbOp.PASTE_HERE,
+            result, trace.operation, durationMs = (System.nanoTime() - trace.started) / 1_000_000)
+    }
+
+    private fun startClipboardTransfer(destination: fr.bonobo.filemanager.domain.transfer.StorageRef, trace: PasteTrace? = null) {
         val current = _uiState.value
-        val connection = current.connection ?: return
-        val clipboard = current.clipboard ?: return
+        val connection = current.connection ?: return endPasteTrace(trace, fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.REFUSED)
+        val clipboard = current.clipboard ?: return endPasteTrace(trace, fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.REFUSED)
         val sources = clipboard.items.map { fr.bonobo.filemanager.data.transfer.TransferEngineFactory.remoteSource(connection, it) }
         val operation = when (clipboard.operation) {
             RemoteOperation.COPY -> fr.bonobo.filemanager.domain.transfer.TransferOperation.COPY
@@ -299,13 +322,25 @@ class RemoteViewModel @Inject constructor(
         }
         val job = try { transferManager.start(fr.bonobo.filemanager.domain.transfer.TransferRequest(sources, destination, operation),
             transferEngines.network(connection, clipboard.items)) }
-        catch (e: Exception) { _uiState.update { it.copy(error = e.message) }; return }
-        if (job == null) { _uiState.update { it.copy(error = "Un transfert est déjà en cours ; attendez son arrêt réel.") }; return }
-        _uiState.update { it.copy(error = null, message = null) }
+        catch (e: Exception) {
+            endPasteTrace(trace, fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.ERROR)
+            _uiState.update { it.copy(error = e.message) }; return
+        }
+        if (job == null) {
+            endPasteTrace(trace, fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.REFUSED)
+            _uiState.update { it.copy(error = "Un transfert est déjà en cours ; attendez son arrêt réel.") }; return
+        }
+        _uiState.update { it.copy(error = null, errorDetail = null, message = null) }
         val transferId = transfers.value.id
         viewModelScope.launch {
             job.join()
-            val completed = transferManager.result(transferId)?.results.orEmpty().filter { it.status == fr.bonobo.filemanager.domain.transfer.ItemStatus.DONE }.map { it.source.ref.path }.toSet()
+            val results = transferManager.result(transferId)?.results.orEmpty()
+            endPasteTrace(trace, when {
+                results.isNotEmpty() && results.all { it.status == fr.bonobo.filemanager.domain.transfer.ItemStatus.DONE } -> fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.OK
+                results.any { it.status == fr.bonobo.filemanager.domain.transfer.ItemStatus.CANCELLED } -> fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.CANCELLED
+                else -> fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.ERROR
+            })
+            val completed = results.filter { it.status == fr.bonobo.filemanager.domain.transfer.ItemStatus.DONE }.map { it.source.ref.path }.toSet()
             val remaining = clipboard.items.filter { it.path !in completed }
             _uiState.update { it.copy(clipboard = if (it.clipboard != clipboard) it.clipboard else remaining.firstOrNull()?.let { first -> RemoteClipboard(first, clipboard.operation, remaining) }) }
             loadRemoteFiles(_uiState.value.currentPath)
@@ -319,6 +354,12 @@ class RemoteViewModel @Inject constructor(
     fun pasteHere() {
         val current = _uiState.value
         val connection = current.connection ?: return
-        startClipboardTransfer(fr.bonobo.filemanager.domain.transfer.StorageRef.Remote(connection.id, connection.type.name, current.currentPath))
+        val trace = if (connection.type == fr.bonobo.filemanager.domain.model.ConnectionType.SMB) {
+            PasteTrace(fr.bonobo.filemanager.diagnostic.Diagnostic.operation()).also {
+                fr.bonobo.filemanager.diagnostic.Diagnostic.smb(fr.bonobo.filemanager.diagnostic.TechnicalJournal.SmbOp.PASTE_HERE,
+                    fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.START, it.operation)
+            }
+        } else null
+        startClipboardTransfer(fr.bonobo.filemanager.domain.transfer.StorageRef.Remote(connection.id, connection.type.name, current.currentPath), trace)
     }
 }

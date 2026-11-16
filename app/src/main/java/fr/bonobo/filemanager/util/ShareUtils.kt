@@ -1,31 +1,15 @@
 package fr.bonobo.filemanager.util
 
 import android.content.Context
-import android.content.Intent
-import androidx.core.content.FileProvider
 import java.io.File
 
+/**
+ * « Partager ». Local files of the shared storage go through FileProvider; files on a USB key through
+ * their externalstorage / MediaStore URI ([ExternalUris]) — FileProvider does not cover removable volumes.
+ * Never throws: a failure is shown as a short message.
+ */
 object ShareUtils {
+    fun sharePath(context: Context, path: String, mimeType: String?) = ExternalUris.share(context, path, mimeType)
 
-    fun shareFile(
-        context: Context,
-        file: File,
-        mimeType: String?
-    ) {
-        val uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            file
-        )
-
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = mimeType ?: "*/*"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        context.startActivity(
-            Intent.createChooser(intent, "Partager avec")
-        )
-    }
+    fun shareFile(context: Context, file: File, mimeType: String?) = ExternalUris.share(context, file.path, mimeType)
 }

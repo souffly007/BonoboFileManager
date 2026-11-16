@@ -86,16 +86,7 @@ object DropboxCloudManager {
         check(!item.folder) { "Un dossier ne peut pas être téléchargé directement" }
         val token = accessToken(context) ?: error("Compte Dropbox non connecté")
         val safeName = item.name.replace(Regex("[/\\\\]"), "_").ifBlank { "fichier" }
-        val values = ContentValues().apply {
-            put(MediaStore.Downloads.DISPLAY_NAME, safeName)
-            put(MediaStore.Downloads.MIME_TYPE, mimeType(safeName))
-            if (Build.VERSION.SDK_INT >= 29) {
-                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/Bonobo Dropbox")
-                put(MediaStore.Downloads.IS_PENDING, 1)
-            }
-        }
-        val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            ?: error("Impossible de créer le fichier dans Téléchargements")
+        val target = RemoteDownloadTarget.create(context, safeName, mimeType(safeName), null, item.size, "Bonobo Dropbox")
         try {
             val downloadTarget = item.id ?: item.apiPath.trim().let { if (it.isEmpty() || it.startsWith("/")) it else "/$it" }
             val temporaryLinkResponse = postJson(
@@ -113,14 +104,12 @@ object DropboxCloudManager {
                 val message = runCatching { JSONObject(details).optString("error_summary") }.getOrNull().orEmpty()
                 error("Dropbox (${connection.responseCode})${if (message.isNotBlank()) ": $message" else ""}")
             }
-            val output = context.contentResolver.openOutputStream(uri) ?: error("Destination inaccessible")
-            connection.inputStream.use { input -> output.use { input.copyTo(it) } }
-            if (Build.VERSION.SDK_INT >= 29) {
-                context.contentResolver.update(uri, ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) }, null, null)
-            }
-            "Téléchargements/Bonobo Dropbox/$safeName"
+            try {
+                connection.inputStream.use { input -> target.output.use { input.copyTo(it) } }
+            } finally { connection.disconnect() }
+            target.commit()
         } catch (e: Exception) {
-            context.contentResolver.delete(uri, null, null)
+            target.abort()
             throw e
         }
     }

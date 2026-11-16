@@ -15,13 +15,13 @@ object FileUtils {
             throw Exception("Le dossier n'existe pas : ${directory.absolutePath}")
         }
         if (!directory.isDirectory) {
-            return emptyList()
+            throw java.io.IOException("L'emplacement n'est pas un dossier : ${directory.absolutePath}")
         }
         val files = try {
             directory.listFiles()
         } catch (_: SecurityException) {
             null
-        } ?: return emptyList()
+        } ?: throw java.io.IOException("Lecture du dossier impossible : ${directory.absolutePath}")
 
         return files
             .asSequence()
@@ -111,6 +111,30 @@ object FileUtils {
         return result
     }
 
+    /** Files that belong in the user-facing Documents category.
+     * Deliberately excludes archives, APKs and generic binary MIME types (application).
+     */
+    fun listDocumentFiles(
+        directory: File,
+        showHidden: Boolean = false
+    ): List<FileItem> {
+        val documentExtensions = setOf(
+            "pdf", "epub", "txt", "md", "rtf", "csv", "tsv",
+            "doc", "docx", "odt", "ods", "xls", "xlsx",
+            "ppt", "pptx", "odp"
+        )
+        val result = mutableListOf<FileItem>()
+        directory.listFiles()?.forEach { file ->
+            if (!showHidden && file.isHidden) return@forEach
+            if (file.isDirectory) {
+                if (file.canRead()) result += listDocumentFiles(file, showHidden)
+            } else if (file.extension.lowercase() in documentExtensions) {
+                result += file.toFileItem()
+            }
+        }
+        return result
+    }
+
     fun listLargeFiles(
         directory: File,
         minSize: Long,
@@ -132,32 +156,18 @@ object FileUtils {
         return result
     }
 
+    /** French units everywhere (o, Ko, Mo, Go, To; decimal comma): « 1,5 Go », « 12 Mo/s » with « /s ». */
     fun formatSize(bytes: Long): String {
-        if (bytes < 1024) {
-            return "$bytes B"
-        }
-
-        val units = arrayOf(
-            "KB",
-            "MB",
-            "GB",
-            "TB"
-        )
-
+        if (bytes < 1024) return "$bytes o"
+        val units = arrayOf("Ko", "Mo", "Go", "To")
         var value = bytes.toDouble()
         var unitIndex = -1
-
         do {
             value /= 1024.0
             unitIndex++
-        } while (
-            (value >= 1024.0) &&
-            (unitIndex < units.lastIndex)
-        )
-
-        return "${
-            DecimalFormat("#,##0.##").format(value)
-        } ${units[unitIndex]}"
+        } while (value >= 1024.0 && unitIndex < units.lastIndex)
+        val format = DecimalFormat("#,##0.##", java.text.DecimalFormatSymbols(java.util.Locale.FRANCE))
+        return "${format.format(value)} ${units[unitIndex]}"
     }
 
     fun copy(

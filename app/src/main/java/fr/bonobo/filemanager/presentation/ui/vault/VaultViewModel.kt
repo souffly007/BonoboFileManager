@@ -217,7 +217,7 @@ class VaultViewModel @Inject constructor(@ApplicationContext private val context
                     count++
                 }
             }
-        "$count fichier(s) copié(s) et chiffré(s). Les anciens originaux sont conservés : vérifiez puis supprimez-les si souhaité."
+        "${fr.bonobo.filemanager.domain.transfer.TransferText.plural(count, "fichier copié et chiffré", "fichiers copiés et chiffrés")}. Les anciens originaux sont conservés : vérifiez puis supprimez-les si souhaité."
     }
 
     private fun validateFile(file: File) {

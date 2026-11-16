@@ -29,12 +29,14 @@ fun FileExplorerPanel(
     onItemClick: (fr.bonobo.filemanager.domain.model.FileItem) -> Unit,
     onItemLongClick: (fr.bonobo.filemanager.domain.model.FileItem) -> Unit,
     onItemOption: (fr.bonobo.filemanager.domain.model.FileItem, String) -> Unit,
+    locationLabel: String? = null,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
     val gridState = rememberLazyGridState()
 
     Column(modifier = modifier.fillMaxSize()) {
+        locationLabel?.let { Text(it, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) }
         BreadcrumbNav(
             path = state.currentPath,
             rootPath = state.rootPath,
@@ -44,6 +46,8 @@ fun FileExplorerPanel(
         if (state.isLoading) {
             Text(text = "Chargement…", modifier = Modifier.padding(16.dp))
         }
+        if (!state.isLoading && state.error != null) Text(state.error, modifier = Modifier.padding(16.dp), color = androidx.compose.material3.MaterialTheme.colorScheme.error)
+        if (!state.isLoading && state.error == null && state.files.isEmpty()) Text("Aucun élément visible dans ce dossier ; les fichiers cachés peuvent être masqués.", modifier = Modifier.padding(16.dp))
 
         if (state.isGridView) {
             LazyVerticalGrid(
@@ -54,7 +58,7 @@ fun FileExplorerPanel(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(state.files) { item ->
+                items(state.files, key = { it.path }) { item ->
                     FileItemCard(
                         item = item,
                         isSelected = state.selectedPaths.contains(item.path),
@@ -63,6 +67,8 @@ fun FileExplorerPanel(
                         onLongClick = { onItemLongClick(item) },
                         onFavorite = { onItemOption(item, "FAVORITE") },
                         onCopy = { onItemOption(item, "COPY") },
+                        onCopyToOtherPanel = if (state.isDualPane && state.categoryName == null)
+                            ({ onItemOption(item, "COPY_OTHER") }) else null,
                         onMove = { onItemOption(item, "MOVE") },
                         onRename = { onItemOption(item, "RENAME") },
                         onDelete = { onItemOption(item, "DELETE") },
@@ -84,7 +90,7 @@ fun FileExplorerPanel(
                 modifier = Modifier.fillMaxSize().verticalScrollbar(listState),
                 state = listState
             ) {
-                items(state.files) { item ->
+                items(state.files, key = { it.path }) { item ->
                     FileItemCard(
                         item = item,
                         isSelected = state.selectedPaths.contains(item.path),
@@ -93,6 +99,8 @@ fun FileExplorerPanel(
                         onLongClick = { onItemLongClick(item) },
                         onFavorite = { onItemOption(item, "FAVORITE") },
                         onCopy = { onItemOption(item, "COPY") },
+                        onCopyToOtherPanel = if (state.isDualPane && state.categoryName == null)
+                            ({ onItemOption(item, "COPY_OTHER") }) else null,
                         onMove = { onItemOption(item, "MOVE") },
                         onRename = { onItemOption(item, "RENAME") },
                         onDelete = { onItemOption(item, "DELETE") },

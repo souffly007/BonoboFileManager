@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import coil.request.ImageRequest
 import androidx.compose.foundation.layout.Arrangement
@@ -73,17 +74,22 @@ fun FileItemCard(
     onTransfer: () -> Unit,
     onProperties: () -> Unit = {},
     thumbnailSize: String = "MEDIUM",
-    isGrid: Boolean = false
+    isGrid: Boolean = false,
+    onCopyToOtherPanel: (() -> Unit)? = null
 ) {
     var menuExpanded by remember { mutableStateOf(value = false) }
 
+    val compactHeight = LocalConfiguration.current.screenHeightDp < 480
     val preset = ThumbnailPreset.fromKey(thumbnailSize)
-    val isMedia = item.mimeType?.startsWith("image/") == true || item.mimeType?.startsWith("video/") == true
+    val extension = item.name.substringAfterLast('.', "").lowercase()
+    val isImage = item.mimeType?.startsWith("image/") == true || extension in setOf("jpg", "jpeg", "png", "webp", "gif", "bmp", "heic", "heif")
+    val isVideo = item.mimeType?.startsWith("video/") == true || extension in setOf("mp4", "mkv", "webm", "avi", "mov", "m4v")
+    val isMedia = isImage || isVideo
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = if (isGrid) 0.dp else 12.dp, vertical = 4.dp),
+            .padding(horizontal = if (isGrid) 0.dp else 6.dp, vertical = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = when {
                 isSelected -> MaterialTheme.colorScheme.primaryContainer
@@ -126,7 +132,7 @@ fun FileItemCard(
         fun details(modifier: Modifier = Modifier) {
             Column(modifier) {
                 Text(item.name, style = MaterialTheme.typography.bodyMedium,
-                    maxLines = if (isGrid) 2 else 1, overflow = TextOverflow.Ellipsis)
+                    maxLines = if (isGrid) 3 else 2, overflow = TextOverflow.Ellipsis)
                 if (!item.isDirectory) Text(FileUtils.formatSize(item.size),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -192,6 +198,12 @@ fun FileItemCard(
                                 onCopy()
                             }
                         )
+                        onCopyToOtherPanel?.let { copyToOther ->
+                            DropdownMenuItem(
+                                text = { Text("Copier vers l’autre panneau") },
+                                onClick = { menuExpanded = false; copyToOther() }
+                            )
+                        }
                         DropdownMenuItem(
                             text = { Text("Déplacer") },
                             onClick = {
@@ -277,7 +289,7 @@ fun FileItemCard(
         if (isGrid) {
             Column(Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongClick).padding(10.dp)) {
                 Box(Modifier.fillMaxWidth()) {
-                    preview(Modifier.fillMaxWidth().aspectRatio(1f))
+                    preview(if (compactHeight) Modifier.fillMaxWidth().height(80.dp) else Modifier.fillMaxWidth().aspectRatio(1f))
                     Surface(Modifier.align(Alignment.BottomEnd), shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) { actions() }
@@ -288,7 +300,7 @@ fun FileItemCard(
         } else {
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 // Leave room for the title and a 48 dp menu target, even in a narrow split panel.
-                val mediaSize = minOf(preset.listSize.dp, maxWidth * 0.34f)
+                val mediaSize = minOf(preset.listSize.dp, maxWidth * 0.22f)
                 Row(Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongClick)
                     .padding(horizontal = 10.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

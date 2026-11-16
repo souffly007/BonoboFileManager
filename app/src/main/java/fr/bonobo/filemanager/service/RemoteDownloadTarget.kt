@@ -21,8 +21,10 @@ class RemoteDownloadTarget private constructor(val output: OutputStream,
     fun abort(): Boolean { runCatching { output.close() }; return discard() }
 
     companion object {
-        fun create(context: Context, name: String, mime: String, chosen: Uri?, size: Long): RemoteDownloadTarget {
+        fun create(context: Context, name: String, mime: String, chosen: Uri?, size: Long, subdirectory: String? = null): RemoteDownloadTarget {
             SafeFiles.child(context.filesDir, name) // Reject remote names that could escape a directory.
+            subdirectory?.let { SafeFiles.child(context.filesDir, it) }
+            val relativePath = Environment.DIRECTORY_DOWNLOADS + (subdirectory?.let { "/$it" } ?: "")
             if (chosen != null) {
                 val output = context.contentResolver.openOutputStream(chosen, "w") ?: error("Destination inaccessible")
                 return RemoteDownloadTarget(output, {
@@ -35,7 +37,7 @@ class RemoteDownloadTarget private constructor(val output: OutputStream,
                 val values = ContentValues().apply {
                     put(MediaStore.Downloads.DISPLAY_NAME, name)
                     put(MediaStore.Downloads.MIME_TYPE, mime)
-                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                    put(MediaStore.Downloads.RELATIVE_PATH, relativePath)
                     put(MediaStore.Downloads.IS_PENDING, 1)
                 }
                 val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
@@ -46,14 +48,15 @@ class RemoteDownloadTarget private constructor(val output: OutputStream,
                         check(context.contentResolver.update(uri, ContentValues().apply {
                             put(MediaStore.Downloads.IS_PENDING, 0)
                         }, null, null) == 1) { "Impossible de finaliser le téléchargement" }
-                        "Téléchargements/$name"
+                        "Téléchargements/${subdirectory?.let { "$it/" } ?: ""}$name"
                     }, { runCatching { context.contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) })
                 } catch (e: Exception) {
                     context.contentResolver.delete(uri, null, null)
                     throw e
                 }
             }
-            val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val directory = subdirectory?.let { SafeFiles.child(downloads, it) } ?: downloads
             check(directory.isDirectory || directory.mkdirs()) { "Dossier Téléchargements inaccessible" }
             check(size <= 0 || directory.usableSpace >= size) { "Espace libre insuffisant dans Téléchargements" }
             var file = SafeFiles.child(directory, name)
@@ -70,7 +73,7 @@ class RemoteDownloadTarget private constructor(val output: OutputStream,
                 }
             }
             val selected = file
-            return RemoteDownloadTarget(output, { "Téléchargements/${selected.name}" }, { selected.delete() })
+            return RemoteDownloadTarget(output, { "Téléchargements/${subdirectory?.let { "$it/" } ?: ""}${selected.name}" }, { selected.delete() })
         }
         fun deleteDocument(context: Context, uri: Uri): Boolean {
             val result = runCatching { DocumentsContract.deleteDocument(context.contentResolver, uri) }.getOrDefault(false)

@@ -89,23 +89,18 @@ object OneDriveCloudManager {
         check(!item.folder) { "Un dossier ne peut pas être téléchargé directement" }
         val token = accessToken(context) ?: error("Compte Microsoft non connecté")
         val name = item.name.replace(Regex("[/\\\\]"), "_").ifBlank { "fichier" }
-        val values = ContentValues().apply {
-            put(MediaStore.Downloads.DISPLAY_NAME, name)
-            put(MediaStore.Downloads.MIME_TYPE, android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(name.substringAfterLast('.', "").lowercase()) ?: "application/octet-stream")
-            if (Build.VERSION.SDK_INT >= 29) { put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/Bonobo OneDrive"); put(MediaStore.Downloads.IS_PENDING, 1) }
-        }
-        val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: error("Impossible de créer le fichier dans Téléchargements")
+        val target = RemoteDownloadTarget.create(context, name, android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(name.substringAfterLast('.', "").lowercase()) ?: "application/octet-stream", null, item.size, "Bonobo OneDrive")
         try {
             val connection = URL("https://graph.microsoft.com/v1.0/me/drive/items/${item.id}/content").openConnection() as HttpURLConnection
             connection.instanceFollowRedirects = true
             connection.setRequestProperty("Authorization", "Bearer $token")
             connection.connectTimeout = 15_000; connection.readTimeout = 120_000
             if (connection.responseCode !in 200..299) error("OneDrive (${connection.responseCode})")
-            val output = context.contentResolver.openOutputStream(uri) ?: error("Destination inaccessible")
-            connection.inputStream.use { input -> output.use { input.copyTo(it) } }
-            if (Build.VERSION.SDK_INT >= 29) context.contentResolver.update(uri, ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) }, null, null)
-            "Téléchargements/Bonobo OneDrive/$name"
-        } catch (exception: Exception) { context.contentResolver.delete(uri, null, null); throw exception }
+            try {
+                connection.inputStream.use { input -> target.output.use { input.copyTo(it) } }
+            } finally { connection.disconnect() }
+            target.commit()
+        } catch (exception: Exception) { target.abort(); throw exception }
     }
 
     suspend fun upload(context: Context, source: Uri, fileName: String, folderId: String?): String = withContext(Dispatchers.IO) {

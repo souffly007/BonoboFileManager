@@ -81,7 +81,7 @@ class HttpsShareService : Service() {
                 repeat(8) { append("ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[SecureRandom().nextInt(32)]) }
             }
             mutable.value = HttpsShareState(true, socket.localPort, token, identity.fingerprint)
-            getSystemService(NotificationManager::class.java).notify(ID, notification("Partage HTTPS actif"))
+            postNotification(ID, notification("Partage HTTPS actif"))
             while (!socket.isClosed) runCatching { socket.accept() }.onSuccess { client ->
                 scope.launch { handle(client as javax.net.ssl.SSLSocket, token) }
             }
@@ -180,5 +180,13 @@ class HttpsShareService : Service() {
     private fun escape(value: String) = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
     private fun notification(text: String): Notification = NotificationCompat.Builder(this, CHANNEL).setSmallIcon(android.R.drawable.stat_sys_upload).setContentTitle("Bonobo FileManager HTTPS").setContentText(text).setOngoing(true).build()
     override fun onDestroy() { runCatching { server?.close() }; scope.cancel(); mutable.value = HttpsShareState(); super.onDestroy() }
+    private fun postNotification(id: Int, notification: Notification) {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) return
+        if (getSystemService(NotificationManager::class.java).areNotificationsEnabled()) {
+            getSystemService(NotificationManager::class.java).notify(id, notification)
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 }

@@ -24,12 +24,18 @@ fun BreadcrumbNav(
     rootPath: String,
     onNavigate: (String) -> Unit
 ) {
-    // On ne montre que la partie après rootPath pour simplifier
-    val relativePath = if (path.startsWith(rootPath)) {
-        path.substring(rootPath.length).trimStart(File.separatorChar)
-    } else {
-        path.trimStart(File.separatorChar)
+    if (fr.bonobo.filemanager.util.SafFiles.isSaf(path)) {
+        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Home, "Dossier SAF autorisé", modifier = Modifier.clickable { onNavigate(rootPath) }.padding(4.dp))
+            Text("Emplacement autorisé", style = MaterialTheme.typography.bodyMedium)
+        }
+        return
     }
+    val current = File(path).toPath().toAbsolutePath().normalize()
+    val requestedRoot = File(rootPath).toPath().toAbsolutePath().normalize()
+    // Un chemin extérieur à la racine fournie reste un chemin absolu réel.
+    val effectiveRoot = if (current.startsWith(requestedRoot)) requestedRoot else current.root
+    val relativePath = effectiveRoot.relativize(current).toString()
 
     val parts = relativePath.split(File.separator)
         .filter { it.isNotBlank() }
@@ -45,12 +51,12 @@ fun BreadcrumbNav(
             imageVector = Icons.Default.Home,
             contentDescription = "Racine",
             modifier = Modifier
-                .clickable { onNavigate(rootPath) }
+                .clickable { onNavigate(effectiveRoot.toString()) }
                 .padding(4.dp),
             tint = MaterialTheme.colorScheme.primary
         )
 
-        var accumulatedPath = rootPath
+        var accumulatedPath = effectiveRoot.toString()
         
         parts.forEachIndexed { index, part ->
             accumulatedPath = if (accumulatedPath.endsWith(File.separator)) {

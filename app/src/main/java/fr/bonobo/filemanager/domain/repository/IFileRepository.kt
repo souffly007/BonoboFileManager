@@ -22,8 +22,16 @@ interface IFileRepository {
     suspend fun deleteFiles(paths: List<String>): Result<Unit>
 
     suspend fun moveToTrash(path: String): Result<Unit>
+    /** Element on another volume than the trash (USB key): moved through the verified copy circuit. */
+    fun trashNeedsCopy(path: String): Boolean = false
+    /** Trash directory path (destination of the progress card), null if unknown. */
+    val trashPath: String? get() = null
     suspend fun getTrashFiles(): List<FileItem>
     suspend fun restoreFromTrash(item: FileItem): Result<Unit>
+    suspend fun restoreTrashTo(item: FileItem, parent: String): Result<Unit> = Result.failure(UnsupportedOperationException())
+    /** [force]: « Restaurer quand même » after an identity mismatch with a previous restore receipt. */
+    suspend fun restoreFromTrash(item: FileItem, force: Boolean): Result<Unit> = restoreFromTrash(item)
+    suspend fun restoreTrashTo(item: FileItem, parent: String, force: Boolean): Result<Unit> = restoreTrashTo(item, parent)
     suspend fun emptyTrash(): Result<Unit>
 
     fun observeFavorites(): Flow<List<FileItem>>

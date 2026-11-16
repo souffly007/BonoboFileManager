@@ -51,18 +51,18 @@ fun CreateFileDialog(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("notes.txt") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nouveau fichier") },
+        title = { Text("Nouveau fichier texte") },
         text = {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
                 singleLine = true,
                 label = { Text("Nom du fichier") },
-                placeholder = { Text("Ex: notes.txt") }
+                supportingText = { Text("Formats conseillés : .txt ou .md") }
             )
         },
         confirmButton = {

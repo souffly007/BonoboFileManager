@@ -29,9 +29,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import fr.bonobo.filemanager.domain.model.ConnectionType
 import fr.bonobo.filemanager.domain.model.RemoteConnection
 import fr.bonobo.filemanager.service.FtpService
 import fr.bonobo.filemanager.service.HttpsShareService
+import fr.bonobo.filemanager.service.SftpService
 import fr.bonobo.filemanager.service.DropboxCloudManager
 import fr.bonobo.filemanager.service.DropboxItem
 import fr.bonobo.filemanager.service.OneDriveCloudManager
@@ -53,13 +55,10 @@ fun NetworkScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val isRunning by FtpService.isRunning.collectAsState()
-    val ftpPassword by FtpService.password.collectAsState()
-    val httpsState by HttpsShareService.state.collectAsState()
     val ipAddress = getIpAddress(context)
-
+    
     val state by viewModel.uiState.collectAsState()
-
+    
     var selectedTab by remember { mutableIntStateOf(0) }
     var connectionToDelete by remember { mutableStateOf<RemoteConnection?>(null) }
 
@@ -114,7 +113,7 @@ fun NetworkScreen(
     ) { paddingValues ->
         PullToRefreshBox(
             isRefreshing = state.isScanning,
-            onRefresh = { if (selectedTab == 1) viewModel.startLanScan(ipAddress) },
+            onRefresh = { if (selectedTab == 0) viewModel.startLanScan(ipAddress) },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -125,10 +124,10 @@ fun NetworkScreen(
                     onSelectedTab = { selectedTab = it }
                 )
 
-                when (selectedTab) {
-                    0 -> FtpServerView(isRunning, ipAddress, ftpPassword, context)
-                    1 -> RemoteClientView(
+                if (selectedTab == 0 || selectedTab == 1 || selectedTab == 2) {
+                    RemoteClientView(
                         connections = state.connections,
+                        connectionType = when (selectedTab) { 0 -> ConnectionType.SMB; 1 -> ConnectionType.SFTP; else -> ConnectionType.WEBDAV },
                         scannedIps = state.scannedIps,
                         isScanning = state.isScanning,
                         onScan = { viewModel.startLanScan(ipAddress) },
@@ -137,12 +136,10 @@ fun NetworkScreen(
                         onAddAllConnections = viewModel::addAllConnections,
                         onRemoveConnection = { connectionToDelete = it },
                         onUpdateConnection = viewModel::updateConnection,
-                        onShowMessage = { msg ->
-                            scope.launch { snackbarHostState.showSnackbar(msg) }
-                        }
+                        onShowMessage = { msg -> scope.launch { snackbarHostState.showSnackbar(msg) } }
                     )
-                    2 -> HttpsShareView(httpsState, ipAddress, context)
-                    3, 4, 5 -> CloudsView(context, selectedTab)
+                } else {
+                    SftpShareView(ipAddress = ipAddress, context = context)
                 }
             }
         }
@@ -154,61 +151,18 @@ private fun NetworkSectionMenus(
     selectedTab: Int,
     onSelectedTab: (Int) -> Unit
 ) {
-    val family = when (selectedTab) {
-        0, 1 -> "Réseaux locaux"
-        2 -> "Serveurs distants"
-        else -> "Clouds"
-    }
-
-    val familyItems = listOf("Réseaux locaux", "Serveurs distants", "Clouds")
-    val serviceItems = when (family) {
-        "Réseaux locaux" -> listOf("Serveur FTPS", "Découvrir les PC")
-        "Serveurs distants" -> listOf("Partage HTTPS")
-        else -> listOf("Dropbox", "OneDrive", "Google Drive")
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        NetworkDropdown(
-            label = "Catégorie réseau",
-            value = family,
-            options = familyItems,
-            onSelected = { selected ->
-                when (selected) {
-                    "Réseaux locaux" -> onSelectedTab(0)
-                    "Serveurs distants" -> onSelectedTab(2)
-                    "Clouds" -> onSelectedTab(if (selectedTab >= 3) selectedTab else 3)
-                }
-            }
-        )
-
-        NetworkDropdown(
-            label = "Service",
-            value = when (selectedTab) {
-                0 -> "Serveur FTPS"
-                1 -> "Découvrir les PC"
-                2 -> "Partage HTTPS"
-                3 -> "Dropbox"
-                4 -> "OneDrive"
-                else -> "Google Drive"
-            },
-            options = serviceItems,
-            onSelected = { selected ->
-                when (selected) {
-                    "Serveur FTPS" -> onSelectedTab(0)
-                    "Découvrir les PC" -> onSelectedTab(1)
-                    "Partage HTTPS" -> onSelectedTab(2)
-                    "Dropbox" -> onSelectedTab(3)
-                    "OneDrive" -> onSelectedTab(4)
-                    "Google Drive" -> onSelectedTab(5)
-                }
-            }
-        )
-    }
+    val labels = listOf(
+        "SMB — fichiers partagés",
+        "SFTP — serveur distant",
+        "WebDAV — serveur HTTPS",
+        "Partager ce téléphone en SFTP"
+    )
+    NetworkDropdown(
+        label = "Connexion réseau",
+        value = labels[selectedTab.coerceIn(0, 3)],
+        options = labels,
+        onSelected = { option -> onSelectedTab(labels.indexOf(option).coerceAtLeast(0)) }
+    )
 }
 
 @Composable
@@ -252,63 +206,80 @@ private fun NetworkDropdown(
 }
 
 @Composable
-private fun HttpsShareView(
-    httpsState: fr.bonobo.filemanager.service.HttpsShareState,
-    ipAddress: String,
-    context: android.content.Context
-) {
+private fun SftpShareView(ipAddress: String, context: android.content.Context) {
+    val running by SftpService.isRunning.collectAsState()
+    val starting by SftpService.isStarting.collectAsState()
+    val info by SftpService.info.collectAsState()
+    val error by SftpService.error.collectAsState()
+
     Column(
-        Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Icon(Icons.Default.AccountTree, contentDescription = null, modifier = Modifier.size(84.dp), tint = MaterialTheme.colorScheme.primary)
+        Text("Partage SFTP sécurisé", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text(
-            "Partage sécurisé HTTPS",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
-        Text(
-            "Ouvrez l'adresse affichée dans le navigateur du PC. Le partage utilise TLS et un code temporaire.",
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            "Bonobo devient le serveur. Depuis un PC, utilisez FileZilla ou WinSCP en SFTP. Dossier partagé : Téléchargements/Bonobo-Partage.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Card(Modifier.fillMaxWidth()) {
-            Column(
-                Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    if (httpsState.running) "Serveur HTTPS ACTIF" else "Serveur HTTPS arrêté",
-                    style = MaterialTheme.typography.titleMedium,
+                    when {
+                        running -> "Serveur SFTP ACTIF"
+                        starting -> "Démarrage du serveur SFTP…"
+                        else -> "Serveur SFTP arrêté"
+                    },
                     fontWeight = FontWeight.Bold
                 )
+                if (running) {
+                    Text("Adresse : $ipAddress")
+                    Text("Port : ${info?.port}")
+                    Text("Utilisateur : ${info?.username}")
+                    Text("Mot de passe : ${info?.password}")
+                }
+            }
+        }
+        error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        Button(
+            onClick = {
+                if (running) SftpService.stop(context) else SftpService.start(context)
+            },
+            enabled = !starting,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(if (running) Icons.Default.PowerOff else Icons.Default.Power, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text(if (running) "Arrêter le partage SFTP" else "Démarrer le partage SFTP")
+        }
+        Text(
+            "Sécurité : SFTP/SSH chiffré. Aucune ouverture automatique de port Internet. " +
+                "Une notification reste affichée tant que le partage est actif : c'est elle qui empêche Android de couper le serveur en arrière-plan.",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun HttpsShareView(httpsState: fr.bonobo.filemanager.service.HttpsShareState, ipAddress: String, context: android.content.Context) {
+    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Partage sécurisé HTTPS", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Text("Ouvrez l’adresse affichée dans le navigateur du PC. Le partage utilise TLS et un code temporaire.", textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(if (httpsState.running) "Serveur HTTPS ACTIF" else "Serveur HTTPS arrêté", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 if (httpsState.running) {
-                    Text(
-                        "https://$ipAddress:${httpsState.port}/?token=${httpsState.token}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text("Code d'accès : ${httpsState.token}")
-                    httpsState.fingerprint?.let {
-                        Text("Certificat SHA-256 : $it", style = MaterialTheme.typography.bodySmall)
-                    }
+                    Text("https://$ipAddress:${httpsState.port}/?token=${httpsState.token}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    Text("Code d’accès : ${httpsState.token}")
+                    httpsState.fingerprint?.let { Text("Certificat SHA-256 : $it", style = MaterialTheme.typography.bodySmall) }
                 }
                 httpsState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
         }
-        Button(
-            onClick = {
-                if (httpsState.running) HttpsShareService.stop(context)
-                else HttpsShareService.start(context)
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(
-                if (httpsState.running) Icons.Default.PowerOff else Icons.Default.Power,
-                contentDescription = null
-            )
+        Button(onClick = { if (httpsState.running) HttpsShareService.stop(context) else HttpsShareService.start(context) }, modifier = Modifier.fillMaxWidth()) {
+            Icon(if (httpsState.running) Icons.Default.PowerOff else Icons.Default.Power, contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text(if (httpsState.running) "Arrêter le serveur HTTPS" else "Démarrer le serveur HTTPS")
         }
@@ -430,9 +401,9 @@ fun FtpServerView(
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = if (isRunning)
-                    MaterialTheme.colorScheme.primaryContainer
-                else
+                containerColor = if (isRunning) 
+                    MaterialTheme.colorScheme.primaryContainer 
+                else 
                     MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
@@ -441,9 +412,7 @@ fun FtpServerView(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = if (isStarting) "Démarrage sécurisé…"
-                    else if (isRunning) "Le serveur FTPS est ACTIF"
-                    else "Le serveur est ARRÊTÉ",
+                    text = if (isStarting) "Démarrage sécurisé…" else if (isRunning) "Le serveur FTPS est ACTIF" else "Le serveur est ARRÊTÉ",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -465,31 +434,27 @@ fun FtpServerView(
                         androidx.compose.foundation.text.selection.SelectionContainer {
                             Text(value, style = MaterialTheme.typography.bodySmall)
                         }
-                        Text(
-                            "Au premier accès, comparez cette empreinte avec celle affichée par FileZilla avant d'accepter le certificat. Un avertissement de nom/adresse est normal pour ce certificat local.",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        Text("Au premier accès, comparez cette empreinte avec celle affichée par FileZilla avant d'accepter le certificat. Un avertissement de nom/adresse est normal pour ce certificat local.",
+                            style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
         }
 
-        serverError?.let {
-            Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 12.dp))
-        }
+        serverError?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 12.dp)) }
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             enabled = !isStarting,
-            onClick = {
+            onClick = { 
                 if (isRunning) FtpService.stop(context)
                 else showPasswordDialog = true
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isRunning)
-                    MaterialTheme.colorScheme.error
-                else
+                containerColor = if (isRunning) 
+                    MaterialTheme.colorScheme.error 
+                else 
                     MaterialTheme.colorScheme.primary
             )
         ) {
@@ -510,6 +475,7 @@ fun FtpServerView(
 @Composable
 fun RemoteClientView(
     connections: List<RemoteConnection>,
+    connectionType: ConnectionType = ConnectionType.SMB,
     scannedIps: List<String>,
     isScanning: Boolean,
     onScan: () -> Unit,
@@ -532,10 +498,11 @@ fun RemoteClientView(
             runCatching {
                 context.contentResolver.openInputStream(it)?.use { stream ->
                     val imported = ConfigParser.parseConnections(stream)
-                    if (imported.isNotEmpty()) {
-                        onAddAllConnections(imported)
+                    val matchingConnections = imported.filter { it.type == connectionType }
+                    if (matchingConnections.isNotEmpty()) {
+                        onAddAllConnections(matchingConnections)
                     } else {
-                        onShowMessage("Aucune connexion valide trouvée dans le fichier")
+                        onShowMessage("Aucune connexion ${connectionType.name} valide trouvée dans le fichier")
                     }
                 }
             }.onFailure { e ->
@@ -570,35 +537,30 @@ fun RemoteClientView(
                 fontWeight = FontWeight.Bold
             )
         }
-
+        
         TextButton(onClick = { importLauncher.launch("*/*") }) {
             Icon(Icons.Default.FileUpload, contentDescription = null)
             Spacer(modifier = Modifier.width(4.dp))
             Text("Importer XML")
         }
 
+        // Section Scan Réseau
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
                 onClick = onScan,
-                enabled = !isScanning,
+                enabled = !isScanning && connectionType == ConnectionType.SMB,
                 modifier = Modifier.weight(1f)
             ) {
                 if (isScanning) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp
-                    )
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
                 } else {
                     Icon(Icons.Default.Search, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Scanner le réseau")
+                    Text(if (connectionType == ConnectionType.SMB) "Scanner le réseau" else "Scan réservé au SMB")
                 }
             }
         }
@@ -611,29 +573,26 @@ fun RemoteClientView(
                 modifier = Modifier.padding(top = 8.dp)
             )
             LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(scannedIps) { ip ->
                     AssistChip(
                         onClick = { selectedScannedIp = ip; showAddDialog = true },
                         label = { Text(ip) },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Dns,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
+                        leadingIcon = { Icon(Icons.Default.Dns, contentDescription = null, modifier = Modifier.size(16.dp)) }
                     )
                 }
             }
         }
 
         Text(
-            text = "Connectez-vous à votre Seedbox, NAS ou Cloud (FTPS, SMB, SFTP).",
+            text = when (connectionType) {
+                ConnectionType.SMB -> "Connectez-vous à un PC ou un NAS partagé en SMB sur votre réseau local."
+                ConnectionType.SFTP -> "Connectez-vous à un serveur SFTP sécurisé par SSH. Port 22 par défaut."
+                ConnectionType.WEBDAV -> "Connectez-vous à un serveur WebDAV. HTTPS et port 443 sont recommandés."
+                else -> "Connexion distante sécurisée."
+            },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 16.dp),
@@ -651,7 +610,7 @@ fun RemoteClientView(
                     )
                 }
             } else {
-                items(connections) { conn ->
+                items(connections.filter { it.type == connectionType }) { conn ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -665,26 +624,13 @@ fun RemoteClientView(
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                Icons.Default.Dns,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Column(modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 16.dp)) {
+                            Icon(Icons.Default.Dns, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Column(modifier = Modifier.weight(1f).padding(start = 16.dp)) {
                                 Text(text = conn.name, style = MaterialTheme.typography.titleMedium)
-                                Text(
-                                    text = "${conn.host}:${conn.port}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                Text(text = "${conn.host}:${conn.port}", style = MaterialTheme.typography.bodySmall)
                             }
                             IconButton(onClick = { onRemoveConnection(conn) }) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = "Supprimer",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+                                Icon(Icons.Default.Delete, contentDescription = "Supprimer", tint = MaterialTheme.colorScheme.error)
                             }
                             IconButton(onClick = { connectionToEdit = conn }) {
                                 Icon(Icons.Default.Edit, contentDescription = "Modifier")
@@ -708,8 +654,10 @@ fun RemoteClientView(
     if (showAddDialog) {
         AddRemoteDialog(
             initialHost = selectedScannedIp ?: "",
+            smbOnly = connectionType == ConnectionType.SMB,
+            fixedType = connectionType,
             onDismiss = { showAddDialog = false; selectedScannedIp = null },
-            onConfirm = {
+            onConfirm = { 
                 onAddConnection(it)
                 showAddDialog = false
                 selectedScannedIp = null
@@ -719,6 +667,8 @@ fun RemoteClientView(
     connectionToEdit?.let { connection ->
         AddRemoteDialog(
             initialConnection = connection,
+            smbOnly = connectionType == ConnectionType.SMB,
+            fixedType = connectionType,
             onDismiss = { connectionToEdit = null },
             onConfirm = { onUpdateConnection(it); connectionToEdit = null }
         )
@@ -755,7 +705,6 @@ private fun OneDriveCloudView(context: android.content.Context) {
     var currentFolderId by rememberSaveable { mutableStateOf<String?>(null) }
     var showCreateFolder by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<OneDriveItem?>(null) }
-
     val pickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         val name = selectedFileName(context, uri)
@@ -773,71 +722,39 @@ private fun OneDriveCloudView(context: android.content.Context) {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            "OneDrive",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
-        Text(
-            "Connexion Microsoft sécurisée. Bonobo ne demande jamais votre mot de passe Microsoft.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
+        Text("OneDrive", style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Text("Connexion Microsoft sécurisée. Bonobo ne demande jamais votre mot de passe Microsoft.",
+            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
 
         if (!state.connected) {
-            Button(
-                onClick = { OneDriveCloudManager.startLogin(context) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Button(onClick = { OneDriveCloudManager.startLogin(context) }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Cloud, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Connecter OneDrive")
             }
         } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = { scope.launch { OneDriveCloudManager.listFolder(context, currentFolderId) } },
-                    modifier = Modifier.weight(1f),
-                    enabled = !state.loading
-                ) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { scope.launch { OneDriveCloudManager.listFolder(context, currentFolderId) } },
+                    modifier = Modifier.weight(1f), enabled = !state.loading) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("Actualiser")
+                    Spacer(Modifier.width(6.dp)); Text("Actualiser")
                 }
-                OutlinedButton(
-                    onClick = { OneDriveCloudManager.disconnect(context) },
-                    modifier = Modifier.weight(1f)
-                ) {
+                OutlinedButton(onClick = { OneDriveCloudManager.disconnect(context) }, modifier = Modifier.weight(1f)) {
                     Text("Déconnecter")
                 }
             }
-            OutlinedButton(
-                onClick = { pickerLauncher.launch(arrayOf("*/*")) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.loading
-            ) {
+            OutlinedButton(onClick = { pickerLauncher.launch(arrayOf("*/*")) }, modifier = Modifier.fillMaxWidth(), enabled = !state.loading) {
                 Icon(Icons.Default.Upload, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Envoyer un fichier ici")
+                Spacer(Modifier.width(8.dp)); Text("Envoyer un fichier ici")
             }
-            Button(
-                onClick = { showCreateFolder = true },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.loading
-            ) {
+            Button(onClick = { showCreateFolder = true }, modifier = Modifier.fillMaxWidth(), enabled = !state.loading) {
                 Icon(Icons.Default.CreateNewFolder, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Créer un dossier")
+                Spacer(Modifier.width(8.dp)); Text("Créer un dossier")
             }
 
             if (folderStack.isNotEmpty()) {
@@ -846,20 +763,14 @@ private fun OneDriveCloudView(context: android.content.Context) {
                     scope.launch { OneDriveCloudManager.listFolder(context, currentFolderId) }
                 }) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("Dossier parent")
+                    Spacer(Modifier.width(6.dp)); Text("Dossier parent")
                 }
             }
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
             if (state.loading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
+            LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 items(state.items, key = { it.id }) { item ->
                     ListItem(
                         modifier = Modifier.clickable {
@@ -877,20 +788,10 @@ private fun OneDriveCloudView(context: android.content.Context) {
                                 }
                             }
                         },
-                        leadingContent = {
-                            Icon(
-                                if (item.folder) Icons.Default.Folder else Icons.Default.InsertDriveFile,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
+                        leadingContent = { Icon(if (item.folder) Icons.Default.Folder else Icons.Default.InsertDriveFile,
+                            contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                         headlineContent = { Text(item.name) },
-                        supportingContent = {
-                            Text(
-                                if (item.folder) "Dossier — toucher pour ouvrir"
-                                else "${formatDropboxSize(item.size)} — toucher pour télécharger"
-                            )
-                        },
+                        supportingContent = { Text(if (item.folder) "Dossier — toucher pour ouvrir" else "${formatDropboxSize(item.size)} — toucher pour télécharger") },
                         trailingContent = {
                             Row {
                                 if (!item.folder) {
@@ -900,9 +801,7 @@ private fun OneDriveCloudView(context: android.content.Context) {
                                                 .onSuccess { path -> OneDriveCloudManager.setNotice("Téléchargé dans $path") }
                                                 .onFailure { error -> OneDriveCloudManager.setError("Téléchargement impossible : ${error.message}") }
                                         }
-                                    }) {
-                                        Icon(Icons.Default.Download, contentDescription = "Télécharger")
-                                    }
+                                    }) { Icon(Icons.Default.Download, contentDescription = "Télécharger") }
                                 }
                                 IconButton(onClick = { deleteTarget = item }) {
                                     Icon(Icons.Default.Delete, contentDescription = "Supprimer")
@@ -914,33 +813,25 @@ private fun OneDriveCloudView(context: android.content.Context) {
             }
         }
     }
-
     if (showCreateFolder) {
-        CreateFolderDialog(
-            onDismiss = { showCreateFolder = false },
-            onConfirm = { name ->
-                showCreateFolder = false
-                scope.launch {
-                    runCatching { OneDriveCloudManager.createFolder(context, currentFolderId, name) }
-                        .onSuccess { OneDriveCloudManager.setNotice("Dossier créé") }
-                        .onFailure { error -> OneDriveCloudManager.setError("Création impossible : ${error.message}") }
-                }
+        CreateFolderDialog(onDismiss = { showCreateFolder = false }, onConfirm = { name ->
+            showCreateFolder = false
+            scope.launch {
+                runCatching { OneDriveCloudManager.createFolder(context, currentFolderId, name) }
+                    .onSuccess { OneDriveCloudManager.setNotice("Dossier créé") }
+                    .onFailure { error -> OneDriveCloudManager.setError("Création impossible : ${error.message}") }
             }
-        )
+        })
     }
     deleteTarget?.let { item ->
-        DeleteItemDialog(
-            item.name,
-            onDismiss = { deleteTarget = null },
-            onConfirm = {
-                deleteTarget = null
-                scope.launch {
-                    runCatching { OneDriveCloudManager.delete(context, item) }
-                        .onSuccess { OneDriveCloudManager.setNotice("Élément supprimé") }
-                        .onFailure { error -> OneDriveCloudManager.setError("Suppression impossible : ${error.message}") }
-                }
+        DeleteItemDialog(item.name, onDismiss = { deleteTarget = null }, onConfirm = {
+            deleteTarget = null
+            scope.launch {
+                runCatching { OneDriveCloudManager.delete(context, item) }
+                    .onSuccess { OneDriveCloudManager.setNotice("Élément supprimé") }
+                    .onFailure { error -> OneDriveCloudManager.setError("Suppression impossible : ${error.message}") }
             }
-        )
+        })
     }
 }
 
@@ -952,7 +843,6 @@ private fun GoogleDriveCloudView(context: android.content.Context) {
     var currentFolderId by rememberSaveable { mutableStateOf<String?>(null) }
     var showCreateFolder by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<GoogleDriveItem?>(null) }
-
     val pickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         val name = selectedFileName(context, uri)
@@ -969,131 +859,47 @@ private fun GoogleDriveCloudView(context: android.content.Context) {
         }
     }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            "Google Drive",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
+    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Google Drive", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         if (!state.connected) {
-            Button(
-                onClick = { GoogleDriveCloudManager.startLogin(context) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Cloud, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Connecter Google Drive")
+            Button(onClick = { GoogleDriveCloudManager.startLogin(context) }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.Cloud, contentDescription = null); Spacer(Modifier.width(8.dp)); Text("Connecter Google Drive")
             }
         } else {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = { scope.launch { GoogleDriveCloudManager.listFolder(context, currentFolderId) } },
-                    modifier = Modifier.weight(1f),
-                    enabled = !state.loading
-                ) {
-                    Icon(Icons.Default.Refresh, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("Actualiser")
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { scope.launch { GoogleDriveCloudManager.listFolder(context, currentFolderId) } }, modifier = Modifier.weight(1f), enabled = !state.loading) {
+                    Icon(Icons.Default.Refresh, contentDescription = null); Spacer(Modifier.width(6.dp)); Text("Actualiser")
                 }
-                OutlinedButton(
-                    onClick = { GoogleDriveCloudManager.disconnect(context) },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Déconnecter")
-                }
+                OutlinedButton(onClick = { GoogleDriveCloudManager.disconnect(context) }, modifier = Modifier.weight(1f)) { Text("Déconnecter") }
             }
-            OutlinedButton(
-                onClick = { pickerLauncher.launch(arrayOf("*/*")) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.loading
-            ) {
-                Icon(Icons.Default.Upload, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Envoyer un fichier ici")
+            OutlinedButton(onClick = { pickerLauncher.launch(arrayOf("*/*")) }, modifier = Modifier.fillMaxWidth(), enabled = !state.loading) {
+                Icon(Icons.Default.Upload, contentDescription = null); Spacer(Modifier.width(8.dp)); Text("Envoyer un fichier ici")
             }
-            Button(
-                onClick = { showCreateFolder = true },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.loading
-            ) {
-                Icon(Icons.Default.CreateNewFolder, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Créer un dossier")
+            Button(onClick = { showCreateFolder = true }, modifier = Modifier.fillMaxWidth(), enabled = !state.loading) {
+                Icon(Icons.Default.CreateNewFolder, contentDescription = null); Spacer(Modifier.width(8.dp)); Text("Créer un dossier")
             }
             if (folderStack.isNotEmpty()) {
-                TextButton(onClick = {
-                    currentFolderId = folderStack.removeAt(folderStack.lastIndex)
-                    scope.launch { GoogleDriveCloudManager.listFolder(context, currentFolderId) }
-                }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("Dossier parent")
+                TextButton(onClick = { currentFolderId = folderStack.removeAt(folderStack.lastIndex); scope.launch { GoogleDriveCloudManager.listFolder(context, currentFolderId) } }) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null); Spacer(Modifier.width(6.dp)); Text("Dossier parent")
                 }
             }
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             state.notice?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
             if (state.loading) LinearProgressIndicator(Modifier.fillMaxWidth())
-
-            LazyColumn(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
+            LazyColumn(Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 items(state.items, key = { it.id }) { item ->
                     ListItem(
                         modifier = Modifier.clickable {
-                            if (item.folder) {
-                                folderStack.add(currentFolderId)
-                                currentFolderId = item.id
-                                scope.launch { GoogleDriveCloudManager.listFolder(context, item.id) }
-                            } else {
-                                scope.launch {
-                                    runCatching { GoogleDriveCloudManager.download(context, item) }
-                                        .onSuccess { GoogleDriveCloudManager.setNotice("Fichier téléchargé") }
-                                        .onFailure { GoogleDriveCloudManager.setError("Téléchargement impossible : ${it.message}") }
-                                }
-                            }
+                            if (item.folder) { folderStack.add(currentFolderId); currentFolderId = item.id; scope.launch { GoogleDriveCloudManager.listFolder(context, item.id) } }
+                            else scope.launch { runCatching { GoogleDriveCloudManager.download(context, item) }.onSuccess { GoogleDriveCloudManager.setNotice("Fichier téléchargé") }.onFailure { GoogleDriveCloudManager.setError("Téléchargement impossible : ${it.message}") } }
                         },
-                        leadingContent = {
-                            Icon(
-                                if (item.folder) Icons.Default.Folder else Icons.Default.InsertDriveFile,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
+                        leadingContent = { Icon(if (item.folder) Icons.Default.Folder else Icons.Default.InsertDriveFile, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                         headlineContent = { Text(item.name) },
-                        supportingContent = {
-                            Text(
-                                if (item.folder) "Dossier — toucher pour ouvrir"
-                                else "${formatDropboxSize(item.size)} — toucher pour télécharger"
-                            )
-                        },
+                        supportingContent = { Text(if (item.folder) "Dossier — toucher pour ouvrir" else "${formatDropboxSize(item.size)} — toucher pour télécharger") },
                         trailingContent = {
                             Row {
-                                if (!item.folder) {
-                                    IconButton(onClick = {
-                                        scope.launch {
-                                            runCatching { GoogleDriveCloudManager.download(context, item) }
-                                                .onSuccess { GoogleDriveCloudManager.setNotice("Fichier téléchargé") }
-                                                .onFailure { GoogleDriveCloudManager.setError("Téléchargement impossible : ${it.message}") }
-                                        }
-                                    }) {
-                                        Icon(Icons.Default.Download, contentDescription = "Télécharger")
-                                    }
-                                }
-                                IconButton(onClick = { deleteTarget = item }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Supprimer")
-                                }
+                                if (!item.folder) IconButton(onClick = { scope.launch { runCatching { GoogleDriveCloudManager.download(context, item) }.onSuccess { GoogleDriveCloudManager.setNotice("Fichier téléchargé") }.onFailure { GoogleDriveCloudManager.setError("Téléchargement impossible : ${it.message}") } } }) { Icon(Icons.Default.Download, contentDescription = "Télécharger") }
+                                IconButton(onClick = { deleteTarget = item }) { Icon(Icons.Default.Delete, contentDescription = "Supprimer") }
                             }
                         }
                     )
@@ -1101,34 +907,8 @@ private fun GoogleDriveCloudView(context: android.content.Context) {
             }
         }
     }
-
-    if (showCreateFolder) {
-        CreateFolderDialog(
-            onDismiss = { showCreateFolder = false },
-            onConfirm = { name ->
-                showCreateFolder = false
-                scope.launch {
-                    runCatching { GoogleDriveCloudManager.createFolder(context, currentFolderId, name) }
-                        .onSuccess { GoogleDriveCloudManager.setNotice("Dossier créé") }
-                        .onFailure { GoogleDriveCloudManager.setError("Création impossible : ${it.message}") }
-                }
-            }
-        )
-    }
-    deleteTarget?.let { item ->
-        DeleteItemDialog(
-            item.name,
-            onDismiss = { deleteTarget = null },
-            onConfirm = {
-                deleteTarget = null
-                scope.launch {
-                    runCatching { GoogleDriveCloudManager.delete(context, item) }
-                        .onSuccess { GoogleDriveCloudManager.setNotice("Élément supprimé") }
-                        .onFailure { GoogleDriveCloudManager.setError("Suppression impossible : ${it.message}") }
-                }
-            }
-        )
-    }
+    if (showCreateFolder) CreateFolderDialog(onDismiss = { showCreateFolder = false }, onConfirm = { name -> showCreateFolder = false; scope.launch { runCatching { GoogleDriveCloudManager.createFolder(context, currentFolderId, name) }.onSuccess { GoogleDriveCloudManager.setNotice("Dossier créé") }.onFailure { GoogleDriveCloudManager.setError("Création impossible : ${it.message}") } } })
+    deleteTarget?.let { item -> DeleteItemDialog(item.name, onDismiss = { deleteTarget = null }, onConfirm = { deleteTarget = null; scope.launch { runCatching { GoogleDriveCloudManager.delete(context, item) }.onSuccess { GoogleDriveCloudManager.setNotice("Élément supprimé") }.onFailure { GoogleDriveCloudManager.setError("Suppression impossible : ${it.message}") } } }) }
 }
 
 @Composable
@@ -1138,7 +918,6 @@ private fun DropboxCloudView(context: android.content.Context) {
     var currentPath by rememberSaveable { mutableStateOf("") }
     var showCreateFolder by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<DropboxItem?>(null) }
-
     val pickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         val name = selectedFileName(context, uri)
@@ -1229,9 +1008,7 @@ private fun DropboxCloudView(context: android.content.Context) {
             }
 
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                modifier = Modifier.fillMaxWidth().weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(state.items, key = { it.path }) { item ->
@@ -1263,10 +1040,7 @@ private fun DropboxCloudView(context: android.content.Context) {
                         },
                         headlineContent = { Text(item.name) },
                         supportingContent = {
-                            Text(
-                                if (item.folder) "Dossier — toucher pour ouvrir"
-                                else "${formatDropboxSize(item.size)} — toucher pour télécharger"
-                            )
+                            Text(if (item.folder) "Dossier — toucher pour ouvrir" else "${formatDropboxSize(item.size)} — toucher pour télécharger")
                         },
                         trailingContent = {
                             Row {
@@ -1277,66 +1051,46 @@ private fun DropboxCloudView(context: android.content.Context) {
                                                 .onSuccess { path -> DropboxCloudManager.setNotice("Téléchargé dans $path") }
                                                 .onFailure { error -> DropboxCloudManager.setError("Téléchargement impossible : ${error.message}") }
                                         }
-                                    }) {
-                                        Icon(Icons.Default.Download, contentDescription = "Télécharger")
-                                    }
+                                    }) { Icon(Icons.Default.Download, contentDescription = "Télécharger") }
                                 }
                                 IconButton(onClick = { deleteTarget = item }) {
                                     Icon(Icons.Default.Delete, contentDescription = "Supprimer")
                                 }
                             }
                         }
-                    )
-                }
+                )
             }
-
-            OutlinedButton(
-                onClick = { pickerLauncher.launch(arrayOf("*/*")) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.loading
-            ) {
+            }
+            
+            OutlinedButton(onClick = { pickerLauncher.launch(arrayOf("*/*")) }, modifier = Modifier.fillMaxWidth(), enabled = !state.loading) {
                 Icon(Icons.Default.Upload, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Envoyer un fichier ici")
+                Spacer(Modifier.width(8.dp)); Text("Envoyer un fichier ici")
             }
-            Button(
-                onClick = { showCreateFolder = true },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !state.loading
-            ) {
+            Button(onClick = { showCreateFolder = true }, modifier = Modifier.fillMaxWidth(), enabled = !state.loading) {
                 Icon(Icons.Default.CreateNewFolder, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Créer un dossier")
+                Spacer(Modifier.width(8.dp)); Text("Créer un dossier")
+            }
             }
         }
-    }
-
     if (showCreateFolder) {
-        CreateFolderDialog(
-            onDismiss = { showCreateFolder = false },
-            onConfirm = { name ->
-                showCreateFolder = false
-                scope.launch {
-                    runCatching { DropboxCloudManager.createFolder(context, currentPath, name) }
-                        .onSuccess { DropboxCloudManager.setNotice("Dossier créé") }
-                        .onFailure { error -> DropboxCloudManager.setError("Création impossible : ${error.message}") }
-                }
+        CreateFolderDialog(onDismiss = { showCreateFolder = false }, onConfirm = { name ->
+            showCreateFolder = false
+            scope.launch {
+                runCatching { DropboxCloudManager.createFolder(context, currentPath, name) }
+                    .onSuccess { DropboxCloudManager.setNotice("Dossier créé") }
+                    .onFailure { error -> DropboxCloudManager.setError("Création impossible : ${error.message}") }
             }
-        )
+        })
     }
     deleteTarget?.let { item ->
-        DeleteItemDialog(
-            item.name,
-            onDismiss = { deleteTarget = null },
-            onConfirm = {
-                deleteTarget = null
-                scope.launch {
-                    runCatching { DropboxCloudManager.delete(context, item) }
-                        .onSuccess { DropboxCloudManager.setNotice("Élément supprimé") }
-                        .onFailure { error -> DropboxCloudManager.setError("Suppression impossible : ${error.message}") }
-                }
+        DeleteItemDialog(item.name, onDismiss = { deleteTarget = null }, onConfirm = {
+            deleteTarget = null
+            scope.launch {
+                runCatching { DropboxCloudManager.delete(context, item) }
+                    .onSuccess { DropboxCloudManager.setNotice("Élément supprimé") }
+                    .onFailure { error -> DropboxCloudManager.setError("Suppression impossible : ${error.message}") }
             }
-        )
+        })
     }
 }
 
@@ -1353,20 +1107,8 @@ private fun CreateFolderDialog(onDismiss: () -> Unit, onConfirm: (String) -> Uni
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Créer un dossier") },
-        text = {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nom du dossier") },
-                singleLine = true
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { onConfirm(name) },
-                enabled = name.trim().isNotEmpty()
-            ) { Text("Créer") }
-        },
+        text = { OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nom du dossier") }, singleLine = true) },
+        confirmButton = { TextButton(onClick = { onConfirm(name) }, enabled = name.trim().isNotEmpty()) { Text("Créer") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } }
     )
 }
@@ -1377,11 +1119,7 @@ private fun DeleteItemDialog(itemName: String, onDismiss: () -> Unit, onConfirm:
         onDismissRequest = onDismiss,
         title = { Text("Supprimer ?") },
         text = { Text("Voulez-vous vraiment supprimer « $itemName » ?") },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Supprimer", color = MaterialTheme.colorScheme.error)
-            }
-        },
+        confirmButton = { TextButton(onClick = onConfirm) { Text("Supprimer", color = MaterialTheme.colorScheme.error) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } }
     )
 }

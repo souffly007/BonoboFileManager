@@ -20,13 +20,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
 
-data class GoogleDriveItem(
-    val id: String,
-    val name: String,
-    val folder: Boolean,
-    val size: Long = 0L,
-    val mimeType: String = ""
-)
+data class GoogleDriveItem(val id: String, val name: String, val folder: Boolean, val size: Long = 0L)
 data class GoogleDriveState(val connected: Boolean = false, val loading: Boolean = false, val items: List<GoogleDriveItem> = emptyList(), val error: String? = null, val notice: String? = null)
 
 object GoogleDriveCloudManager {
@@ -39,7 +33,7 @@ object GoogleDriveCloudManager {
     val state = _state.asStateFlow()
 
     fun isConnected(context: Context): Boolean = GoogleSignIn.getLastSignedInAccount(context) != null &&
-            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).contains(EMAIL_KEY)
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).contains(EMAIL_KEY)
 
     fun startLogin(context: Context) {
         val activity = context as? Activity ?: error("Connexion Google indisponible")
@@ -64,20 +58,13 @@ object GoogleDriveCloudManager {
             val parent = folderId ?: "root"
             val query = "'$parent' in parents and trashed = false"
             val endpoint = "https://www.googleapis.com/drive/v3/files" +
-                    "?q=${Uri.encode(query)}&spaces=drive&orderBy=folder,name" +
-                    "&fields=files(id,name,mimeType,size)"
+                "?q=${Uri.encode(query)}&spaces=drive&orderBy=folder,name" +
+                "&fields=files(id,name,mimeType,size)"
             val json = JSONObject(get(context, endpoint))
             val files = json.optJSONArray("files") ?: org.json.JSONArray()
             val items = List(files.length()) { index ->
                 val file = files.getJSONObject(index)
-                val mimeType = file.optString("mimeType")
-                GoogleDriveItem(
-                    id = file.getString("id"),
-                    name = file.getString("name"),
-                    folder = mimeType == "application/vnd.google-apps.folder",
-                    size = file.optLong("size", 0L),
-                    mimeType = mimeType
-                )
+                GoogleDriveItem(file.getString("id"), file.getString("name"), file.getString("mimeType") == "application/vnd.google-apps.folder", file.optLong("size", 0L))
             }
             _state.value = GoogleDriveState(true, false, items)
         } catch (e: Exception) {
@@ -86,27 +73,17 @@ object GoogleDriveCloudManager {
     }
 
     suspend fun download(context: Context, item: GoogleDriveItem): String = withContext(Dispatchers.IO) {
-        val originalName = item.name.replace(Regex("[/\\\\]"), "_").ifBlank { "fichier" }
-        val name = exportedFileName(originalName, item.mimeType)
-        val values = android.content.ContentValues().apply {
-            put(android.provider.MediaStore.Downloads.DISPLAY_NAME, name)
-            put(android.provider.MediaStore.Downloads.MIME_TYPE, mimeType(name))
-            if (android.os.Build.VERSION.SDK_INT >= 29) {
-                put(android.provider.MediaStore.Downloads.RELATIVE_PATH, "Download/Bonobo Google Drive")
-                put(android.provider.MediaStore.Downloads.IS_PENDING, 1)
-            }
-        }
-        val destination = context.contentResolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            ?: error("Impossible de créer le fichier dans Téléchargements")
+        val name = item.name.replace(Regex("[/\\\\]"), "_").ifBlank { "fichier" }
+        val target = RemoteDownloadTarget.create(context, name, mimeType(name), null, item.size, "Bonobo Google Drive")
         try {
-            val connection = authenticated(context, downloadUrl(item))
+            val connection = authenticated(context, "https://www.googleapis.com/drive/v3/files/${item.id}?alt=media")
             if (connection.responseCode !in 200..299) error("Google Drive (${connection.responseCode})")
-            val output = context.contentResolver.openOutputStream(destination) ?: error("Destination inaccessible")
-            connection.inputStream.use { input -> output.use { input.copyTo(it) } }
-            if (android.os.Build.VERSION.SDK_INT >= 29) context.contentResolver.update(destination, android.content.ContentValues().apply { put(android.provider.MediaStore.Downloads.IS_PENDING, 0) }, null, null)
-            "Téléchargements/Bonobo Google Drive/$name"
+            try {
+                connection.inputStream.use { input -> target.output.use { input.copyTo(it) } }
+            } finally { connection.disconnect() }
+            target.commit()
         } catch (e: Exception) {
-            context.contentResolver.delete(destination, null, null)
+            target.abort()
             throw e
         }
     }
@@ -180,43 +157,4 @@ object GoogleDriveCloudManager {
     }
 
     private fun mimeType(name: String): String = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(name.substringAfterLast('.', "").lowercase()) ?: "application/octet-stream"
-
-    private fun downloadUrl(item: GoogleDriveItem): String {
-        val exportMime = exportMimeType(item.mimeType, item.name)
-        return if (exportMime != null) {
-            "https://www.googleapis.com/drive/v3/files/${Uri.encode(item.id)}/export?mimeType=${Uri.encode(exportMime)}"
-        } else {
-            "https://www.googleapis.com/drive/v3/files/${Uri.encode(item.id)}?alt=media"
-        }
-    }
-
-    private fun exportMimeType(googleMimeType: String, name: String): String? {
-        return when (googleMimeType) {
-            "application/vnd.google-apps.document" -> when {
-                name.endsWith(".odt", ignoreCase = true) -> "application/vnd.oasis.opendocument.text"
-                name.endsWith(".pdf", ignoreCase = true) -> "application/pdf"
-                else -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            }
-            "application/vnd.google-apps.spreadsheet" -> when {
-                name.endsWith(".csv", ignoreCase = true) -> "text/csv"
-                name.endsWith(".pdf", ignoreCase = true) -> "application/pdf"
-                else -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            }
-            "application/vnd.google-apps.presentation" -> when {
-                name.endsWith(".pdf", ignoreCase = true) -> "application/pdf"
-                else -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-            }
-            else -> null
-        }
-    }
-
-    private fun exportedFileName(name: String, googleMimeType: String): String {
-        if (!googleMimeType.startsWith("application/vnd.google-apps.")) return name
-        if (name.contains('.')) return name
-        return when (googleMimeType) {
-            "application/vnd.google-apps.spreadsheet" -> "$name.xlsx"
-            "application/vnd.google-apps.presentation" -> "$name.pptx"
-            else -> "$name.docx"
-        }
-    }
 }

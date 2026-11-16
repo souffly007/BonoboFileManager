@@ -28,6 +28,12 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
+    private val notificationPermission = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { granted ->
+        if (!granted) android.widget.Toast.makeText(this, "Notifications désactivées. Les transferts restent disponibles ; leur état est visible dans Bonobo.", android.widget.Toast.LENGTH_LONG).show()
+    }
+    private val received = androidx.compose.runtime.mutableStateOf<String?>(null)
+    private var lastGrantState: fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +41,9 @@ class MainActivity : FragmentActivity() {
         checkPermissions()
         handleDropboxIntent(intent)
         handleOneDriveIntent(intent)
+        handleFiles(intent)
+        // Not on recreation (rotation…): the same attach intent would be handled twice.
+        if (savedInstanceState == null) handleUsbAttached(intent)
 
         val themeFlow = settingsDataStore.data
             .map { preferences ->
@@ -53,7 +62,7 @@ class MainActivity : FragmentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    AppNavigation(onExit = { finish() })
+                    AppNavigation(onExit = { finish() }, receivedPath = received.value, onReceivedConsumed = { received.value = null })
                 }
             }
         }
@@ -64,6 +73,60 @@ class MainActivity : FragmentActivity() {
         setIntent(intent)
         handleDropboxIntent(intent)
         handleOneDriveIntent(intent)
+        handleFiles(intent)
+        handleUsbAttached(intent)
+    }
+
+    /**
+     * Key plugged in and Bonobo chosen in the system dialog. The volume is usually not mounted yet:
+     * wait for it (max 10 s), then open the root of the removable volume (most recent if several).
+     * launchMode stays singleTop: an already visible Bonobo receives the intent in onNewIntent, and
+     * « Ouvrir avec » / partage keep opening in the caller's task as before.
+     */
+    private var usbWait: kotlinx.coroutines.Job? = null
+    private fun handleUsbAttached(incoming: Intent?) {
+        if (incoming?.action != android.hardware.usb.UsbManager.ACTION_USB_DEVICE_ATTACHED) return
+        fr.bonobo.filemanager.diagnostic.Diagnostic.event(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.USB_ATTACH_INTENT)
+        // Consume it: a later recreation or onResume must not replay the attach.
+        setIntent(Intent(Intent.ACTION_MAIN))
+        val intentTime = System.currentTimeMillis()
+        val before = fr.bonobo.filemanager.util.UsbVolumes.mountedRemovable(this)
+        usbWait?.cancel()
+        usbWait = lifecycleScope.launch {
+            val operation = fr.bonobo.filemanager.diagnostic.Diagnostic.operation()
+            fr.bonobo.filemanager.diagnostic.Diagnostic.event(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.USB_VOLUME_WAIT,
+                fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.START, operation)
+            val wait = runCatching {
+                fr.bonobo.filemanager.util.UsbVolumes.awaitPluggedVolume(this@MainActivity, intentTime, before)
+            }.getOrNull()
+            val volume = wait?.volume ?: wait?.fallback
+            fr.bonobo.filemanager.diagnostic.Diagnostic.event(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.USB_VOLUME_WAIT,
+                if (wait?.volume != null) fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.OK
+                else fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.TIMEOUT, operation, durationMs = wait?.waitedMs)
+            val directory = volume?.directory
+            if (directory == null) {
+                fr.bonobo.filemanager.diagnostic.Diagnostic.event(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.USB_AUTO_OPEN,
+                    fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.TIMEOUT, operation)
+                android.widget.Toast.makeText(this@MainActivity,
+                    "Clé USB détectée, mais Android ne l’a pas rendue accessible en 10 secondes. " +
+                        "Vérifiez qu’elle est formatée (FAT32, exFAT ou NTFS) puis ouvrez-la via « USB / OTG ».",
+                    android.widget.Toast.LENGTH_LONG).show()
+                return@launch
+            }
+            if (!PermissionUtils.hasStoragePermission(this@MainActivity)) {
+                fr.bonobo.filemanager.diagnostic.Diagnostic.event(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.USB_AUTO_OPEN,
+                    fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.PERMISSION_DENIED, operation)
+                android.widget.Toast.makeText(this@MainActivity,
+                    "Clé USB prête. Autorisez l’accès à tous les fichiers, ou ouvrez-la via « USB / OTG ».",
+                    android.widget.Toast.LENGTH_LONG).show()
+                return@launch
+            }
+            fr.bonobo.filemanager.diagnostic.Diagnostic.event(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.USB_AUTO_OPEN,
+                fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.OK, operation, durationMs = wait?.waitedMs)
+            received.value = directory.path
+            android.widget.Toast.makeText(this@MainActivity,
+                "Ouverture de ${volume.label ?: "la clé USB"}", android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -87,7 +150,27 @@ class MainActivity : FragmentActivity() {
     }
 
 
+    private fun handleFiles(incoming: Intent?) {
+        if (incoming == null || incoming.action !in listOf(Intent.ACTION_VIEW, Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE) || incoming.data?.scheme in listOf("msauth", "db-a4pj0x994ilv7o6")) return
+        lifecycleScope.launch {
+            runCatching {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    fr.bonobo.filemanager.util.IncomingFiles.receive(this@MainActivity, incoming)
+                }
+            }.onSuccess { files ->
+                if (files.isNotEmpty()) android.widget.Toast.makeText(this@MainActivity, "Ouverture d'une copie temporaire. Les modifications ne changent pas le fichier d'origine.", android.widget.Toast.LENGTH_LONG).show()
+                if (files.size == 1) received.value = files.first().path
+                else if (files.isNotEmpty()) {
+                    val folder = java.io.File(cacheDir, "received/shared-${java.util.UUID.randomUUID()}").apply { mkdirs() }
+                    files.forEachIndexed { index, file -> check(file.renameTo(java.io.File(folder, "$index-${file.name}"))) }
+                    received.value = folder.path
+                }
+            }.onFailure { android.widget.Toast.makeText(this@MainActivity, "Fichier reçu inaccessible : ${it.message}", android.widget.Toast.LENGTH_LONG).show() }
+        }
+    }
+
     private fun checkPermissions() {
+        if (intent?.action in listOf(Intent.ACTION_VIEW, Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE)) return
         if (!PermissionUtils.hasStoragePermission(this)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 try {
@@ -113,5 +196,32 @@ class MainActivity : FragmentActivity() {
 
     override fun onResume() {
         super.onResume()
+        runCatching {
+            if (fr.bonobo.filemanager.diagnostic.Diagnostic.journal?.enabled == true) {
+                fr.bonobo.filemanager.diagnostic.Diagnostic.event(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.APP_RESUMED)
+                // Previously REFUSED was written at every resume whenever no persisted grant was
+                // read+write — including the normal case of zero SAF grants (USB opened in direct
+                // access). Now: NO_PERSISTED_GRANT when there is none, REFUSED only for read-only
+                // grants, and a line only when the state changes.
+                val grants = contentResolver.persistedUriPermissions
+                val result = when {
+                    grants.isEmpty() -> fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.NO_PERSISTED_GRANT
+                    grants.any { it.isReadPermission && it.isWritePermission } -> fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.OK
+                    else -> fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.REFUSED
+                }
+                if (result != lastGrantState) {
+                    lastGrantState = result
+                    fr.bonobo.filemanager.diagnostic.Diagnostic.event(
+                        fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.SAF_PERMISSION, result)
+                }
+            }
+        }
+        val prefs = getSharedPreferences("notification_permission", MODE_PRIVATE)
+        if (Build.VERSION.SDK_INT >= 33 && intent?.action == Intent.ACTION_MAIN &&
+            PermissionUtils.hasStoragePermission(this) && !prefs.getBoolean("requested", false) &&
+            androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            prefs.edit().putBoolean("requested", true).apply()
+            notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 }

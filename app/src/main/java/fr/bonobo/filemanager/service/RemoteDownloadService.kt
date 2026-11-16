@@ -99,7 +99,7 @@ class RemoteDownloadService : Service() {
                             if (now - lastUpdate >= 300 || bytes == size) {
                                 lastUpdate = now
                                 mutableState.value = mutableState.value.copy(bytes = bytes)
-                                getSystemService(NotificationManager::class.java).notify(ID, notification())
+                                postNotification(ID, notification())
                             }
                         })
                 }
@@ -116,7 +116,7 @@ class RemoteDownloadService : Service() {
             } finally {
                 if (wakeLock.isHeld) wakeLock.release()
                 stopForeground(STOP_FOREGROUND_REMOVE)
-                getSystemService(NotificationManager::class.java).notify(ID, notification())
+                postNotification(ID, notification())
                 stopSelf(startId)
             }
         }
@@ -140,6 +140,14 @@ class RemoteDownloadService : Service() {
         return builder.build()
     }
     override fun onDestroy() { cancelled.set(true); scope.cancel(); super.onDestroy() }
+    private fun postNotification(id: Int, notification: Notification) {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) return
+        if (getSystemService(NotificationManager::class.java).areNotificationsEnabled()) {
+            getSystemService(NotificationManager::class.java).notify(id, notification)
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
     override fun onTimeout(startId: Int, fgsType: Int) {
         cancelled.set(true); scope.cancel(); stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()

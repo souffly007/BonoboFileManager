@@ -26,7 +26,8 @@ import java.io.File
 @Composable
 fun TextEditorScreen(
     filePath: String,
-    onSaved: () -> Unit
+    onNavigateBack: () -> Unit,
+    onSaveOverride: (suspend (String) -> Result<Unit>)? = null
 ) {
     val file = remember(filePath) { File(filePath) }
     var text by remember { mutableStateOf("") }
@@ -34,6 +35,8 @@ fun TextEditorScreen(
     var replaceQuery by remember { mutableStateOf("") }
     var showSearch by remember { mutableStateOf(false) }
     var isRegex by remember { mutableStateOf(false) }
+    var savedNotice by remember { mutableStateOf(false) }
+    var originalText by remember { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -42,20 +45,31 @@ fun TextEditorScreen(
         text = withContext(Dispatchers.IO) {
             if (file.exists()) file.readText() else ""
         }
+        originalText = text
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(file.name, maxLines = 1) },
+                title = { Text(if (text != originalText) "${file.name} •" else file.name, maxLines = 1) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Retour")
+                    }
+                },
                 actions = {
                     IconButton(onClick = { showSearch = !showSearch }) {
                         Icon(Icons.Default.Search, contentDescription = "Rechercher")
                     }
                     IconButton(onClick = {
                         scope.launch(Dispatchers.IO) {
-                            file.writeText(text)
-                            withContext(Dispatchers.Main) { onSaved() }
+                            val result = if (onSaveOverride != null) onSaveOverride(text) else runCatching { file.writeText(text) }
+                            withContext(Dispatchers.Main) {
+                                if (result.isSuccess) {
+                                    originalText = text
+                                    savedNotice = true
+                                }
+                            }
                         }
                     }) {
                         Icon(Icons.Default.Save, contentDescription = "Enregistrer")
@@ -65,6 +79,18 @@ fun TextEditorScreen(
         }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
+            if (savedNotice) {
+                LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(1600)
+                    savedNotice = false
+                }
+                Text(
+                    "Enregistré",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+            }
             if (showSearch) {
                 SearchReplaceBar(
                     searchQuery = searchQuery,

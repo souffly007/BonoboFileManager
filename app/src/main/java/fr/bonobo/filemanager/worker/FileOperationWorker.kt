@@ -50,7 +50,7 @@ class FileOperationWorker @AssistedInject constructor(
         return if (result.isSuccess) {
             Result.success()
         } else {
-            Result.failure()
+            Result.failure(androidx.work.workDataOf("error" to (result.exceptionOrNull()?.message ?: "Opération non confirmée").take(4000)))
         }
     }
 

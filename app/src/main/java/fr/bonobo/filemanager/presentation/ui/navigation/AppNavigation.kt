@@ -6,6 +6,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.getValue
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import fr.bonobo.filemanager.presentation.ui.apps.AppManagerScreen
@@ -78,6 +80,16 @@ fun AppNavigation(
     val sharedViewModel: MainViewModel = hiltViewModel()
     val remoteViewModel: RemoteViewModel = hiltViewModel()
 
+    // « Retour » never empties the NavHost: popping the last screen (Accueil) left a black screen
+    // with the app still open. A second tap during the exit animation is ignored (the screen
+    // below is not RESUMED yet), and « Retour » from the first screen closes the app.
+    val goBack: () -> Unit = {
+        val current = navController.currentBackStackEntry
+        if (current?.lifecycle?.currentState == androidx.lifecycle.Lifecycle.State.RESUMED) {
+            if (navController.previousBackStackEntry != null) navController.popBackStack() else onExit()
+        }
+    }
+
     androidx.compose.runtime.LaunchedEffect(receivedPath) {
         receivedPath?.let { path ->
             val file = java.io.File(path)
@@ -104,6 +116,8 @@ fun AppNavigation(
         startDestination = Routes.DASHBOARD
     ) {
         composable(Routes.DASHBOARD) {
+            // « Retour » on Accueil really closes Bonobo (Android 12+ would only send it to the background).
+            androidx.activity.compose.BackHandler { onExit() }
             DashboardScreen(
                 viewModel = sharedViewModel,
                 onNavigateToExplorer = {
@@ -143,13 +157,13 @@ fun AppNavigation(
         }
 
         composable(Routes.VAULT) {
-            fr.bonobo.filemanager.presentation.ui.vault.VaultScreen(onBack = { navController.popBackStack() })
+            fr.bonobo.filemanager.presentation.ui.vault.VaultScreen(onBack = { goBack() })
         }
 
         composable(Routes.APPS) {
             AppManagerScreen(
                 onNavigateBack = {
-                    navController.popBackStack()
+                    goBack()
                 },
                 onNavigateHome = {
                     navController.navigate(Routes.DASHBOARD) {
@@ -166,7 +180,7 @@ fun AppNavigation(
         composable(Routes.CLEANER) {
             CleanerScreen(
                 onNavigateBack = {
-                    navController.popBackStack()
+                    goBack()
                 },
                 onNavigateHome = {
                     navController.navigate(Routes.DASHBOARD) {
@@ -179,7 +193,7 @@ fun AppNavigation(
         composable(Routes.ABOUT) {
             AboutScreen(
                 onNavigateBack = {
-                    navController.popBackStack()
+                    goBack()
                 },
                 onNavigateToLicenses = {
                     navController.navigate(Routes.LICENSES)
@@ -190,7 +204,7 @@ fun AppNavigation(
         composable(Routes.LICENSES) {
             LicensesScreen(
                 onNavigateBack = {
-                    navController.popBackStack()
+                    goBack()
                 }
             )
         }
@@ -198,7 +212,7 @@ fun AppNavigation(
         composable(Routes.NETWORK) {
             NetworkScreen(
                 onNavigateBack = {
-                    navController.popBackStack()
+                    goBack()
                 },
                 onNavigateHome = {
                     navController.navigate(Routes.DASHBOARD) {
@@ -213,10 +227,14 @@ fun AppNavigation(
         }
 
         composable(Routes.REMOTE_FILES) {
+            val localState by sharedViewModel.uiState.collectAsStateWithLifecycle()
             RemoteExplorerScreen(
                 viewModel = remoteViewModel,
+                localClipboard = localState.clipboard,
+                onLocalPasted = sharedViewModel::markPasted,
+                onCancelLocalClipboard = sharedViewModel::clearClipboard,
                 onNavigateBack = {
-                    navController.popBackStack()
+                    goBack()
                 },
                 onNavigateHome = {
                     navController.navigate(Routes.DASHBOARD) {
@@ -235,7 +253,7 @@ fun AppNavigation(
             val path = Uri.decode(entry.arguments?.getString("path").orEmpty())
             TextEditorScreen(
                 filePath = path,
-                onNavigateBack = { navController.popBackStack() },
+                onNavigateBack = { goBack() },
                 onSaveOverride = { text -> remoteViewModel.saveRemoteText(path, text) }
             )
         }
@@ -244,6 +262,7 @@ fun AppNavigation(
             MainScreen(
                 viewModel = sharedViewModel,
                 remoteViewModel = remoteViewModel,
+                onOpenRemoteExplorer = { navController.navigate(Routes.REMOTE_FILES) },
                 onOpenSettings = {
                     navController.navigate(Routes.SETTINGS)
                 },
@@ -284,6 +303,7 @@ fun AppNavigation(
             MainScreen(
                 viewModel = sharedViewModel,
                 remoteViewModel = remoteViewModel,
+                onOpenRemoteExplorer = { navController.navigate(Routes.REMOTE_FILES) },
                 onOpenSettings = {
                     navController.navigate(Routes.SETTINGS)
                 },
@@ -318,7 +338,7 @@ fun AppNavigation(
         }
 
         composable(Routes.SETTINGS) {
-            SettingsScreen(onNavigateBack = { navController.popBackStack() })
+            SettingsScreen(onNavigateBack = { goBack() })
         }
 
         composable(
@@ -326,7 +346,7 @@ fun AppNavigation(
             arguments = listOf(navArgument("path") { type = NavType.StringType })
         ) { entry ->
             val path = Uri.decode(entry.arguments?.getString("path").orEmpty())
-            ImageViewerScreen(path = path, onNavigateBack = { navController.popBackStack() })
+            ImageViewerScreen(path = path, onNavigateBack = { goBack() })
         }
 
         composable(
@@ -334,7 +354,7 @@ fun AppNavigation(
             arguments = listOf(navArgument("path") { type = NavType.StringType })
         ) { entry ->
             val path = Uri.decode(entry.arguments?.getString("path").orEmpty())
-            VideoPlayerScreen(videoPath = path, onNavigateBack = { navController.popBackStack() })
+            VideoPlayerScreen(videoPath = path, onNavigateBack = { goBack() })
         }
 
         composable(
@@ -342,7 +362,7 @@ fun AppNavigation(
             arguments = listOf(navArgument("path") { type = NavType.StringType })
         ) { entry ->
             val path = Uri.decode(entry.arguments?.getString("path").orEmpty())
-            AudioPlayerScreen(audioPath = path, onNavigateBack = { navController.popBackStack() })
+            AudioPlayerScreen(audioPath = path, onNavigateBack = { goBack() })
         }
 
         composable(
@@ -352,7 +372,7 @@ fun AppNavigation(
             val path = Uri.decode(entry.arguments?.getString("path").orEmpty())
             TextEditorScreen(
                 filePath = path,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { goBack() }
             )
         }
 
@@ -363,7 +383,7 @@ fun AppNavigation(
             val path = Uri.decode(entry.arguments?.getString("path").orEmpty())
             P2PTransferScreen(
                 filePath = path,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { goBack() }
             )
         }
 
@@ -379,12 +399,12 @@ fun AppNavigation(
             TextDiffScreen(
                 file1Path = p1,
                 file2Path = p2,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { goBack() }
             )
         }
-        composable(Routes.PDF, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> PdfViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
-        composable(Routes.EPUB, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> EpubViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
-        composable(Routes.ARCHIVE, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> ArchivePreviewScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
-        composable(Routes.OFFICE_DOCUMENT, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> OfficeDocumentViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { navController.popBackStack() } }
+        composable(Routes.PDF, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> PdfViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { goBack() } }
+        composable(Routes.EPUB, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> EpubViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { goBack() } }
+        composable(Routes.ARCHIVE, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> ArchivePreviewScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { goBack() } }
+        composable(Routes.OFFICE_DOCUMENT, arguments = listOf(navArgument("path") { type = NavType.StringType })) { e -> OfficeDocumentViewerScreen(Uri.decode(e.arguments?.getString("path").orEmpty())) { goBack() } }
     }
 }

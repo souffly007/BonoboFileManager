@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.Add
@@ -101,7 +103,9 @@ fun MainScreen(
     onOpenText: (String) -> Unit = {},
     onOpenOfficeDocument: (String) -> Unit = {},
     onOpenTransfer: (String) -> Unit = {},
-    onOpenDiff: (String, String) -> Unit = { _, _ -> }
+    onOpenDiff: (String, String) -> Unit = { _, _ -> },
+    /** « Envoyer vers… »: opens the SMB explorer of the connection chosen (phone clipboard ready to paste). */
+    onOpenRemoteExplorer: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val managedTransfer by viewModel.transfers.collectAsStateWithLifecycle()
@@ -165,6 +169,7 @@ fun MainScreen(
     var itemToDecrypt by remember { mutableStateOf<FileItem?>(null) }
     var showMultiDeleteDialog by remember { mutableStateOf(false) }
     var showMultiRenameDialog by remember { mutableStateOf(false) }
+    var sendingTo by remember { mutableStateOf(false) }
     var moreMenuExpanded by remember { mutableStateOf(false) }
     var sortMenuExpanded by remember { mutableStateOf(value = false) }
     var createMenuExpanded by remember { mutableStateOf(false) }
@@ -278,6 +283,9 @@ fun MainScreen(
                         if (!isTrashView) {
                             IconButton(onClick = { viewModel.copySelected(false) }) { Icon(Icons.Default.ContentCopy, "Copier la sélection") }
                             IconButton(onClick = { viewModel.copySelected(true) }) { Icon(Icons.Default.ContentCut, "Déplacer la sélection") }
+                            if (remoteViewModel != null) IconButton(onClick = { sendingTo = true }) {
+                                Icon(Icons.Default.CloudUpload, "Envoyer vers un serveur SMB")
+                            }
                         }
                         IconButton(onClick = { showMultiRenameDialog = true }) {
                             Icon(Icons.Default.DriveFileRenameOutline, contentDescription = "Renommer")
@@ -462,6 +470,40 @@ fun MainScreen(
                 retry = if (viewModel.canRetryTransfer(managedTransfer)) viewModel::retryTransfer else null,
                 // Re-evaluated on every mount / unmount of a volume.
                 retryBlocked = usbRevision.let { viewModel.retryBlocked(managedTransfer) })
+            // Server → phone: same conflict dialog as a local paste.
+            remoteState?.conflictPrompt?.takeIf { it.target == fr.bonobo.filemanager.presentation.ui.network.ConflictTarget.TO_PHONE }?.let { prompt ->
+                fr.bonobo.filemanager.presentation.ui.operations.ConflictDialog(
+                    item = prompt.current, remaining = prompt.remaining, isMove = prompt.isMove, sameFolder = false,
+                    existing = prompt.currentExisting, identical = null,
+                    onChoice = { action, all, hash -> remoteViewModel?.resolveConflict(action, all, hash) },
+                    onCancel = { remoteViewModel?.cancelConflicts() })
+            }
+            if (sendingTo && remoteViewModel != null) {
+                val connections by remoteViewModel.smbConnections.collectAsStateWithLifecycle()
+                AlertDialog(onDismissRequest = { sendingTo = false },
+                    title = { Text("Envoyer vers…") },
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (connections.isEmpty()) Text("Aucune connexion SMB. Ajoutez un serveur dans Réseau.")
+                            else {
+                                Text("Choisissez le serveur, puis le dossier où appuyer sur « Mettre ici ».",
+                                    style = MaterialTheme.typography.bodySmall)
+                                connections.forEach { connection ->
+                                    TextButton(onClick = {
+                                        sendingTo = false
+                                        viewModel.copySelected(false)
+                                        remoteViewModel.connectForUpload(connection)
+                                        onOpenRemoteExplorer()
+                                    }, modifier = Modifier.fillMaxWidth()) {
+                                        Icon(Icons.Default.Dns, null); Spacer(Modifier.width(8.dp))
+                                        Text(connection.name.ifBlank { connection.host }, modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = { TextButton(onClick = { sendingTo = false }) { Text("Annuler") } })
+            }
             state.conflictPrompt?.let { prompt ->
                 fr.bonobo.filemanager.presentation.ui.operations.ConflictDialog(
                     item = prompt.current, remaining = prompt.remaining, isMove = prompt.clipboard.isMove,
@@ -722,7 +764,39 @@ fun MainScreen(
                         }
                     }
 
-                    if (state.categoryName == "Favoris" && !state.isLoading && state.files.isEmpty() && state.error == null) {
+                    // Network folders (SMB, SFTP…) in favorites: one tap reopens them in the remote explorer.
+                    val networkFavorites = if (state.categoryName == "Favoris" && remoteViewModel != null) {
+                        val all by remoteViewModel.networkBookmarks.collectAsStateWithLifecycle()
+                        val q = state.searchQuery.trim()
+                        all.filter { q.isEmpty() || it.name.contains(q, true) || it.connectionName.contains(q, true) }
+                    } else emptyList()
+                    if (networkFavorites.isNotEmpty()) {
+                        Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
+                            Text("Dossiers réseau", style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                            networkFavorites.forEach { bookmark ->
+                                ListItem(
+                                    headlineContent = { Text(bookmark.name, maxLines = 1) },
+                                    supportingContent = { Text("${bookmark.connectionName} · ${bookmark.path}", maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
+                                    leadingContent = { Icon(Icons.Default.Dns, contentDescription = null) },
+                                    trailingContent = {
+                                        IconButton(onClick = { remoteViewModel?.removeBookmark(bookmark) }) {
+                                            Icon(Icons.Default.Close, "Retirer ${bookmark.name} des favoris")
+                                        }
+                                    },
+                                    modifier = Modifier.clickable {
+                                        if (remoteViewModel?.openBookmark(bookmark) == true) onOpenRemoteExplorer()
+                                    }
+                                )
+                            }
+                            if (state.files.isNotEmpty()) {
+                                Text("Dossiers du téléphone", style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                            }
+                        }
+                    }
+                    if (state.categoryName == "Favoris" && networkFavorites.isEmpty() && !state.isLoading && state.files.isEmpty() && state.error == null) {
                         Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(if (state.searchQuery.isBlank()) "Aucun dossier favori" else "Aucun favori ne correspond",
                                 style = MaterialTheme.typography.titleMedium)

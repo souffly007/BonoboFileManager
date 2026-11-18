@@ -152,17 +152,63 @@ class TransferEngineFactory @Inject constructor(@ApplicationContext private val 
         override suspend fun execute(source: TransferSource, destination: StorageRef, operation: TransferOperation) {
             val item = items.single { it.path == source.ref.path }
             when (destination) {
-                is StorageRef.Local -> {
-                    require(operation != TransferOperation.DUPLICATE) { "Duplication disponible uniquement vers SMB ; choisissez Copier pour le stockage local" }
-                    remote.copyOrMoveToLocal(connection, item, destination.path, operation == TransferOperation.MOVE).getOrThrow()
+                // Internal storage or USB key (SAF): verified copy with the conflict choice.
+                is StorageRef.Local, is StorageRef.SafDocument -> {
+                    require(operation != TransferOperation.DUPLICATE) { "Duplication disponible uniquement vers SMB ; choisissez Copier pour le téléphone" }
+                    remote.copyOrMoveToLocal(connection, item, destination.path, operation == TransferOperation.MOVE,
+                        source.conflict, source.compareHash).getOrThrow()
                 }
                 is StorageRef.Remote -> {
                     require(destination.connectionId == connection.id && destination.protocol == connection.type.name) { "Transfert entre connexions non pris en charge" }
                     remote.copyOrMoveRemote(connection, item.path, destination.path, operation == TransferOperation.MOVE,
                         operation == TransferOperation.DUPLICATE).getOrThrow()
                 }
-                else -> error("Transfert réseau vers SAF non pris en charge par cette opération")
             }
+        }
+    }
+
+    /**
+     * Phone (internal storage or USB key) → SMB share. Same card, cancel, retry and conflict choices as a
+     * copy to the USB key; the server side is verified (« .bonobo-part », SHA-256, rename, cleanup).
+     * Preflight: free space of the share when the server reports it (SPACE_CHECK storage=SMB).
+     */
+    fun upload(connection: RemoteConnection) = object : TransferEngine {
+        private val base = local()
+        override suspend fun normalize(sources: List<TransferSource>) = base.normalize(sources)
+        override suspend fun inspect(source: TransferSource) = base.inspect(source)
+        override suspend fun preflight(request: TransferRequest, inventories: Map<StorageRef, Inventory>) {
+            val destination = request.destination as? StorageRef.Remote ?: return
+            // A merge may skip most files: the real need is unknown.
+            if (request.sources.any { it.conflict == ConflictAction.MERGE || it.conflict == ConflictAction.REPLACE && it.directory }) return
+            val known = request.sources.mapNotNull { inventories[it.ref] }
+            if (known.size != request.sources.size || known.any { it.bytes == null }) return
+            val needed = known.sumOf { it.bytes!! }
+            val files = known.sumOf { it.files }
+            val mode = if (request.operation == TransferOperation.MOVE) fr.bonobo.filemanager.diagnostic.TechnicalJournal.Mode.MOVE
+                else fr.bonobo.filemanager.diagnostic.TechnicalJournal.Mode.COPY
+            val available = remote.smbFreeSpace(connection, destination.path)
+            if (available == null) {
+                fr.bonobo.filemanager.diagnostic.Diagnostic.detail(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.SPACE_CHECK,
+                    fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.UNKNOWN, storage = fr.bonobo.filemanager.diagnostic.TechnicalJournal.Storage.SMB,
+                    mode = mode, expected = needed + SpaceCheck.margin(needed, files))
+                return
+            }
+            val ok = SpaceCheck.enough(needed, files, available)
+            fr.bonobo.filemanager.diagnostic.Diagnostic.detail(fr.bonobo.filemanager.diagnostic.TechnicalJournal.Event.SPACE_CHECK,
+                if (ok) fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.OK else fr.bonobo.filemanager.diagnostic.TechnicalJournal.Result.INSUFFICIENT_SPACE,
+                storage = fr.bonobo.filemanager.diagnostic.TechnicalJournal.Storage.SMB, mode = mode,
+                expected = needed + SpaceCheck.margin(needed, files), transferred = available)
+            if (!ok) throw TransferFailure(FailureKind.INSUFFICIENT_SPACE,
+                "${TransferText.size(needed)} à envoyer, ${TransferText.size(available)} libres sur le partage SMB. " +
+                    "Libérez de l’espace sur le serveur ou envoyez moins d’éléments.")
+        }
+        override suspend fun execute(source: TransferSource, destination: StorageRef, operation: TransferOperation) {
+            require(destination is StorageRef.Remote && destination.connectionId == connection.id &&
+                connection.type == ConnectionType.SMB) { "Envoi disponible vers la connexion SMB ouverte uniquement" }
+            require(source.ref !is StorageRef.Remote) { "Source réseau : utilisez Copier depuis l’explorateur réseau" }
+            require(operation == TransferOperation.COPY || operation == TransferOperation.MOVE) { "Opération non prise en charge pour un envoi" }
+            remote.uploadToSmb(connection, source.ref.path, source.name, destination.path, operation == TransferOperation.MOVE,
+                source.conflict, source.compareHash).getOrThrow()
         }
     }
     companion object {

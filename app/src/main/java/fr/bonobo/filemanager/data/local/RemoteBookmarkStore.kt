@@ -35,6 +35,38 @@ class RemoteBookmarkStore @Inject constructor(
     private val _bookmarks = MutableStateFlow(load())
     val bookmarks: StateFlow<List<RemoteBookmark>> = _bookmarks.asStateFlow()
 
+    /** Chemins (normalisés) mis en favori pour cette connexion. */
+    fun pathsFor(connectionId: Long): Set<String> =
+        _bookmarks.value.filter { it.connectionId == connectionId }.map { it.path }.toSet()
+
+    /** Ajoute sans basculer (migration des anciens favoris de l'explorateur réseau). */
+    @Synchronized
+    fun addAll(connectionId: Long, connectionName: String, paths: Collection<String>) {
+        val current = _bookmarks.value
+        val keys = current.map { it.key }.toMutableSet()
+        val added = paths.map(::normalize).distinct().filter { keys.add("$connectionId|$it") }
+            .map { RemoteBookmark(connectionId, connectionName, it, displayNameOf(it, connectionName)) }
+        if (added.isNotEmpty()) save(current + added)
+    }
+
+    /** Un dossier renommé garde sa place dans les favoris. */
+    @Synchronized
+    fun rename(connectionId: Long, oldPath: String, newPath: String) {
+        val oldKey = "$connectionId|${normalize(oldPath)}"
+        val target = normalize(newPath)
+        if (_bookmarks.value.none { it.key == oldKey }) return
+        save(_bookmarks.value.map {
+            if (it.key == oldKey) it.copy(path = target, name = displayNameOf(target, it.connectionName)) else it
+        })
+    }
+
+    /** Une connexion supprimée emporte ses favoris. */
+    @Synchronized
+    fun removeConnection(connectionId: Long) {
+        if (_bookmarks.value.any { it.connectionId == connectionId })
+            save(_bookmarks.value.filterNot { it.connectionId == connectionId })
+    }
+
     fun isBookmarked(connectionId: Long, path: String): Boolean =
         _bookmarks.value.any { it.key == "$connectionId|${normalize(path)}" }
 
@@ -84,8 +116,13 @@ class RemoteBookmarkStore @Inject constructor(
         }
     }.getOrDefault(emptyList())
 
-    private fun normalize(path: String): String {
-        val trimmed = path.trim().trimEnd('/')
-        return if (trimmed.isEmpty()) "/" else if (trimmed.startsWith("/")) trimmed else "/$trimmed"
+    companion object {
+        fun normalize(path: String): String {
+            val trimmed = path.trim().trimEnd('/')
+            return if (trimmed.isEmpty()) "/" else if (trimmed.startsWith("/")) trimmed else "/$trimmed"
+        }
+
+        fun displayNameOf(path: String, connectionName: String): String =
+            normalize(path).substringAfterLast('/').ifEmpty { connectionName }
     }
 }

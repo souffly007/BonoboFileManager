@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
@@ -16,6 +17,8 @@ import java.security.Security
 @HiltAndroidApp
 class BonoboFileManagerApp : Application(), ImageLoaderFactory {
     private val background = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @javax.inject.Inject lateinit var smbClient: fr.bonobo.filemanager.data.repository.SmbClientRepository
+    @javax.inject.Inject lateinit var remoteConnections: fr.bonobo.filemanager.domain.repository.IRemoteRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -71,7 +74,27 @@ class BonoboFileManagerApp : Application(), ImageLoaderFactory {
         }
         // The key may have been reconnected while the app was closed.
         schedulePendingCleanup(listOf(2_000L))
+        scheduleSmbCleanup()
         installFullBouncyCastle()
+    }
+
+    /**
+     * App killed during an SMB write: its receipts are adopted at start, then the partial files are
+     * removed from each server that is reachable (otherwise at the next connection to it).
+     */
+    private fun scheduleSmbCleanup() {
+        background.launch {
+            delay(5_000L)
+            runCatching {
+                val ids = smbClient.pendingConnectionIds()
+                if (ids.isEmpty()) return@runCatching
+                val connections = remoteConnections.getAllConnections().first()
+                connections.filter { it.id in ids && it.type == fr.bonobo.filemanager.domain.model.ConnectionType.SMB }.forEach { connection ->
+                    runCatching { smbClient.cleanPending(connection) }
+                    smbClient.release(connection)
+                }
+            }
+        }
     }
 
     private fun schedulePendingCleanup(delays: List<Long>) {

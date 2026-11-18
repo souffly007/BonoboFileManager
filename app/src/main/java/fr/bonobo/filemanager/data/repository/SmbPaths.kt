@@ -147,6 +147,27 @@ object SmbPaths {
         return target
     }
 
+    private val RESERVED_NAMES = Regex("^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(\\..*)?$", RegexOption.IGNORE_CASE)
+
+    /**
+     * Name of a new or renamed element on an SMB share (Windows rules): null when valid, otherwise a
+     * short French reason. Our own « .bonobo-part » suffix is reserved.
+     */
+    fun nameError(name: String): String? = when {
+        name.isBlank() -> "Indiquez un nom."
+        name == "." || name == ".." -> "« $name » n’est pas un nom valide."
+        name.any { it in FORBIDDEN_IN_SEGMENT || it.code < 32 } -> "Caractères interdits dans un nom : \\ / : * ? \" < > |"
+        name.endsWith(" ") || name.endsWith(".") -> "Un nom ne peut pas se terminer par un espace ou un point."
+        name.startsWith(" ") -> "Un nom ne peut pas commencer par un espace."
+        RESERVED_NAMES.matches(name) -> "« $name » est un nom réservé par Windows."
+        name.length > 255 -> "Nom trop long (255 caractères au maximum)."
+        name.endsWith(fr.bonobo.filemanager.util.OperationArtifacts.PART_SUFFIX, ignoreCase = true) ->
+            "Le suffixe « .bonobo-part » est réservé aux copies en cours."
+        else -> null
+    }
+
+    fun validateName(name: String) { nameError(name)?.let { throw IllegalArgumentException(it) } }
+
     /** Decodes %XX (UTF-8) without turning « + » into a space; null on a malformed escape. */
     private fun percentDecode(text: String): String? {
         if ('%' !in text) return text

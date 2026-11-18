@@ -41,7 +41,13 @@ class TechnicalJournal(private val directory: File, private val limit: Int = 1_0
     enum class Mode { PERMANENT, TRASH, CLEANUP, COPY, MOVE, RESTORE, UNKNOWN }
     enum class Phase { REQUEST, CREATE, OPEN, READ, WRITE, CLOSE, PROVIDER, VERIFY, FINISH, UNKNOWN }
     /** SMB operations. PASTE_HERE is the « Mettre ici » request; each pasted element then logs COPY/MOVE/DUPLICATE. */
-    enum class SmbOp { LIST, OPEN, THUMBNAIL, DOWNLOAD, SAVE, INSPECT, COPY, MOVE, DUPLICATE, PASTE_HERE, DELETE, DELETE_SOURCE }
+    enum class SmbOp { LIST, OPEN, THUMBNAIL, DOWNLOAD, SAVE, INSPECT, COPY, MOVE, DUPLICATE, PASTE_HERE, DELETE, DELETE_SOURCE,
+        /** Session pool: CONNECT = a new session was opened (first use or reconnection), DISCONNECT = closed. */
+        CONNECT, DISCONNECT,
+        /** Deferred partial files removed from the server (next start / next connection). */
+        CLEANUP,
+        /** Phone → server, new folder, rename, free space of the share (SPACE_CHECK before an upload). */
+        UPLOAD, MKDIR, RENAME, SPACE }
     @Volatile var enabled = false
         private set
     @Volatile private var generation = 0L

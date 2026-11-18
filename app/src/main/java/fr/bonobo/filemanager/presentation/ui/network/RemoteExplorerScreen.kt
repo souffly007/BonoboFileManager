@@ -39,12 +39,18 @@ fun RemoteExplorerScreen(
     onOpenPdf: (String) -> Unit,
     onOpenOfficeDocument: (String) -> Unit,
     onOpenVideo: (String) -> Unit,
-    onOpenAudio: (String) -> Unit
+    onOpenAudio: (String) -> Unit,
+    /** Clipboard of the phone explorer (internal storage or USB key), pasted here with « Mettre ici ». */
+    localClipboard: fr.bonobo.filemanager.presentation.ui.main.ClipboardState? = null,
+    onLocalPasted: (Set<String>) -> Unit = {},
+    onCancelLocalClipboard: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val managedTransfer by viewModel.transfers.collectAsStateWithLifecycle()
     val transfer by RemoteDownloadService.state.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
+    // Leaving the explorer: thumbnails stop and the SMB session is closed (after a running transfer).
+    DisposableEffect(viewModel) { onDispose { viewModel.leaveExplorer() } }
     LaunchedEffect(state.internalOpenPath, state.internalOpenKind) {
         val path = state.internalOpenPath ?: return@LaunchedEffect
         when (state.internalOpenKind) {
@@ -59,6 +65,21 @@ fun RemoteExplorerScreen(
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     var choosing by rememberSaveable { mutableStateOf(false) }
     var sortMenu by remember { mutableStateOf(false) }
+    var creatingFolder by remember { mutableStateOf(false) }
+    var renaming by remember { mutableStateOf<fr.bonobo.filemanager.domain.model.FileItem?>(null) }
+    val isSmb = state.connection?.type == fr.bonobo.filemanager.domain.model.ConnectionType.SMB
+    if (creatingFolder) SmbNameDialog(title = "Nouveau dossier", initial = "", confirm = "Créer",
+        onDismiss = { creatingFolder = false }, onConfirm = { name -> creatingFolder = false; viewModel.createFolder(name) })
+    renaming?.let { item ->
+        SmbNameDialog(title = "Renommer « ${item.name} »", initial = item.name, confirm = "Renommer",
+            onDismiss = { renaming = null }, onConfirm = { name -> renaming = null; viewModel.rename(item, name) })
+    }
+    state.conflictPrompt?.takeIf { it.target == ConflictTarget.TO_SERVER }?.let { prompt ->
+        fr.bonobo.filemanager.presentation.ui.operations.ConflictDialog(
+            item = prompt.current, remaining = prompt.remaining, isMove = prompt.isMove, sameFolder = false,
+            existing = prompt.currentExisting, identical = null,
+            onChoice = viewModel::resolveConflict, onCancel = viewModel::cancelConflicts)
+    }
     var favoriteMenu by remember { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
         choosing = false
@@ -121,11 +142,11 @@ fun RemoteExplorerScreen(
             }
             Box {
                 IconButton(onClick = { favoriteMenu = true }) {
-                    Icon(if (state.currentPath in state.favoritePaths) Icons.Default.Bookmark else Icons.Default.BookmarkBorder, "Favoris réseau")
+                    Icon(if (state.isFavorite(state.currentPath)) Icons.Default.Bookmark else Icons.Default.BookmarkBorder, "Favoris réseau")
                 }
                 DropdownMenu(expanded = favoriteMenu, onDismissRequest = { favoriteMenu = false }) {
                     DropdownMenuItem(
-                        text = { Text(if (state.currentPath in state.favoritePaths) "Retirer ce dossier des favoris" else "Ajouter ce dossier aux favoris") },
+                        text = { Text(if (state.isFavorite(state.currentPath)) "Retirer ce dossier des favoris" else "Ajouter ce dossier aux favoris") },
                         onClick = { favoriteMenu = false; viewModel.toggleFavoriteCurrentPath() }
                     )
                     if (state.favoritePaths.isNotEmpty()) HorizontalDivider()
@@ -133,6 +154,9 @@ fun RemoteExplorerScreen(
                         DropdownMenuItem(text = { Text(path) }, onClick = { favoriteMenu = false; viewModel.openFavorite(path) })
                     }
                 }
+            }
+            if (isSmb) IconButton(onClick = { creatingFolder = true }, enabled = !state.isLoading) {
+                Icon(Icons.Default.CreateNewFolder, "Nouveau dossier")
             }
             if (state.clipboard != null && state.connection?.type == fr.bonobo.filemanager.domain.model.ConnectionType.SMB) {
                 IconButton(onClick = viewModel::pasteHere, enabled = !state.isLoading && !managedTransfer.active) {
@@ -193,10 +217,28 @@ fun RemoteExplorerScreen(
                     }
                     Text(message, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
                 }
+                // Phone clipboard (internal storage or USB key) → this SMB folder.
+                if (isSmb) localClipboard?.let { local ->
+                    Card(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
+                        Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Upload, null)
+                            Text("Depuis le téléphone : ${if (local.isMove) "déplacer" else "copier"} " +
+                                fr.bonobo.filemanager.domain.transfer.TransferText.plural(local.files.size, "élément"),
+                                modifier = Modifier.weight(1f).padding(horizontal = 10.dp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            TextButton(onClick = { viewModel.uploadHere(local.files, local.isMove, onLocalPasted) },
+                                enabled = !state.isLoading && !managedTransfer.active && state.error == null) { Text("Mettre ici") }
+                            IconButton(onClick = onCancelLocalClipboard) { Icon(Icons.Default.Close, "Annuler l’envoi") }
+                        }
+                    }
+                }
                 state.clipboard?.let { clipboard ->
                     Card(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
                         Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(if (clipboard.operation == RemoteOperation.MOVE) Icons.Default.DriveFileMove else Icons.Default.FileCopy, null)
+                            Icon(when (clipboard.operation) {
+                                RemoteOperation.MOVE -> Icons.Default.DriveFileMove
+                                RemoteOperation.DUPLICATE -> Icons.Default.LibraryAdd
+                                RemoteOperation.COPY -> Icons.Default.ContentCopy
+                            }, null)
                             Text(
                                 "${when (clipboard.operation) { RemoteOperation.MOVE -> "Déplacer"; RemoteOperation.DUPLICATE -> "Dupliquer"; RemoteOperation.COPY -> "Copier" }} : ${fr.bonobo.filemanager.domain.transfer.TransferText.plural(clipboard.items.size, "élément")}",
                                 modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
@@ -248,8 +290,8 @@ fun RemoteExplorerScreen(
                                             DropdownMenuItem(text = { Text("Ouvrir le dossier") },
                                                 onClick = { menu = false; viewModel.open(item) })
                                             DropdownMenuItem(
-                                                text = { Text(if (item.path in state.favoritePaths) "Retirer des favoris" else "Ajouter aux favoris") },
-                                                leadingIcon = { Icon(if (item.path in state.favoritePaths) Icons.Default.Favorite else Icons.Default.FavoriteBorder, null) },
+                                                text = { Text(if (state.isFavorite(item.path)) "Retirer des favoris" else "Ajouter aux favoris") },
+                                                leadingIcon = { Icon(if (state.isFavorite(item.path)) Icons.Default.Favorite else Icons.Default.FavoriteBorder, null) },
                                                 onClick = { menu = false; viewModel.toggleFavorite(item) }
                                             )
                                         } else {
@@ -264,7 +306,7 @@ fun RemoteExplorerScreen(
                                             (!item.isDirectory && state.connection?.type in listOf(fr.bonobo.filemanager.domain.model.ConnectionType.SFTP, fr.bonobo.filemanager.domain.model.ConnectionType.WEBDAV, fr.bonobo.filemanager.domain.model.ConnectionType.FTPS))) {
                                             DropdownMenuItem(
                                                 text = { Text(if (state.connection?.type == fr.bonobo.filemanager.domain.model.ConnectionType.SMB) "Copier" else "Copier vers local") },
-                                                leadingIcon = { Icon(Icons.Default.FileCopy, null) },
+                                                leadingIcon = { Icon(Icons.Default.ContentCopy, null) },
                                                 enabled = !transfer.active && !managedTransfer.active,
                                                 onClick = { menu = false; viewModel.prepareCopy(item) }
                                             )
@@ -276,11 +318,15 @@ fun RemoteExplorerScreen(
                                             )
                                             if (state.connection?.type == fr.bonobo.filemanager.domain.model.ConnectionType.SMB) DropdownMenuItem(
                                                 text = { Text("Dupliquer") },
-                                                leadingIcon = { Icon(Icons.Default.ContentCopy, null) },
+                                                leadingIcon = { Icon(Icons.Default.LibraryAdd, null) },
                                                 enabled = !transfer.active && !managedTransfer.active,
                                                 onClick = { menu = false; viewModel.prepareDuplicate(item) }
                                             )
                                         }
+                                        if (isSmb) DropdownMenuItem(text = { Text("Renommer") },
+                                            leadingIcon = { Icon(Icons.Default.DriveFileRenameOutline, null) },
+                                            enabled = !transfer.active && !managedTransfer.active,
+                                            onClick = { menu = false; renaming = item })
                                         DropdownMenuItem(text = { Text("Supprimer du serveur") }, enabled = !transfer.active && !managedTransfer.active,
                                             leadingIcon = { Icon(Icons.Default.Delete, null) },
                                             onClick = { menu = false; deleting = true })
@@ -293,4 +339,18 @@ fun RemoteExplorerScreen(
             }
         }
     }
+}
+
+/** Name of a new folder or of a renamed element: SMB rules checked while typing. */
+@Composable
+private fun SmbNameDialog(title: String, initial: String, confirm: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
+    var name by remember { mutableStateOf(initial) }
+    val reason = if (name.isEmpty()) null else fr.bonobo.filemanager.data.repository.SmbPaths.nameError(name.trim())
+    AlertDialog(onDismissRequest = onDismiss, title = { Text(title) },
+        text = {
+            OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true, label = { Text("Nom") },
+                isError = reason != null, supportingText = reason?.let { { Text(it) } }, modifier = Modifier.fillMaxWidth())
+        },
+        confirmButton = { TextButton(onClick = { onConfirm(name.trim()) }, enabled = name.isNotBlank() && reason == null) { Text(confirm) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } })
 }

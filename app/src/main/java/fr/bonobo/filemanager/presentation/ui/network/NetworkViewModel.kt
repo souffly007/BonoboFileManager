@@ -18,7 +18,8 @@ data class NetworkUiState(
 
 @HiltViewModel
 class NetworkViewModel @Inject constructor(
-    private val repository: IRemoteRepository
+    private val repository: IRemoteRepository,
+    private val bookmarkStore: fr.bonobo.filemanager.data.local.RemoteBookmarkStore
 ) : ViewModel() {
 
     private val _message = MutableStateFlow<String?>(null)
@@ -78,6 +79,7 @@ class NetworkViewModel @Inject constructor(
     fun removeConnection(connection: RemoteConnection) {
         viewModelScope.launch {
             runCatching { repository.deleteConnection(connection) }
+                .onSuccess { bookmarkStore.removeConnection(connection.id) }
                 .onFailure { _message.value = "Suppression impossible : ${it.message}" }
         }
     }

@@ -49,42 +49,67 @@ object FileUtils {
         if (!directory.exists() || !directory.isDirectory) {
             return emptyList()
         }
-
-        val normalizedQuery = query.trim()
-
-        if (normalizedQuery.isEmpty()) {
-            return emptyList()
-        }
-
-        val result = mutableListOf<FileItem>()
-
+        val matcher = nameMatcher(query) ?: return emptyList()
         val files = directory.listFiles()
             ?: throw Exception("Impossible d'accéder au dossier pour la recherche")
+        val result = mutableListOf<FileItem>()
+        searchInto(files, matcher, showHidden, result)
+        return result
+    }
 
+    private fun searchInto(
+        files: Array<File>,
+        matcher: (String) -> Boolean,
+        showHidden: Boolean,
+        result: MutableList<FileItem>
+    ) {
         files.forEach { file ->
-
-            if (!showHidden && file.isHidden) {
-                return@forEach
-            }
-
-            if (file.name.contains(
-                    other = normalizedQuery,
-                    ignoreCase = true
-                )
-            ) {
-                result += file.toFileItem()
-            }
-
+            if (!showHidden && file.isHidden) return@forEach
+            if (matcher(file.name)) result += file.toFileItem()
             if (file.isDirectory && file.canRead()) {
-                result += searchFiles(
-                    directory = file,
-                    query = normalizedQuery,
-                    showHidden = showHidden
-                )
+                // Un sous-dossier illisible (ex. Android/data) ne doit pas interrompre toute la recherche.
+                val children = try { file.listFiles() } catch (_: SecurityException) { null }
+                if (children != null) searchInto(children, matcher, showHidden, result)
             }
         }
+    }
 
-        return result
+    /**
+     * Construit le prédicat de recherche sur le nom.
+     * - Sans joker : recherche « contient », insensible à la casse.
+     * - Avec `*` ou `?` : motif glob sur le nom complet ; plusieurs motifs
+     *   peuvent être séparés par des espaces, virgules ou points-virgules
+     *   (ex. `*.zip *.apk`). `*.*` correspond à tout nom contenant un point.
+     * Retourne null si la requête est vide.
+     */
+    fun nameMatcher(query: String): ((String) -> Boolean)? {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) return null
+        if ('*' !in trimmed && '?' !in trimmed) {
+            return { name -> name.contains(trimmed, ignoreCase = true) }
+        }
+        val patterns = trimmed.split(Regex("[\\s,;]+"))
+            .filter { it.isNotEmpty() }
+            .map { globToRegex(it) }
+        if (patterns.isEmpty()) return null
+        return { name -> patterns.any { it.matches(name) } }
+    }
+
+    private fun globToRegex(glob: String): Regex {
+        val sb = StringBuilder()
+        val literal = StringBuilder()
+        fun flush() {
+            if (literal.isNotEmpty()) { sb.append(Regex.escape(literal.toString())); literal.clear() }
+        }
+        glob.forEach { c ->
+            when (c) {
+                '*' -> { flush(); sb.append(".*") }
+                '?' -> { flush(); sb.append('.') }
+                else -> literal.append(c)
+            }
+        }
+        flush()
+        return Regex(sb.toString(), setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
     }
 
     fun listFilesByType(

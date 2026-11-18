@@ -85,7 +85,37 @@ object SmbErrors {
         return Classified(kind, message(kind), if (name.isNullOrBlank()) "NTSTATUS $hex" else "$name ($hex)", code and 0xFFFFFFFFL)
     }
 
+    /** Shown after the cause when a verified write failed and its partial could not be removed. */
+    const val LEFTOVER_NOTE = "Un fichier partiel n’a pas pu être supprimé sur le serveur : il sera retiré à la prochaine connexion."
+
+    /** Message of a share that is not a disk (printer, IPC$…). */
+    const val NOT_A_DISK = "Ce partage n’est pas un dossier de fichiers."
+
+    // Session lost: the next operation must reconnect.
+    private const val NETWORK_NAME_DELETED = 0xC00000C9L
+    private const val USER_SESSION_DELETED = 0xC0000203L
+    private const val NETWORK_SESSION_EXPIRED = 0xC000035CL
+    private const val CONNECTION_DISCONNECTED = 0xC000020CL
+    private const val CONNECTION_RESET = 0xC000020DL
+
+    /** Does [error] mean the SMB connection / session itself is gone (reconnect, then possibly retry)? */
+    fun isDisconnect(error: Throwable): Boolean {
+        val chain = generateSequence(error) { it.cause }.take(12).toList()
+        chain.firstNotNullOfOrNull { it as? SMBApiException }?.let { api ->
+            return (api.statusCode and 0xFFFFFFFFL) in setOf(NETWORK_NAME_DELETED, USER_SESSION_DELETED,
+                NETWORK_SESSION_EXPIRED, CONNECTION_DISCONNECTED, CONNECTION_RESET)
+        }
+        return chain.any { it is java.net.SocketException || it is java.io.EOFException ||
+            it.javaClass.name == "com.hierynomus.protocol.transport.TransportException" }
+    }
+
     fun classify(error: Throwable): Classified {
+        // Verified write that failed: classify the cause, then say whether a partial remains.
+        if (error is SmbTransfers.Failed) {
+            val cause = error.cause ?: return Classified(Kind.OTHER, message(Kind.OTHER), null, null)
+            val inner = classify(cause)
+            return if (error.leftover) inner.copy(message = "${inner.message} $LEFTOVER_NOTE") else inner
+        }
         // Already classified lower down (e.g. a listing inside a transfer): keep it as is.
         if (error is TransferFailure) return Classified(Kind.OTHER, error.message ?: message(Kind.OTHER), error.technical, null)
         val chain = generateSequence(error) { it.cause }.take(12).toList()

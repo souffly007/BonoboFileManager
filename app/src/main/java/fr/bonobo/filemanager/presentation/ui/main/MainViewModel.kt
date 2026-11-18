@@ -826,6 +826,9 @@ class MainViewModel @Inject constructor(
      * After a paste (or a retry): elements copied / moved successfully leave the clipboard; it is empty
      * after a complete success, and keeps only what still has to be pasted otherwise.
      */
+    /** Elements pasted elsewhere (e.g. sent to an SMB server) leave the phone clipboard the same way. */
+    fun markPasted(done: Set<String>) = pruneClipboard(done)
+
     private fun pruneClipboard(done: Set<String>) {
         if (done.isEmpty()) return
         _uiState.update { state ->
